@@ -28,6 +28,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - name: Remove old generated files
+        run: rm gen/*
       - uses: actions/download-artifact@v3
         with:
           name: sql-datamodel
@@ -47,9 +49,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+      - name: Remove old generated files
+        run: rm gen/*
       - uses: actions/download-artifact@v3
         with:
-          name: sql-datamodel
+          name: generated-files
+      - run: mv gen
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Automated codegen [ci skip]
