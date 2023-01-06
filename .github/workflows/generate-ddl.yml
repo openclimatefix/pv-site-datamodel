@@ -34,6 +34,8 @@ jobs:
         with:
           name: sql-datamodel
           path: gen/pvdatamodel.sql
+      - run: ls -al
+      - run: ls -al gen
       - name: Install omymodels
         run: pip install omymodels
       - name: Generate SQLAlchemy
