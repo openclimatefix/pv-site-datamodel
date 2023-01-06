@@ -29,11 +29,12 @@ Table sites {
   }
   
   Note: '''
+    ## Overview
     Each site row specifies a single panel or cluster of panels
     found on a residential house or commercial building. Their
     data is provided by a client.
     
-    # Approximate size
+    ## Approximate size
     4 clients * ~1000 sites each = ~4000 rows
   '''
 }
@@ -51,10 +52,11 @@ Table generation {
   }
   
   Note: '''
+  ## Overview
   Each yield row specifies a generated power output over a
   given time range for a site.
   
-  # Approximate size
+  ## Approximate size
   Yield every 5 minutes per site * 4000 sites = ~1,125,000 rows per day
   '''
 }
@@ -72,10 +74,11 @@ Table forecasts {
   }
   
   Note: '''
+    ## Overview
     Each forecast row refers to a sequence of predicted solar generation values
     over a set of target times for a site. 
     
-    # Approximate size
+    ## Approximate size
     One forecast per site every 5 minutes = ~1,125,000 rows per day
   '''
 }
@@ -92,11 +95,12 @@ Table forecast_values {
   }
   
   Note: '''
+    ## Overview
     Each forecast_value row is a prediction for the power output 
     of a site over a target datetime interval. Many predictions
     are made for each site at each target interval.
     
-    # Approximate size
+    ## Approximate size
     One forecast value every 5 minutes per site per forecast.
     Each forecast's prediction sequence covers 24 hours of target
     intervals 
@@ -119,12 +123,13 @@ Table latest_forecast_values {
   }
   
   Note: '''
+    ## Overview
     Each forecast_value row is a prediction for the power output 
     of a site over a target datetime interval. Only the most recent 
     prediction for each target time interval is stored in this table
     per site.
     
-    # Approximate size
+    ## Approximate size
     One forecast value every 5 minutes per site per forecast
     sequence = ~1,125,000 rows per day
   '''
@@ -142,9 +147,10 @@ Table clients {
   }
   
   Note: '''
+  ## Overview
   Each client row defines a provider of site data
   
-  # Approximate size
+  ## Approximate size
   One row per client = ~4 rows
   '''
 }
@@ -162,9 +168,10 @@ Table datetime_intervals {
   }
   
   Note: '''
+  ## Overview
   Each datetime_interval row defines a timespan between a start and end time
   
-  # Approximate size
+  ## Approximate size
   One interval every 5 minutes per day = ~288 rows per day
   '''
 }
@@ -180,10 +187,11 @@ Table status {
   }
   
   Note: '''
+  ## Overview
   Each status row defines a message reporting on the status of the
   services within the nowcasting domain
   
-  # Approximate size
+  ## Approximate size
   ~1 row per day
   '''
 }

@@ -24,6 +24,7 @@ jobs:
     
   generate-sqlalchemy:
     runs-on: ubuntu-latest
+    needs: generate-sql
 
     steps:
       - uses: actions/checkout@v3
