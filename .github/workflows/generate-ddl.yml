@@ -34,16 +34,14 @@ jobs:
         with:
           name: sql-datamodel
           path: gen/pvdatamodel.sql
-      - run: ls -al
-      - run: ls -al gen
       - name: Install omymodels
         run: pip install omymodels
       - name: Generate SQLAlchemy
-        run: omm gen/pvdatamodel.sql -m sqlalchemy -t gen/pvdatamodel.py
+        run: cd gen && omm pvdatamodel.sql -m sqlalchemy -t pvdatamodel.py
       - uses: actions/upload-artifact@v3
         with:
           name: generated-files
-          path: gen
+          path: gen/*
   
   commit-changes:
     runs-on: ubuntu-latest
@@ -56,7 +54,8 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: generated-files
-      - run: mv gen
+          path: gen
+      - run: ls -al && ls -al gen
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Automated codegen [ci skip]
