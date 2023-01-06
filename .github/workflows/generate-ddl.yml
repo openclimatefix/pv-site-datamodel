@@ -1,0 +1,55 @@
+name: Generate DDL
+
+on:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: write
+
+jobs:
+  generate-sql:
+    runs-on: ubuntu-latest
+    container: node:14.16
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dbml cli
+        run: npm install -g @dbml/cli
+      - name: Create SQL
+        run: dbml2sql datamodel.dbml -o gen/pvdatamodel.sql
+      - uses: actions/upload-artifact@v3
+        with:
+          name: sql-datamodel
+          path: gen/pvdatamodel.sql
+    
+  generate-sqlalchemy:
+    runs-on: ubuntu-latest
+    container: python:3.10
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: sql-datamodel
+          path: gen/pvdatamodel.sql
+      - name: Install omymodels
+        run: pip install omymodels
+      - name: Generate SQLAlchemy
+        run: omm gen/pvdatamodel.sql -m sqlalchemy -t gen/pvdatamodel.py
+      - uses: actions/upload-artifact@v3
+        with:
+          name: generated-files
+          path: gen
+  
+  commit-changes:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: sql-datamodel
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Automated codegen [ci skip]

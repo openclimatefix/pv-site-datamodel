@@ -1,3 +1,12 @@
+Project pvdatamodel {
+  database_type: 'PostgreSQL'
+  
+  Note: '''
+    Datamodel for PV Site-level data. To be surfaced via
+    the to-be build nowcasting site-level API and frontend.
+  '''
+} 
+
 Table sites {
   site_uuid char(32) [primary key, not null]
   client_uuid char(32) [not null, note: 'The internal ID of the client providing the site data']
@@ -30,15 +39,15 @@ Table sites {
 }
 
 
-Table yields {
-  yield_uuid char(32) [primary key, not null]
-  site_uuid char(32) [not null, note: 'The site for which this yield belongs to']
-  generation_kw real [not null, note: 'The actual generated power in kW at this site for this datetime interval']
+Table generation {
+  generation_uuid char(32) [primary key, not null]
+  site_uuid char(32) [not null, note: 'The site for which this geenration yield belongs to']
+  power_kw real [not null, note: 'The actual generated power in kW at this site for this datetime interval']
   datetime_interval_uuid char(32) [not null, note: 'The time interval over which this generated power value applies']
   created_utc timestamp [not null]
   
   Indexes {
-    yield_uuid [pk]
+    generation_uuid [pk]
   }
   
   Note: '''
@@ -180,8 +189,8 @@ Table status {
 }
 
 Ref :sites.client_uuid > clients.client_uuid
-Ref :yields.datetime_interval_uuid > datetime_intervals.datetime_interval_uuid
-Ref :yields.site_uuid > sites.site_uuid
+Ref :generation.datetime_interval_uuid > datetime_intervals.datetime_interval_uuid
+Ref :generation.site_uuid > sites.site_uuid
 Ref :forecast_values.datetime_interval_uuid > datetime_intervals.datetime_interval_uuid
 Ref :forecast_values.forecast_uuid > forecasts.forecast_uuid
 Ref :forecasts.site_uuid < sites.site_uuid
