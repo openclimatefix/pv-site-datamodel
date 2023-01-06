@@ -7,7 +7,9 @@ on:
 jobs:
   publish-docs:
     runs-on: ubuntu-latest
-    container: node:14.16
+    container: 
+      image: node:14.16
+      options: --user 1001
 
     steps:
       - name: Install dbdocs tool

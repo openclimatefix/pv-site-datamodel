@@ -4,10 +4,10 @@
         <img src="https://img.shields.io/badge/docs-dbdocs.io-blue" /></a>
     <a href="https://github.com/openclimatefix/pv-datamodel/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc" alt="Issues">
         <img src="https://img.shields.io/github/issues/openclimatefix/pv-datamodel"/></a>
-    <a href="https://github.com/openclimatefix/pv-datamodel/actions/generate-ddl" alt="Code generation pipeline">
-        <img src="https://img.shields.io/github/actions/workflow/status/openclimatefix/pv-datamodel/generate-ddl?label=codegen"></a>
-    <a href="https://github.com/openclimatefix/pv-datamodel/actions/publish-docs" alt="Documentation publishing pipeline">
-        <img src="https://img.shields.io/github/actions/workflow/status/openclimatefix/pv-datamodel/publish-docs?label=publish"></a>
+    <a href="https://github.com/openclimatefix/pv-datamodel/actions/workflows/generate-ddl.yml" alt="Code generation pipeline">
+        <img src="https://img.shields.io/github/actions/workflow/status/openclimatefix/pv-datamodel/generate-ddl.yml?label=codegen"></a>
+    <a href="https://github.com/openclimatefix/pv-datamodel/actions/workflows/publish-docs.yml" alt="Documentation publishing pipeline">
+        <img src="https://img.shields.io/github/actions/workflow/status/openclimatefix/pv-datamodel/publish-docs.yml?label=publish"></a>
     <a href="https://github.com/badges/shields/graphs/contributors" alt="Contributors">
         <img src="https://img.shields.io/github/contributors/openclimatefix/pv-datamodel" /></a>
 </p>
