@@ -25,6 +25,7 @@ pv-datamodel:
     - pvdatamodel.py # SQLAlchemy specification of the datamodel
 ```
 
+
 ## Generating SQL and SQLAlchemy
 
 In repo, code generation is carried out by the gen-sqlalchemy github workflow.
@@ -46,7 +47,10 @@ Use the tool to convert `.dbml` schema to SQL
 $ dbml2sql datamodel.dbml -o pvdatamodel.sql
 ```
 
-Install the python package O!MyModels
+This will have created all the CREATE TABLE statements required to build a
+local version of the db.
+
+For SQLAlchemy, install the python package O!MyModels
 
 ```bash
 $ pip install omymodels
@@ -60,3 +64,11 @@ $ omm pvdatamodel.sql -t pvdatamodel.py
 
 Further reading:
     - https://xnuinside.medium.com/code-generation-how-to-generate-pydantic-sqlalchemy-ginoorm-models-from-sql-ddl-2c111b08b7a7
+
+
+## Editing the datamodel
+
+For syntax highlighting and hints in VSCode, use the 
+[https://marketplace.visualstudio.com/items?itemName=matt-meyers.vscode-dbml](vscode-dbml) plugin.
+If you'd rather a live view of the tables as you edit, https://dbdiagram.io/d gives a realtime
+visualision of the datamodel.
