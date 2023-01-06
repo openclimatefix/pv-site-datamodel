@@ -30,6 +30,7 @@ jobs:
     container: 
       image: python:3.10
       options: --user root
+    needs: generate-sql
 
     steps:
       - uses: actions/checkout@v3
@@ -48,6 +49,7 @@ jobs:
   
   commit-changes:
     runs-on: ubuntu-latest
+    needs: [generate-sql, generate-sqlalchemy]
 
     steps:
       - uses: actions/checkout@v3

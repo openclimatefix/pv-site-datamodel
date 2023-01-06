@@ -12,6 +12,7 @@ jobs:
       options: --user root
 
     steps:
+      - uses: actions/checkout@v3
       - name: Install dbdocs tool
         run: npm install -g dbdocs
       - name: Push changes to DBDocs
