@@ -1,6 +1,6 @@
 -- SQL dump generated using DBML (dbml-lang.org)
 -- Database: PostgreSQL
--- Generated at: 2023-01-06T11:42:29.003Z
+-- Generated at: 2023-01-06T13:03:30.402Z
 
 CREATE TABLE "sites" (
   "site_uuid" uuid PRIMARY KEY NOT NULL,
@@ -86,11 +86,12 @@ CREATE INDEX ON "datetime_intervals" ("start_utc");
 
 CREATE INDEX ON "datetime_intervals" ("end_utc");
 
-COMMENT ON TABLE "sites" IS 'Each site row specifies a single panel or cluster of panels
+COMMENT ON TABLE "sites" IS '## Overview
+Each site row specifies a single panel or cluster of panels
 found on a residential house or commercial building. Their
 data is provided by a client.
 
-# Approximate size
+## Approximate size
 4 clients * ~1000 sites each = ~4000 rows';
 
 COMMENT ON COLUMN "sites"."client_uuid" IS 'The internal ID of the client providing the site data';
@@ -111,10 +112,11 @@ COMMENT ON COLUMN "sites"."tilt" IS 'The tile of the panel in degrees. 90° indi
 
 COMMENT ON COLUMN "sites"."capacity_kw" IS 'The physical limit on the production capacity of the site';
 
-COMMENT ON TABLE "generation" IS 'Each yield row specifies a generated power output over a
+COMMENT ON TABLE "generation" IS '## Overview
+Each yield row specifies a generated power output over a
 given time range for a site.
 
-# Approximate size
+## Approximate size
 Yield every 5 minutes per site * 4000 sites = ~1,125,000 rows per day';
 
 COMMENT ON COLUMN "generation"."site_uuid" IS 'The site for which this geenration yield belongs to';
@@ -123,10 +125,11 @@ COMMENT ON COLUMN "generation"."power_kw" IS 'The actual generated power in kW a
 
 COMMENT ON COLUMN "generation"."datetime_interval_uuid" IS 'The time interval over which this generated power value applies';
 
-COMMENT ON TABLE "forecasts" IS 'Each forecast row refers to a sequence of predicted solar generation values
+COMMENT ON TABLE "forecasts" IS '## Overview
+Each forecast row refers to a sequence of predicted solar generation values
 over a set of target times for a site. 
 
-# Approximate size
+## Approximate size
 One forecast per site every 5 minutes = ~1,125,000 rows per day';
 
 COMMENT ON COLUMN "forecasts"."site_uuid" IS 'The site for which the forecast sequence was generated';
@@ -135,11 +138,12 @@ COMMENT ON COLUMN "forecasts"."created_utc" IS 'The creation time of the forecas
 
 COMMENT ON COLUMN "forecasts"."forecast_version" IS 'The semantic version of the model used to generate the forecast';
 
-COMMENT ON TABLE "forecast_values" IS 'Each forecast_value row is a prediction for the power output 
+COMMENT ON TABLE "forecast_values" IS '## Overview
+Each forecast_value row is a prediction for the power output 
 of a site over a target datetime interval. Many predictions
 are made for each site at each target interval.
 
-# Approximate size
+## Approximate size
 One forecast value every 5 minutes per site per forecast.
 Each forecast"s prediction sequence covers 24 hours of target
 intervals 
@@ -151,12 +155,13 @@ COMMENT ON COLUMN "forecast_values"."forecast_generation_kw" IS 'The predicted p
 
 COMMENT ON COLUMN "forecast_values"."forecast_uuid" IS 'The forecast sequence this forcast value belongs to';
 
-COMMENT ON TABLE "latest_forecast_values" IS 'Each forecast_value row is a prediction for the power output 
+COMMENT ON TABLE "latest_forecast_values" IS '## Overview
+Each forecast_value row is a prediction for the power output 
 of a site over a target datetime interval. Only the most recent 
 prediction for each target time interval is stored in this table
 per site.
 
-# Approximate size
+## Approximate size
 One forecast value every 5 minutes per site per forecast
 sequence = ~1,125,000 rows per day';
 
@@ -170,20 +175,23 @@ COMMENT ON COLUMN "latest_forecast_values"."site_uuid" IS 'The site for which th
 
 COMMENT ON COLUMN "latest_forecast_values"."forecast_version" IS 'The semantic version of the model used to generate the forecast';
 
-COMMENT ON TABLE "clients" IS 'Each client row defines a provider of site data
+COMMENT ON TABLE "clients" IS '## Overview
+Each client row defines a provider of site data
 
-# Approximate size
+## Approximate size
 One row per client = ~4 rows';
 
-COMMENT ON TABLE "datetime_intervals" IS 'Each datetime_interval row defines a timespan between a start and end time
+COMMENT ON TABLE "datetime_intervals" IS '## Overview
+Each datetime_interval row defines a timespan between a start and end time
 
-# Approximate size
+## Approximate size
 One interval every 5 minutes per day = ~288 rows per day';
 
-COMMENT ON TABLE "status" IS 'Each status row defines a message reporting on the status of the
+COMMENT ON TABLE "status" IS '## Overview
+Each status row defines a message reporting on the status of the
 services within the nowcasting domain
 
-# Approximate size
+## Approximate size
 ~1 row per day';
 
 ALTER TABLE "sites" ADD FOREIGN KEY ("client_uuid") REFERENCES "clients" ("client_uuid");
