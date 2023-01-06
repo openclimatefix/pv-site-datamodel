@@ -8,8 +8,8 @@ Project pvdatamodel {
 } 
 
 Table sites {
-  site_uuid char(32) [primary key, not null]
-  client_uuid char(32) [not null, note: 'The internal ID of the client providing the site data']
+  site_uuid uuid [primary key, not null]
+  client_uuid uuid [not null, note: 'The internal ID of the client providing the site data']
   client_site_id int4 [note: 'The ID of the site as given by the providing client']
   client_site_name varchar(255) [note: 'The ID of the site as given by the providing client']
   region varchar(255) [note: 'The region in the UK in which the site is located']
@@ -40,10 +40,10 @@ Table sites {
 
 
 Table generation {
-  generation_uuid char(32) [primary key, not null]
-  site_uuid char(32) [not null, note: 'The site for which this geenration yield belongs to']
+  generation_uuid uuid [primary key, not null]
+  site_uuid uuid [not null, note: 'The site for which this geenration yield belongs to']
   power_kw real [not null, note: 'The actual generated power in kW at this site for this datetime interval']
-  datetime_interval_uuid char(32) [not null, note: 'The time interval over which this generated power value applies']
+  datetime_interval_uuid uuid [not null, note: 'The time interval over which this generated power value applies']
   created_utc timestamp [not null]
   
   Indexes {
@@ -62,8 +62,8 @@ Table generation {
 
 
 Table forecasts {
-  forecast_uuid char(32) [primary key]
-  site_uuid char(32) [not null, note: 'The site for which the forecast sequence was generated']
+  forecast_uuid uuid [primary key]
+  site_uuid uuid [not null, note: 'The site for which the forecast sequence was generated']
   created_utc timestamp [not null, note: 'The creation time of the forecast sequence']
   forecast_version varchar(32) [not null, note: 'The semantic version of the model used to generate the forecast']
   
@@ -81,11 +81,11 @@ Table forecasts {
 }
 
 Table forecast_values {
-  forecast_value_uuid char(32) [primary key]
-  datetime_interval_uuid char(32) [not null, note: 'The time interval over which this predicted power value applies']
+  forecast_value_uuid uuid [primary key]
+  datetime_interval_uuid uuid [not null, note: 'The time interval over which this predicted power value applies']
   forecast_generation_kw real [not null, note: 'The predicted power generation of this site for the given time interval']
   created_utc timestamp [not null]
-  forecast_uuid char(32) [not null, note: 'The forecast sequence this forcast value belongs to']
+  forecast_uuid uuid [not null, note: 'The forecast sequence this forcast value belongs to']
   
   Indexes {
     forecast_value_uuid [pk]
@@ -106,12 +106,12 @@ Table forecast_values {
 
 
 Table latest_forecast_values {
-  latest_forecast_value_uuid char(32) [primary key]
-  datetime_interval_uuid char(32) [not null, note: 'The time interval over which this predicted power value applies']
+  latest_forecast_value_uuid uuid [primary key]
+  datetime_interval_uuid uuid [not null, note: 'The time interval over which this predicted power value applies']
   forecast_generation_kw real [not null, note: 'The predicted power generation of this site for the given time interval']
   created_utc timestamp [not null]
-  forecast_uuid char(32) [not null, note: 'The forecast sequence this forcast value belongs to']
-  site_uuid char(32) [not null, note: 'The site for which the forecast sequence was generated']
+  forecast_uuid uuid [not null, note: 'The forecast sequence this forcast value belongs to']
+  site_uuid uuid [not null, note: 'The site for which the forecast sequence was generated']
   forecast_version varchar(32) [not null, note: 'The semantic version of the model used to generate the forecast']
   
   Indexes {
@@ -133,7 +133,7 @@ Table latest_forecast_values {
 
 
 Table clients {
-  client_uuid char(32) [primary key]
+  client_uuid uuid [primary key]
   client_name varchar(255) [not null]
   created_utc timestamp [not null]
   

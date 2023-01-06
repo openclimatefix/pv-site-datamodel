@@ -10,9 +10,6 @@ permissions:
 jobs:
   generate-sql:
     runs-on: ubuntu-latest
-    container: 
-      image: node:14.16
-      options: --user root
 
     steps:
       - uses: actions/checkout@v3
@@ -27,10 +24,6 @@ jobs:
     
   generate-sqlalchemy:
     runs-on: ubuntu-latest
-    container: 
-      image: python:3.10
-      options: --user root
-    needs: generate-sql
 
     steps:
       - uses: actions/checkout@v3

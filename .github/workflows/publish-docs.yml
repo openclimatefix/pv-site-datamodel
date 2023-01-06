@@ -7,9 +7,6 @@ on:
 jobs:
   publish-docs:
     runs-on: ubuntu-latest
-    container: 
-      image: node:14.16
-      options: --user root
 
     steps:
       - uses: actions/checkout@v3
