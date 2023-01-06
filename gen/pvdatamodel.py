@@ -1,6 +1,6 @@
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.dialects.postgresql import UUID, REAL, FLOAT
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.schema import UniqueConstraint
 
 
@@ -13,16 +13,16 @@ class Sites(Base):
 
     site_uuid = sa.Column(UUID, sa.ForeignKey('forecasts.site_uuid'), sa.ForeignKey('latest_forecast_values.site_uuid'), primary_key=True)
     client_uuid = sa.Column(UUID, sa.ForeignKey('clients.client_uuid'), nullable=False)
-    client_site_id = sa.Column(int)
+    client_site_id = sa.Column(int4())
     client_site_name = sa.Column(sa.String(255))
     region = sa.Column(sa.String(255))
     dno = sa.Column(sa.String(255))
     gsp = sa.Column(sa.String(255))
-    orientation = sa.Column(REAL)
-    tilt = sa.Column(FLOAT(8))
-    latitude = sa.Column(float, nullable=False)
-    longitude = sa.Column(float, nullable=False)
-    capacity_kw = sa.Column(float, nullable=False)
+    orientation = sa.Column(real())
+    tilt = sa.Column(real())
+    latitude = sa.Column(float8(), nullable=False)
+    longitude = sa.Column(float8(), nullable=False)
+    capacity_kw = sa.Column(real(), nullable=False)
     created_utc = sa.Column(sa.TIMESTAMP(), nullable=False)
     updated_utc = sa.Column(sa.TIMESTAMP(), nullable=False)
 
@@ -39,7 +39,7 @@ class Generation(Base):
 
     generation_uuid = sa.Column(UUID, primary_key=True)
     site_uuid = sa.Column(UUID, sa.ForeignKey('sites.site_uuid'), nullable=False)
-    power_kw = sa.Column(float, nullable=False)
+    power_kw = sa.Column(real(), nullable=False)
     datetime_interval_uuid = sa.Column(UUID, sa.ForeignKey('datetime_intervals.datetime_interval_uuid'), nullable=False)
     created_utc = sa.Column(sa.TIMESTAMP(), nullable=False)
 
@@ -60,7 +60,7 @@ class ForecastValues(Base):
 
     forecast_value_uuid = sa.Column(UUID, primary_key=True)
     datetime_interval_uuid = sa.Column(UUID, sa.ForeignKey('datetime_intervals.datetime_interval_uuid'), nullable=False)
-    forecast_generation_kw = sa.Column(float, nullable=False)
+    forecast_generation_kw = sa.Column(real(), nullable=False)
     created_utc = sa.Column(sa.TIMESTAMP(), nullable=False)
     forecast_uuid = sa.Column(UUID, sa.ForeignKey('forecasts.forecast_uuid'), nullable=False)
 
@@ -71,7 +71,7 @@ class LatestForecastValues(Base):
 
     latest_forecast_value_uuid = sa.Column(UUID, primary_key=True)
     datetime_interval_uuid = sa.Column(UUID, sa.ForeignKey('datetime_intervals.datetime_interval_uuid'), nullable=False)
-    forecast_generation_kw = sa.Column(float, nullable=False)
+    forecast_generation_kw = sa.Column(real(), nullable=False)
     created_utc = sa.Column(sa.TIMESTAMP(), nullable=False)
     forecast_uuid = sa.Column(UUID, nullable=False)
     site_uuid = sa.Column(UUID, nullable=False)
