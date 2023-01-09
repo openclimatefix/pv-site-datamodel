@@ -16,11 +16,11 @@ jobs:
       - name: Install dbml cli
         run: npm install -g @dbml/cli
       - name: Create SQL
-        run: dbml2sql datamodel.dbml -o gen/pvdatamodel.sql
+        run: dbml2sql pvsite.dbml -o gen/pvsite.sql
       - uses: actions/upload-artifact@v3
         with:
           name: sql-datamodel
-          path: gen/pvdatamodel.sql
+          path: gen/pvsite.sql
     
   generate-sqlalchemy:
     runs-on: ubuntu-latest
@@ -37,7 +37,7 @@ jobs:
       - name: Install omymodels
         run: pip install omymodels
       - name: Generate SQLAlchemy
-        run: cd gen && omm pvdatamodel.sql -m sqlalchemy -t pvdatamodel.py
+        run: cd gen && omm pvsite.sql -m sqlalchemy -t pvsite.py
       - uses: actions/upload-artifact@v3
         with:
           name: generated-files

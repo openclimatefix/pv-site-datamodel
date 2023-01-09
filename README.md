@@ -1,6 +1,6 @@
-<h1 align="center">pv-datamodel</h1>
+<h1 align="center">pvsite-datamodel</h1>
 <p align="center">
-    <a href="https://dbdocs.io/ocf/pvdata" alt="Interactive pvdatamodel documentation">
+    <a href="https://dbdocs.io/ocf/pvsite" alt="Interactive pvdatamodel documentation">
         <img src="https://img.shields.io/badge/docs-dbdocs.io-blue" /></a>
     <a href="https://github.com/openclimatefix/pv-datamodel/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc" alt="Issues">
         <img src="https://img.shields.io/github/issues/openclimatefix/pv-datamodel"/></a>
@@ -18,12 +18,16 @@ Database schema specification for PV Site data.
 ## Repository structure
 
 ```yml
-pv-datamodel:
-  - datamodel.dbml # Ground-truth database specification
+pvsite-datamodel:
+  - pvsite.dbml # Ground-truth database specification for pvsite domain
   gen: # Folder containing auto-generated code
-    - pvdatamodel.sql # SQL soecification of the datamodel
-    - pvdatamodel.py # SQLAlchemy specification of the datamodel
+    - pvsite.sql # SQL specification of the pvsite datamodel
+    - pvsite.py # SQLAlchemy specification of the pvsite datamodel
 ```
+
+## Database documentation
+
+View the database docs at https://dbdocs.io/ocf/pvsite.
 
 
 ## Generating SQL and SQLAlchemy
@@ -44,7 +48,7 @@ $ yarn global add @dbml/cli
 Use the tool to convert `.dbml` schema to SQL
 
 ```bash
-$ dbml2sql datamodel.dbml -o pvdatamodel.sql
+$ dbml2sql pvsite.dbml -o pvsite.sql
 ```
 
 This will have created all the CREATE TABLE statements required to build a
@@ -59,7 +63,7 @@ $ pip install omymodels
 Use the package to convert the SQL to SQLAlchemy
 
 ```bash
-$ omm pvdatamodel.sql -t pvdatamodel.py
+$ omm pvsite.sql -t pvsite.py
 ```
 
 Further reading:

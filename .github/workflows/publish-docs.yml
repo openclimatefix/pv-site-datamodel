@@ -12,6 +12,6 @@ jobs:
       - name: Install dbdocs tool
         run: npm install -g dbdocs
       - name: Push changes to DBDocs
-        run: dbdocs build ./datamodel.dbml --project pvdata
+        run: dbdocs build ./datamodel.dbml --project pvsite
         env: 
           DBDOCS_TOKEN: ${{ secrets.DBDOCS_TOKEN }}
