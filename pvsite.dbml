@@ -24,7 +24,6 @@ Table sites {
   updated_utc timestamp [not null]
   
   Indexes {
-    site_uuid [pk]
     (client_uuid, client_site_id) [unique, name: 'idx_client']
   }
   
@@ -46,10 +45,6 @@ Table generation {
   datetime_interval_uuid uuid [not null, note: 'The time interval over which this generated power value applies']
   created_utc timestamp [not null]
   
-  Indexes {
-    generation_uuid [pk]
-  }
-  
   Note: '''
   Each yield row specifies a generated power output over a
   given time range for a site.
@@ -62,14 +57,10 @@ Table generation {
 
 
 Table forecasts {
-  forecast_uuid uuid [primary key]
+  forecast_uuid uuid [primary key, not null]
   site_uuid uuid [not null, note: 'The site for which the forecast sequence was generated']
   created_utc timestamp [not null, note: 'The creation time of the forecast sequence']
   forecast_version varchar(32) [not null, note: 'The semantic version of the model used to generate the forecast']
-  
-  Indexes {
-    forecast_uuid [pk]
-  }
   
   Note: '''
     Each forecast row refers to a sequence of predicted solar generation values
@@ -81,15 +72,11 @@ Table forecasts {
 }
 
 Table forecast_values {
-  forecast_value_uuid uuid [primary key]
+  forecast_value_uuid uuid [primary key, not null]
   datetime_interval_uuid uuid [not null, note: 'The time interval over which this predicted power value applies']
   forecast_generation_kw real [not null, note: 'The predicted power generation of this site for the given time interval']
   created_utc timestamp [not null]
   forecast_uuid uuid [not null, note: 'The forecast sequence this forcast value belongs to']
-  
-  Indexes {
-    forecast_value_uuid [pk]
-  }
   
   Note: '''
     Each forecast_value row is a prediction for the power output 
@@ -105,17 +92,13 @@ Table forecast_values {
 
 
 Table latest_forecast_values {
-  latest_forecast_value_uuid uuid [primary key]
+  latest_forecast_value_uuid uuid [primary key, not null]
   datetime_interval_uuid uuid [not null, note: 'The time interval over which this predicted power value applies']
   forecast_generation_kw real [not null, note: 'The predicted power generation of this site for the given time interval']
   created_utc timestamp [not null]
   forecast_uuid uuid [not null, note: 'The forecast sequence this forcast value belongs to']
   site_uuid uuid [not null, note: 'The site for which the forecast sequence was generated']
   forecast_version varchar(32) [not null, note: 'The semantic version of the model used to generate the forecast']
-  
-  Indexes {
-    latest_forecast_value_uuid [pk]
-  }
   
   Note: '''
     Each forecast_value row is a prediction for the power output 
@@ -132,13 +115,9 @@ Table latest_forecast_values {
 
 
 Table clients {
-  client_uuid uuid [primary key]
+  client_uuid uuid [primary key, not null]
   client_name varchar(255) [not null]
   created_utc timestamp [not null]
-  
-  Indexes {
-    client_uuid [pk]
-  }
   
   Note: '''
   Each client row defines a provider of site data
@@ -149,13 +128,12 @@ Table clients {
 }
 
 Table datetime_intervals {
-  datetime_interval_uuid uuid [primary key]
+  datetime_interval_uuid uuid [primary key, not null]
   start_utc timestamp [not null]
   end_utc timestamp [not null]
   created_utc timestamp [not null]
   
   Indexes {
-    datetime_interval_uuid [pk]
     start_utc
     end_utc
   }
@@ -169,15 +147,11 @@ Table datetime_intervals {
 }
 
 Table status {
-  status_uuid uuid [primary key]
+  status_uuid uuid [primary key, not null]
   status varchar(255)
   message varchar(255)
   created_utc timestamp
-  
-  Indexes {
-    status_uuid [pk]
-  }
-  
+
   Note: '''
   Each status row defines a message reporting on the status of the
   services within the nowcasting domain
