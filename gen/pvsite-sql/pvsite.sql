@@ -1,6 +1,6 @@
 -- SQL dump generated using DBML (dbml-lang.org)
 -- Database: PostgreSQL
--- Generated at: 2023-01-16T10:28:32.383Z
+-- Generated at: 2023-01-16T10:30:41.963Z
 
 CREATE TABLE "sites" (
   "site_uuid" uuid PRIMARY KEY NOT NULL,
@@ -187,8 +187,8 @@ ALTER TABLE "forecast_values" ADD FOREIGN KEY ("datetime_interval_uuid") REFEREN
 
 ALTER TABLE "forecast_values" ADD FOREIGN KEY ("forecast_uuid") REFERENCES "forecasts" ("forecast_uuid");
 
-ALTER TABLE "sites" ADD FOREIGN KEY ("site_uuid") REFERENCES "forecasts" ("site_uuid");
+ALTER TABLE "forecasts" ADD FOREIGN KEY ("site_uuid") REFERENCES "sites" ("site_uuid");
 
-ALTER TABLE "sites" ADD FOREIGN KEY ("site_uuid") REFERENCES "latest_forecast_values" ("site_uuid");
+ALTER TABLE "latest_forecast_values" ADD FOREIGN KEY ("site_uuid") REFERENCES "sites" ("site_uuid");
 
 ALTER TABLE "latest_forecast_values" ADD FOREIGN KEY ("datetime_interval_uuid") REFERENCES "datetime_intervals" ("datetime_interval_uuid");

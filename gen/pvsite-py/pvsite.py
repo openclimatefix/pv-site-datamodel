@@ -11,7 +11,7 @@ class Sites(Base):
 
     __tablename__ = 'sites'
 
-    site_uuid = sa.Column(UUID, sa.ForeignKey('forecasts.site_uuid'), sa.ForeignKey('latest_forecast_values.site_uuid'), primary_key=True)
+    site_uuid = sa.Column(UUID, primary_key=True)
     client_uuid = sa.Column(UUID, sa.ForeignKey('clients.client_uuid'), nullable=False)
     client_site_id = sa.Column(int4())
     client_site_name = sa.Column(sa.String(255))
@@ -49,7 +49,7 @@ class Forecasts(Base):
     __tablename__ = 'forecasts'
 
     forecast_uuid = sa.Column(UUID, primary_key=True)
-    site_uuid = sa.Column(UUID, nullable=False)
+    site_uuid = sa.Column(UUID, sa.ForeignKey('sites.site_uuid'), nullable=False)
     created_utc = sa.Column(sa.TIMESTAMP(), nullable=False)
     forecast_version = sa.Column(sa.String(32), nullable=False)
 
@@ -74,7 +74,7 @@ class LatestForecastValues(Base):
     forecast_generation_kw = sa.Column(real(), nullable=False)
     created_utc = sa.Column(sa.TIMESTAMP(), nullable=False)
     forecast_uuid = sa.Column(UUID, nullable=False)
-    site_uuid = sa.Column(UUID, nullable=False)
+    site_uuid = sa.Column(UUID, sa.ForeignKey('sites.site_uuid'), nullable=False)
     forecast_version = sa.Column(sa.String(32), nullable=False)
 
 
