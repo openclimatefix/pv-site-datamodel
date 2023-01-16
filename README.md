@@ -30,7 +30,7 @@ pvsite-datamodel:
 
 View the interactive database docs at https://dbdocs.io/ocf/pvsite.
 
-![PVSite Datamodel](gen/pvsite-svg/pvsite.svg)
+![PVSite Datamodel](gen/pvsite.svg)
 
 
 ## Generating SQL and SQLAlchemy
