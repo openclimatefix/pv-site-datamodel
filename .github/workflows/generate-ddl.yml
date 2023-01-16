@@ -8,53 +8,61 @@ permissions:
   contents: write
 
 jobs:
+  generate-svg:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dbml-renderer cli
+        run: npm install -g @softwaretechnik/dbml-renderer
+      - name: Create SVG
+        run: dbml-renderer -i pvsite.dbml -o pvsite.svg
+      - uses: actions/upload-artifact@v3
+        with:
+          name: pvsite-svg
+          path: pvsite.svg
+
   generate-sql:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
       - name: Install dbml cli
         run: npm install -g @dbml/cli
       - name: Create SQL
-        run: dbml2sql pvsite.dbml -o gen/pvsite.sql
+        run: dbml2sql pvsite.dbml -o pvsite.sql
       - uses: actions/upload-artifact@v3
         with:
-          name: sql-datamodel
-          path: gen/pvsite.sql
+          name: pvsite-sql
+          path: pvsite.sql
     
   generate-sqlalchemy:
     runs-on: ubuntu-latest
     needs: generate-sql
-
     steps:
       - uses: actions/checkout@v3
-      - name: Remove old generated files
-        run: rm gen/*
-      - uses: actions/download-artifact@v3
+      - name: Download generated PVSite SQL 
+        uses: actions/download-artifact@v3
         with:
-          name: sql-datamodel
-          path: gen
+          name: pvsite-sql
       - name: Install omymodels
         run: pip install omymodels
       - name: Generate SQLAlchemy
-        run: cd gen && omm pvsite.sql -m sqlalchemy -t pvsite.py
+        run: omm pvsite.sql -m sqlalchemy -t pvsite.py
       - uses: actions/upload-artifact@v3
         with:
-          name: generated-files
-          path: gen/*
+          name: pvsite-py
+          path: pvsite.py
   
   commit-changes:
     runs-on: ubuntu-latest
-    needs: [generate-sql, generate-sqlalchemy]
-
+    needs: [generate-sql, generate-sqlalchemy, generate-svg]
     steps:
       - uses: actions/checkout@v3
       - name: Remove old generated files
         run: rm gen/*
-      - uses: actions/download-artifact@v3
+      - name: Download all uploaded artifacts
+        uses: actions/download-artifact@v3
         with:
-          name: generated-files
           path: gen
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: Automated codegen [ci skip]
+          commit_message: Add generated files [ci skip]
