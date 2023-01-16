@@ -1,6 +1,6 @@
 -- SQL dump generated using DBML (dbml-lang.org)
 -- Database: PostgreSQL
--- Generated at: 2023-01-09T16:21:27.329Z
+-- Generated at: 2023-01-16T10:00:25.051Z
 
 CREATE TABLE "sites" (
   "site_uuid" uuid PRIMARY KEY NOT NULL,
@@ -16,8 +16,7 @@ CREATE TABLE "sites" (
   "longitude" float8 NOT NULL,
   "capacity_kw" real NOT NULL,
   "created_utc" timestamp NOT NULL,
-  "updated_utc" timestamp NOT NULL,
-  PRIMARY KEY ("site_uuid")
+  "updated_utc" timestamp NOT NULL
 );
 
 CREATE TABLE "generation" (
@@ -25,59 +24,52 @@ CREATE TABLE "generation" (
   "site_uuid" uuid NOT NULL,
   "power_kw" real NOT NULL,
   "datetime_interval_uuid" uuid NOT NULL,
-  "created_utc" timestamp NOT NULL,
-  PRIMARY KEY ("generation_uuid")
+  "created_utc" timestamp NOT NULL
 );
 
 CREATE TABLE "forecasts" (
-  "forecast_uuid" uuid PRIMARY KEY,
+  "forecast_uuid" uuid PRIMARY KEY NOT NULL,
   "site_uuid" uuid NOT NULL,
   "created_utc" timestamp NOT NULL,
-  "forecast_version" varchar(32) NOT NULL,
-  PRIMARY KEY ("forecast_uuid")
+  "forecast_version" varchar(32) NOT NULL
 );
 
 CREATE TABLE "forecast_values" (
-  "forecast_value_uuid" uuid PRIMARY KEY,
+  "forecast_value_uuid" uuid PRIMARY KEY NOT NULL,
   "datetime_interval_uuid" uuid NOT NULL,
   "forecast_generation_kw" real NOT NULL,
   "created_utc" timestamp NOT NULL,
-  "forecast_uuid" uuid NOT NULL,
-  PRIMARY KEY ("forecast_value_uuid")
+  "forecast_uuid" uuid NOT NULL
 );
 
 CREATE TABLE "latest_forecast_values" (
-  "latest_forecast_value_uuid" uuid PRIMARY KEY,
+  "latest_forecast_value_uuid" uuid PRIMARY KEY NOT NULL,
   "datetime_interval_uuid" uuid NOT NULL,
   "forecast_generation_kw" real NOT NULL,
   "created_utc" timestamp NOT NULL,
   "forecast_uuid" uuid NOT NULL,
   "site_uuid" uuid NOT NULL,
-  "forecast_version" varchar(32) NOT NULL,
-  PRIMARY KEY ("latest_forecast_value_uuid")
+  "forecast_version" varchar(32) NOT NULL
 );
 
 CREATE TABLE "clients" (
-  "client_uuid" uuid PRIMARY KEY,
+  "client_uuid" uuid PRIMARY KEY NOT NULL,
   "client_name" varchar(255) NOT NULL,
-  "created_utc" timestamp NOT NULL,
-  PRIMARY KEY ("client_uuid")
+  "created_utc" timestamp NOT NULL
 );
 
 CREATE TABLE "datetime_intervals" (
-  "datetime_interval_uuid" uuid PRIMARY KEY,
+  "datetime_interval_uuid" uuid PRIMARY KEY NOT NULL,
   "start_utc" timestamp NOT NULL,
   "end_utc" timestamp NOT NULL,
-  "created_utc" timestamp NOT NULL,
-  PRIMARY KEY ("datetime_interval_uuid")
+  "created_utc" timestamp NOT NULL
 );
 
 CREATE TABLE "status" (
-  "status_uuid" uuid PRIMARY KEY,
+  "status_uuid" uuid PRIMARY KEY NOT NULL,
   "status" varchar(255),
   "message" varchar(255),
-  "created_utc" timestamp,
-  PRIMARY KEY ("status_uuid")
+  "created_utc" timestamp
 );
 
 CREATE UNIQUE INDEX "idx_client" ON "sites" ("client_uuid", "client_site_id");
