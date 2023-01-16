@@ -23,6 +23,7 @@ pvsite-datamodel:
   gen: # Folder containing auto-generated code
     - pvsite.sql # SQL specification of the pvsite datamodel
     - pvsite.py # SQLAlchemy specification of the pvsite datamodel
+    - pvsite.svg # SVG diagramatic representation of the pvsite datamodel
 ```
 
 ## Database documentation
