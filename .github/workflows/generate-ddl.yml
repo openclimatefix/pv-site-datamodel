@@ -61,7 +61,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Remove old generated files
-        run: rm -r gen/*
+        run: rm -rf gen/*
       - name: Download all uploaded artifacts
         uses: actions/download-artifact@v3
         with:
