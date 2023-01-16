@@ -5,7 +5,7 @@ Project pvsite {
     Datamodel for PV site-level data. To be surfaced via
     the to-be built nowcasting site-level API and frontend.
   '''
-} 
+}
 
 Table sites {
   site_uuid uuid [primary key, not null]
@@ -37,7 +37,6 @@ Table sites {
   '''
 }
 
-
 Table generation {
   generation_uuid uuid [primary key, not null]
   site_uuid uuid [not null, note: 'The site for which this geenration yield belongs to']
@@ -53,8 +52,6 @@ Table generation {
   Generation populated every 5 minutes per site * 4000 sites = ~1,125,000 rows per day
   '''
 }
-
-
 
 Table forecasts {
   forecast_uuid uuid [primary key, not null]
@@ -90,7 +87,6 @@ Table forecast_values {
   '''
 }
 
-
 Table latest_forecast_values {
   latest_forecast_value_uuid uuid [primary key, not null]
   datetime_interval_uuid uuid [not null, note: 'The time interval over which this predicted power value applies']
@@ -111,8 +107,6 @@ Table latest_forecast_values {
     sequence = ~1,125,000 rows per day
   '''
 }
-
-
 
 Table clients {
   client_uuid uuid [primary key, not null]
