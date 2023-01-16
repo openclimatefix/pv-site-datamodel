@@ -20,6 +20,7 @@ jobs:
         with:
           name: gen
           path: pvsite.svg
+          retention-days: 1
 
   generate-sql:
     runs-on: ubuntu-latest
@@ -33,6 +34,7 @@ jobs:
         with:
           name: gen
           path: pvsite.sql
+          retention-days: 1
     
   generate-sqlalchemy:
     runs-on: ubuntu-latest
@@ -51,6 +53,7 @@ jobs:
         with:
           name: gen
           path: pvsite.py
+          retention-days: 1
   
   commit-changes:
     runs-on: ubuntu-latest
@@ -63,6 +66,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: gen
+          path: gen
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Add generated files [ci skip]
