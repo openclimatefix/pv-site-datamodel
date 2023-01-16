@@ -18,7 +18,7 @@ jobs:
         run: dbml-renderer -i pvsite.dbml -o pvsite.svg
       - uses: actions/upload-artifact@v3
         with:
-          name: pvsite-svg
+          name: gen
           path: pvsite.svg
 
   generate-sql:
@@ -31,7 +31,7 @@ jobs:
         run: dbml2sql pvsite.dbml -o pvsite.sql
       - uses: actions/upload-artifact@v3
         with:
-          name: pvsite-sql
+          name: gen
           path: pvsite.sql
     
   generate-sqlalchemy:
@@ -42,14 +42,14 @@ jobs:
       - name: Download generated PVSite SQL 
         uses: actions/download-artifact@v3
         with:
-          name: pvsite-sql
+          name: gen
       - name: Install omymodels
         run: pip install omymodels
       - name: Generate SQLAlchemy
         run: omm pvsite.sql -m sqlalchemy -t pvsite.py
       - uses: actions/upload-artifact@v3
         with:
-          name: pvsite-py
+          name: gen
           path: pvsite.py
   
   commit-changes:
@@ -62,7 +62,7 @@ jobs:
       - name: Download all uploaded artifacts
         uses: actions/download-artifact@v3
         with:
-          path: gen
+          name: gen
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Add generated files [ci skip]
