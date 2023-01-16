@@ -160,6 +160,6 @@ Ref :generation.datetime_interval_uuid > datetime_intervals.datetime_interval_uu
 Ref :generation.site_uuid > sites.site_uuid
 Ref :forecast_values.datetime_interval_uuid > datetime_intervals.datetime_interval_uuid
 Ref :forecast_values.forecast_uuid > forecasts.forecast_uuid
-Ref :forecasts.site_uuid < sites.site_uuid
-Ref :latest_forecast_values.site_uuid < sites.site_uuid
+Ref :forecasts.site_uuid > sites.site_uuid
+Ref :latest_forecast_values.site_uuid > sites.site_uuid
 Ref :latest_forecast_values.datetime_interval_uuid > datetime_intervals.datetime_interval_uuid
