@@ -27,7 +27,9 @@ pvsite-datamodel:
 
 ## Database documentation
 
-View the database docs at https://dbdocs.io/ocf/pvsite.
+View the interactive database docs at https://dbdocs.io/ocf/pvsite.
+
+![PVSite Datamodel](gen/pvsite-svg/pvsite.svg)
 
 
 ## Generating SQL and SQLAlchemy
