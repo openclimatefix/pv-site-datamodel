@@ -1,6 +1,6 @@
 -- SQL dump generated using DBML (dbml-lang.org)
 -- Database: PostgreSQL
--- Generated at: 2023-01-16T10:00:25.051Z
+-- Generated at: 2023-01-16T10:17:01.774Z
 
 CREATE TABLE "sites" (
   "site_uuid" uuid PRIMARY KEY NOT NULL,
