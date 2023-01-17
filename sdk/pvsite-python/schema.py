@@ -9,7 +9,7 @@ from sqlalchemy.schema import UniqueConstraint
 Base = declarative_base()
 
 
-class Sites(Base):
+class SiteSQL(Base):
     __tablename__ = 'sites'
 
     site_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
@@ -28,15 +28,15 @@ class Sites(Base):
     updated_utc = sa.Column(TIMESTAMP, nullable=False)
 
     __table_args__ = (
-        UniqueConstraint("client_site_id", client_uuid, name='idx_client')
+        UniqueConstraint("client_site_id", client_uuid, name='idx_client'),
     )
 
-    forecasts = relationship("Forecasts")
-    latest_forecast_values = relationship("LatestForecastValues")
-    generation = relationship("Generation")
+    forecasts = relationship("ForecastSQL")
+    latest_forecast_values = relationship("LatestForecastValueSQL")
+    generation = relationship("GenerationSQL")
 
 
-class Generation(Base):
+class GenerationSQL(Base):
     __tablename__ = 'generation'
 
     generation_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
@@ -46,7 +46,7 @@ class Generation(Base):
     created_utc = sa.Column(TIMESTAMP, nullable=False)
 
 
-class Forecasts(Base):
+class ForecastSQL(Base):
     __tablename__ = 'forecasts'
 
     forecast_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
@@ -55,11 +55,10 @@ class Forecasts(Base):
     forecast_version = sa.Column(sa.String(32), nullable=False)
 
     # one (forecasts) to many (forecast_values)
-    forecast_values = relationship("ForecastValues")
-    latest_forecast_values = relationship("LatestForecastValues", back_populates="latest_forecast")
+    forecast_values = relationship("ForecastValueSQL")
 
 
-class ForecastValues(Base):
+class ForecastValueSQL(Base):
     __tablename__ = 'forecast_values'
 
     forecast_value_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
@@ -69,7 +68,7 @@ class ForecastValues(Base):
     forecast_uuid = sa.Column(UUID(as_uuid=True), sa.ForeignKey('forecasts.forecast_uuid'), nullable=False, default=uuid.uuid4)
 
 
-class LatestForecastValues(Base):
+class LatestForecastValueSQL(Base):
     __tablename__ = 'latest_forecast_values'
 
     latest_forecast_value_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
@@ -80,20 +79,20 @@ class LatestForecastValues(Base):
     site_uuid = sa.Column(UUID(as_uuid=True), sa.ForeignKey('sites.site_uuid'), nullable=False, default=uuid.uuid4)
     forecast_version = sa.Column(sa.String(32), nullable=False)
 
-    latest_forecast = relationship("Forecasts", back_populates="latest_forecast_values")
+    latest_forecast = relationship("SiteSQL", back_populates="latest_forecast_values")
 
 
-class Clients(Base):
+class ClientSQL(Base):
     __tablename__ = 'clients'
 
     client_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     client_name = sa.Column(sa.String(255), nullable=False)
     created_utc = sa.Column(TIMESTAMP, nullable=False)
 
-    sites = relationship("Sites")
+    sites = relationship("SiteSQL")
 
 
-class DatetimeIntervals(Base):
+class DatetimeIntervalSQL(Base):
     __tablename__ = 'datetime_intervals'
 
     datetime_interval_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
@@ -101,12 +100,12 @@ class DatetimeIntervals(Base):
     end_utc = sa.Column(TIMESTAMP, nullable=False)
     created_utc = sa.Column(TIMESTAMP, nullable=False)
 
-    generation = relationship("Generation")
-    forecast_values = relationship("ForecastValues")
-    latest_forecast_values = relationship("LatestForecastValues", back_populates="latest_forecast")
+    generation = relationship("GenerationSQL")
+    forecast_values = relationship("ForecastValueSQL")
+    latest_forecast_values = relationship("LatestForecastValueSQL")
 
 
-class Status(Base):
+class StatusSQL(Base):
     __tablename__ = 'status'
 
     status_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
