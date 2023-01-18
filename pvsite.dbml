@@ -22,6 +22,7 @@ Table sites {
   capacity_kw real [not null, note: 'The physical limit on the production capacity of the site']
   created_utc timestamp [not null]
   updated_utc timestamp [not null]
+  ml_id serial [note: 'Auto-incrementing integer ID of the site for use in ML training']
   
   Indexes {
     (client_uuid, client_site_id) [unique, name: 'idx_client']

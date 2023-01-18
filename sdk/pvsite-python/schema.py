@@ -26,6 +26,7 @@ class SiteSQL(Base):
     capacity_kw = sa.Column(REAL, nullable=False)
     created_utc = sa.Column(TIMESTAMP, nullable=False)
     updated_utc = sa.Column(TIMESTAMP, nullable=False)
+    ml_id = sa.Column(sa.Integer, autoincrement=True, nullable=False, unique=True)
 
     __table_args__ = (
         UniqueConstraint("client_site_id", client_uuid, name='idx_client'),
