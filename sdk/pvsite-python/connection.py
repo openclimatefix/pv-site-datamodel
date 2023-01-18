@@ -15,6 +15,7 @@ class DatabaseConnection:
     def __init__(self, url: URL | str, echo: bool = True):
         """
         Set up database connection
+
         url: the database url, used for connecting
         """
         self.url = url
