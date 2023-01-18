@@ -1,6 +1,6 @@
 -- SQL dump generated using DBML (dbml-lang.org)
 -- Database: PostgreSQL
--- Generated at: 2023-01-17T17:40:29.436Z
+-- Generated at: 2023-01-18T11:58:18.781Z
 
 CREATE TABLE "sites" (
   "site_uuid" uuid PRIMARY KEY NOT NULL,
@@ -16,7 +16,8 @@ CREATE TABLE "sites" (
   "longitude" float8 NOT NULL,
   "capacity_kw" real NOT NULL,
   "created_utc" timestamp NOT NULL,
-  "updated_utc" timestamp NOT NULL
+  "updated_utc" timestamp NOT NULL,
+  "ml_id" serial
 );
 
 CREATE TABLE "generation" (
@@ -102,6 +103,8 @@ COMMENT ON COLUMN "sites"."orientation" IS 'The rotation of the panel in degrees
 COMMENT ON COLUMN "sites"."tilt" IS 'The tile of the panel in degrees. 90° indicates the panel is vertical';
 
 COMMENT ON COLUMN "sites"."capacity_kw" IS 'The physical limit on the production capacity of the site';
+
+COMMENT ON COLUMN "sites"."ml_id" IS 'Auto-incrementing integer ID of the site for use in ML training';
 
 COMMENT ON TABLE "generation" IS 'Each yield row specifies a generated power output over a
 given time range for a site.

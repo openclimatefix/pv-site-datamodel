@@ -25,6 +25,7 @@ class Sites(Base):
     capacity_kw = sa.Column(real(), nullable=False)
     created_utc = sa.Column(sa.TIMESTAMP(), nullable=False)
     updated_utc = sa.Column(sa.TIMESTAMP(), nullable=False)
+    ml_id = sa.Column(sa.Integer(), autoincrement=True)
 
     __table_args__ = (
                 
