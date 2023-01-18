@@ -1,0 +1,14 @@
+asn1crypto==1.5.1
+greenlet @ file:///Users/runner/miniforge3/conda-bld/greenlet_1667836649187/work
+numpy==1.24.1
+pandas==1.5.2
+pg8000==1.29.4
+psycopg2==2.9.5
+python-dateutil==2.8.2
+pytz==2022.7.1
+scramp==1.4.4
+six==1.16.0
+SQLAlchemy @ file:///Users/runner/miniforge3/conda-bld/sqlalchemy_1672796275514/work
+SQLAlchemy-Utils==0.39.0
+testing.common.database==2.0.3
+testing.postgresql==1.3.0
