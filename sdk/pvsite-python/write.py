@@ -3,6 +3,7 @@ Functions for writing to pvsite db
 """
 
 import datetime as dt
+import logging
 import typing
 import uuid
 
@@ -102,6 +103,13 @@ def insert_forecast_values(
 
         # Filter the forecasted values by target_time
         target_times: np.ndarray = df_site["target_datetime_utc"].unique()
+
+        # Print a warning if there are duplicate target_times for this site
+        if len(target_times) != len(df_site):
+            logging.warning(
+                f"duplicate target times exist in forecast {forecast.forecast_uuid} "
+                f"for site {site_uuid}"
+            )
 
         # For each target time:
         for target_time in target_times:
