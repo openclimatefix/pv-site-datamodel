@@ -61,12 +61,15 @@ def upsert(session: sa_orm.Session, table: schema.Base, rows: list[dict]) -> lis
     return [WrittenRow(table=table, pk_value=row[primary_key_names[0]]) for row in rows]
 
 
-def insert_forecast_values(session: sa_orm.Session, df: pd.DataFrame) -> list[WrittenRow]:
+def insert_forecast_values(
+    session: sa_orm.Session, df: pd.DataFrame, forecast_version: str = "0.0.0"
+) -> list[WrittenRow]:
     """
     Inserts a dataframe of forecast values into the database.
 
     :param session: sqlalchemy session for interacting with the database
     :param df: pandas dataframe with columns ["target_datetime_utc", "forecast_kw", "pv_uuid"]
+    :param forecast_version: the version of the model used to create the forecast
     :return list[WrittenRow]: list of added rows to DB
     """
 
@@ -89,7 +92,7 @@ def insert_forecast_values(session: sa_orm.Session, df: pd.DataFrame) -> list[Wr
             forecast_uuid=uuid.uuid4(),
             site_uuid=site_uuid,
             created_utc=dt.datetime.now(tz=dt.timezone.utc),
-            forecast_version="0.0.0",
+            forecast_version=forecast_version,
         )
         newly_written_rows = upsert(session, schema.ForecastSQL, forecast.__dict__)
         written_rows.extend(newly_written_rows)
