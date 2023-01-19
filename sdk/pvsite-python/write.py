@@ -104,7 +104,7 @@ def insert_forecast_values(
         # Filter the forecasted values by target_time
         target_times: np.ndarray = df_site["target_datetime_utc"].unique()
 
-        # Print a warning if there are duplicate target_times for this site
+        # Print a warning if there are duplicate target_times for this site's forecast
         if len(target_times) != len(df_site):
             logging.warning(
                 f"duplicate target times exist in forecast {forecast.forecast_uuid} "
