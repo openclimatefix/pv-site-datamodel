@@ -39,6 +39,14 @@ def upsert(session: sa_orm.Session, table: schema.Base, rows: list[dict]) -> lis
     key values
     that have been written
     """
+
+    # Input type validation in case user passes in a dict, not a list of dicts
+    if type(rows) != list:
+        if type(rows) == dict:
+            rows = [rows]
+        else:
+            raise TypeError("input rows must be a list of dict objects")
+
     stmt = sa_psql.insert(table.__table__)
     primary_key_names = [key.name for key in sa.inspect(table.__table__).primary_key]
     update_dict = {c.name: c for c in stmt.excluded if not c.primary_key}
@@ -53,13 +61,13 @@ def upsert(session: sa_orm.Session, table: schema.Base, rows: list[dict]) -> lis
     return [WrittenRow(table=table, pk_value=row[primary_key_names[0]]) for row in rows]
 
 
-def insert_forecast_values(session: sa_orm.Session, df: pd.DataFrame) -> int:
+def insert_forecast_values(session: sa_orm.Session, df: pd.DataFrame) -> list[WrittenRow]:
     """
     Inserts a dataframe of forecast values into the database.
 
     :param session: sqlalchemy session for interacting with the database
     :param df: pandas dataframe with columns ["target_datetime_utc", "forecast_kw", "pv_uuid"]
-    :return int: num added rows to DB
+    :return list[WrittenRow]: list of added rows to DB
     """
 
     # Track rows added to DB
@@ -76,13 +84,15 @@ def insert_forecast_values(session: sa_orm.Session, df: pd.DataFrame) -> int:
         if existing_site is None:
             raise KeyError(f"Site uuid {site_uuid} not found in sites table")
 
-        # Create a forcast (sequence) for the site
+        # Create a forcast (sequence) for the site, and write it to db
         forecast: schema.ForecastSQL = schema.ForecastSQL(
             forecast_uuid=uuid.uuid4(),
             site_uuid=site_uuid,
             created_utc=dt.datetime.now(tz=dt.timezone.utc),
             forecast_version="0.0.0",
         )
+        newly_written_rows = upsert(session, schema.ForecastSQL, forecast.__dict__)
+        written_rows.extend(newly_written_rows)
 
         # Get all dataframe forecast value entries for current site_uuid
         df_site: pd.DataFrame = df.loc[df["pv_uuid"] == site_uuid]
