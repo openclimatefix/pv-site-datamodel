@@ -24,6 +24,8 @@ pvsite-datamodel:
     - pvsite.sql # SQL specification of the pvsite datamodel
     - pvsite.py # SQLAlchemy specification of the pvsite datamodel
     - pvsite.svg # SVG diagramatic representation of the pvsite datamodel
+  sdk: # Folder containing language specific ORM packages specific to this datamodel
+    pvsite-python: # Python ORM code for reading/writing data from this model
 ```
 
 ## Database documentation
@@ -75,7 +77,12 @@ Further reading:
 
 ## Editing the datamodel
 
-For syntax highlighting and hints in VSCode, use the 
+For syntax highlighting and hints in VSCode, use the
 [https://marketplace.visualstudio.com/items?itemName=matt-meyers.vscode-dbml](vscode-dbml) plugin.
 If you'd rather a live view of the tables as you edit, https://dbdiagram.io/d gives a realtime
-visualision of the datamodel.
+visualisation of the datamodel.
+
+
+## Pre-Commit
+
+This repository implements a [pre-commit](https://pre-commit.com/#install) config that enables automatic fixes to code when you create a commit. This helps to maintin consistency in the main repo. To enable this, follow the [installation instructions on the precommit website](https://pre-commit.com/#install).
