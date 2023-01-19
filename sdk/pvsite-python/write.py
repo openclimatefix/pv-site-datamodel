@@ -63,13 +63,13 @@ def upsert(session: sa_orm.Session, table: schema.Base, rows: list[dict]) -> lis
 
 
 def insert_forecast_values(
-    session: sa_orm.Session, forecast_values: pd.DataFrame, forecast_version: str = "0.0.0"
+    session: sa_orm.Session, df_forecast_values: pd.DataFrame, forecast_version: str = "0.0.0"
 ) -> list[WrittenRow]:
     """
     Inserts a dataframe of forecast values into the database.
 
     :param session: sqlalchemy session for interacting with the database
-    :param forecast_values: pandas dataframe with columns
+    :param df_forecast_values: pandas dataframe with columns
     ["target_datetime_utc", "forecast_kw", "pv_uuid"]
     :param forecast_version: the version of the model used to create the forecast
     :return list[WrittenRow]: list of added rows to DB
@@ -79,7 +79,7 @@ def insert_forecast_values(
     written_rows: list[WrittenRow] = []
 
     # Loop over all the unique sites that have got forecast values
-    sites: np.ndarray = forecast_values["pv_uuid"].unique()
+    sites: np.ndarray = df_forecast_values["pv_uuid"].unique()
     for site_uuid in sites:
 
         # Check whether the site id exits in the table, otherwise return an error
@@ -100,7 +100,7 @@ def insert_forecast_values(
         written_rows.extend(newly_written_rows)
 
         # Get all dataframe forecast value entries for current site_uuid
-        df_site: pd.DataFrame = forecast_values.loc[forecast_values["pv_uuid"] == site_uuid]
+        df_site: pd.DataFrame = df_forecast_values.loc[df_forecast_values["pv_uuid"] == site_uuid]
 
         # Filter the forecasted values by target_time
         target_times: np.ndarray = df_site["target_datetime_utc"].unique()
@@ -123,12 +123,12 @@ def insert_forecast_values(
             written_rows.extend(newly_added_rows)
 
             # For each entry with this targettime:
-            df_target_entries: pd.DataFrame = forecast_values.loc[
+            df_target_entries: pd.DataFrame = df_forecast_values.loc[
                 df_site["target_datetime_utc"] == target_time
             ]
 
             # Create a ForecastValueSQL object for each forecast value, and surface as dict
-            forecast_values = [
+            sql_forecast_values = [
                 schema.ForecastValueSQL(
                     forecast_uuid=forecast.forecast_uuid,
                     forecast_value_uuid=uuid.uuid4(),
@@ -140,7 +140,7 @@ def insert_forecast_values(
             ]
 
             # Save it to the db
-            newly_added_rows = upsert(session, schema.ForecastValueSQL, forecast_values)
+            newly_added_rows = upsert(session, schema.ForecastValueSQL, sql_forecast_values)
             written_rows.extend(newly_added_rows)
 
     return written_rows

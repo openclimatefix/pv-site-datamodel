@@ -153,7 +153,7 @@ class TestInsertForecastValues(t.TestCase):
         """Tests inserts values successfully"""
         with sa_orm.Session(self.engine) as session:
             df = pd.DataFrame(self.forecast_validSite)
-            written_rows = write.insert_forecast_values(session=session, forecast_values=df)
+            written_rows = write.insert_forecast_values(session=session, df_forecast_values=df)
             self.assertEqual(
                 21, len(written_rows)
             )  # 10 datetime intervals, 10 forecast values, 1 forecast
@@ -175,7 +175,7 @@ class TestInsertForecastValues(t.TestCase):
         with sa_orm.Session(self.engine) as session:
             # Create DataFrame and write to DB
             df = pd.DataFrame(self.forecast_validSite)
-            written_rows = write.insert_forecast_values(session=session, forecast_values=df)
+            written_rows = write.insert_forecast_values(session=session, df_forecast_values=df)
             self.assertEqual(11, len(written_rows))  # 10 forecast values, 1 forecast
 
             # Check correct data has been written and exists in table
@@ -191,7 +191,7 @@ class TestInsertForecastValues(t.TestCase):
         with sa_orm.Session(self.engine) as session:
             df = pd.DataFrame(self.forecast_invalidSite)
             with self.assertRaises(KeyError):
-                written_rows = write.insert_forecast_values(session=session, forecast_values=df)
+                written_rows = write.insert_forecast_values(session=session, df_forecast_values=df)
                 self.assertEqual(len(written_rows), 0)
 
 
