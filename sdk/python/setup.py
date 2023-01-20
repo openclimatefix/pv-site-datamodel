@@ -18,7 +18,7 @@ URL = "https://github.com/openclimatefix/pvsite-datamodel"
 EMAIL = ""
 AUTHOR = "Open Climate Fix"
 REQUIRES_PYTHON = ">=3.9.0"
-VERSION = "0.1.0"
+VERSION = ""  # Update this in __version__.py
 
 # What packages are required for this module to be executed?
 REQUIRED = ["numpy", "pandas", "pandera", "sqlalchemy", "testing.postgresql"]
