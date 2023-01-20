@@ -4,61 +4,18 @@ on:
   push:
     branches: ["main"]
 
-env:
-  PYTHON_ROOT_DIRECTORY: sdk/python
-  PYTHON_PACKAGE_NAME: pvsite-datamodel
 
 jobs:
   test:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ${{ env.PYTHON_ROOT_DIRECTORY }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.10"
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
-      - name: Test with unittest
-        run: python -m unittest discover -s $PYTHON_ROOT_DIRECTORY/$PYTHON_PACKAGE_NAME -t $PYTHON_ROOT_DIRECTORY/$PYTHON_PACKAGE_NAME
-
-  build:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ${{ env.PYTHON_ROOT_DIRECTORY }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.10"
-      - name: Build python package
-        run: python setup.py install
+    uses: openclimatefix/.github/.github/workflows/python-test.yml@working-directory
+    with:
+      workdir: sdk/python/pvsite_datamodel
 
   publish:
-    runs-on: ubuntu-latest
-    needs: ["build"]
-    defaults:
-      run:
-        working-directory: ${{ env.PYTHON_ROOT_DIRECTORY }}
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.10"
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install twine
-          echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
-      - name: Publish python package
-        run: python setup.py upload
+    needs: [test]
+    uses: openclimatefix/.github/.github/workflows/python-release.yml@working-directory
+    secrets:
+      token: ${{ secrets.PYPI_API_TOKEN }}
+    with:
+      workdir: sdk/python
+

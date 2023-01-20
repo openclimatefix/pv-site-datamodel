@@ -20,7 +20,7 @@ repos:
     hooks:
       - id: pydocstyle
         args: [--convention=google, "--add-ignore=D200,D202,D210,D212,D415"]
-        files: sdk/python/pvsite-datamodel
+        files: sdk/python/pvsite_datamodel
         exclude: __version__.py
   - repo: https://github.com/PyCQA/flake8
     rev: 6.0.0
@@ -33,21 +33,33 @@ repos:
             "--extend-ignore=E203",
             "--per-file-ignores",
             "__init__.py:F401",
+<<<<<<< HEAD
             "sdk/python/pvsite-datamodel",
+=======
+            "sdk/python/pvsite_datamodel",
+>>>>>>> main
           ]
   - repo: https://github.com/PyCQA/isort
     rev: 5.11.4
     hooks:
       - id: isort
         args: ["--profile", "black", "--line-length", "100"]
+<<<<<<< HEAD
         files: sdk/python/pvsite-datamodel
+=======
+        files: sdk/python/pvsite_datamodel
+>>>>>>> main
         exclude: __version__.py
   - repo: https://github.com/psf/black
     rev: 22.12.0
     hooks:
       - id: black
         args: ["--line-length", "100"]
+<<<<<<< HEAD
         files: sdk/python/pvsite-datamodel
+=======
+        files: sdk/python/pvsite_datamodel
+>>>>>>> main
         exclude: __version__.py
   # yaml formatting
   - repo: https://github.com/pre-commit/mirrors-prettier
