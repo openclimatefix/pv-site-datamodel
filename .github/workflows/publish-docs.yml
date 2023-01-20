@@ -1,7 +1,8 @@
 name: Publish to DBDocs
 
 on:
-  workflow_dispatch
+  release:
+    types: [published]
 
 jobs:
   publish-docs:
@@ -13,5 +14,5 @@ jobs:
         run: npm install -g dbdocs
       - name: Push changes to DBDocs
         run: dbdocs build ./pvsite.dbml --project pvsite
-        env: 
+        env:
           DBDOCS_TOKEN: ${{ secrets.DBDOCS_TOKEN }}

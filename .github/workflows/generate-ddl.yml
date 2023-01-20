@@ -1,8 +1,7 @@
 name: Generate DDL
 
 on:
-  push:
-    branches: ["main"]
+  workflow_call:
 
 permissions:
   contents: write
@@ -35,13 +34,13 @@ jobs:
           name: gen
           path: pvsite.sql
           retention-days: 1
-    
+
   generate-sqlalchemy:
     runs-on: ubuntu-latest
     needs: generate-sql
     steps:
       - uses: actions/checkout@v3
-      - name: Download generated PVSite SQL 
+      - name: Download generated PVSite SQL
         uses: actions/download-artifact@v3
         with:
           name: gen
@@ -54,7 +53,7 @@ jobs:
           name: gen
           path: pvsite.py
           retention-days: 1
-  
+
   commit-changes:
     runs-on: ubuntu-latest
     needs: [generate-sql, generate-sqlalchemy, generate-svg]
