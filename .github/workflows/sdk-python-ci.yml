@@ -5,7 +5,8 @@ on:
     branches: ["main"]
 
 env:
-  PYTHON_SDK_DIRECTORY: sdk/python
+  PYTHON_ROOT_DIRECTORY: sdk/python
+  PYTHON_PACKAGE_NAME: pvsite-datamodel
 
 jobs:
   test:
@@ -22,13 +23,13 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
       - name: Test with unittest
-        run: python -m unittest discover -s $PYTHON_SDK_DIRECTORY -t $PYTHON_SDK_DIRECTORY
+        run: python -m unittest discover -s $PYTHON_ROOT_DIRECTORY/$PYTHON_PACKAGE_NAME -t $PYTHON_ROOT_DIRECTORY/$PYTHON_PACKAGE_NAME
 
   build:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: $PYTHON_SDK_DIRECTORY
+        working-directory: $PYTHON_ROOT_DIRECTORY
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python 3.10
@@ -42,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: $PYTHON_SDK_DIRECTORY
+        working-directory: $PYTHON_ROOT_DIRECTORY
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     steps:
       - uses: actions/checkout@v3
