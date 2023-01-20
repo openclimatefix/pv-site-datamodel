@@ -1,9 +1,8 @@
 # TODO
 
+python library to interact with PV Site database
+
 
  ## Test
 
-To run tests use
-```bash
-pytest
-```
+To run tests use `pytest`
