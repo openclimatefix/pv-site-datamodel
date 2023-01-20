@@ -1,6 +1,6 @@
 """ Test read functions """
 
-from pvsite_datamodel.read import get_site, get_all_site, get_site_from_uuid
+from pvsite_datamodel.read.read import get_site, get_all_site, get_site_from_uuid
 import pytest
 
 
