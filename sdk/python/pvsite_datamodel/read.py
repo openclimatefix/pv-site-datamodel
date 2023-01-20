@@ -5,7 +5,7 @@ Functions for reading to pvsite db
 import logging
 
 from sqlalchemy.orm import Session
-from pvsite_datamodel.schema import ClientSQL, SiteSQL
+from pvsite_datamodel.sqlmodels import ClientSQL, SiteSQL
 
 logger = logging.getLogger(__name__)
 

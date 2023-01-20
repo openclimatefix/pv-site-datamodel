@@ -6,8 +6,7 @@ from datetime import datetime, timezone
 import pytest
 import uuid
 from pvsite_datamodel.connection import DatabaseConnection
-from pvsite_datamodel.schema import ClientSQL, SiteSQL
-from pvsite_datamodel.models.base import Base
+from pvsite_datamodel.sqlmodels import Base, ClientSQL, SiteSQL
 
 
 @pytest.fixture
@@ -16,12 +15,10 @@ def db_connection():
 
     url = os.environ["DB_URL"]
     connection = DatabaseConnection(url=url)
-    connection.create_all()
     Base.metadata.create_all(connection.engine)
 
     yield connection
 
-    connection.drop_all()
     Base.metadata.drop_all(connection.engine)
 
 
