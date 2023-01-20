@@ -9,6 +9,7 @@ jobs:
     uses: openclimatefix/.github/.github/workflows/python-test.yml@working-directory
     with:
       workdir: sdk/python
+      pytest_cov_dir: pvsite_datamodel
 
   publish:
     needs: [test]
