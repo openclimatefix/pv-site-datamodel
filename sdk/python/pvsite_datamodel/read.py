@@ -38,7 +38,7 @@ def get_site(
     site = query.first()
 
     if site is None:
-        assert Exception(f"Could not find site with {client_id=} and {client_name=}")
+        raise Exception(f"Could not find site with {client_id=} and {client_name=}")
 
     return site
 
