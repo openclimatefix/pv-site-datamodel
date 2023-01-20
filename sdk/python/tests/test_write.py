@@ -87,7 +87,8 @@ def test_inserts_values_for_existing_site_and_existing_datetime_intervals(
 
     # Create DataFrame and write to DB
     df = pd.DataFrame(forecast_valid_site)
-    written_rows = write.insert_forecast_values(session=db_session, df_forecast_values=df)
+    # write once and again,
+    _ = write.insert_forecast_values(session=db_session, df_forecast_values=df)
     written_rows = write.insert_forecast_values(session=db_session, df_forecast_values=df)
     assert len(written_rows) == 11  # 10 forecast values, 1 forecast
 
