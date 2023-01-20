@@ -1,4 +1,4 @@
-""" Pytest fixitures for tests """
+""" Pytest fixtures for tests """
 import os
 
 from datetime import datetime, timezone

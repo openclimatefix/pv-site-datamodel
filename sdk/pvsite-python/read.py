@@ -41,3 +41,4 @@ def get_site(
         assert Exception(f"Could not find site with {client_id=} and {client_name=}")
 
     return site
+
