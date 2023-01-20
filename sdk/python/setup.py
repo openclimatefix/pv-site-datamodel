@@ -17,7 +17,7 @@ DESCRIPTION = "SDK for interacting with the PVSite database."
 URL = "https://github.com/openclimatefix/pvsite-datamodel"
 EMAIL = ""
 AUTHOR = "Open Climate Fix"
-REQUIRES_PYTHON = ">=3.9.0"
+REQUIRES_PYTHON = ">=3.10.0"
 VERSION = "0.1.1"  # Autoincremented by bumpversion.cfg
 
 # What packages are required for this module to be executed?
