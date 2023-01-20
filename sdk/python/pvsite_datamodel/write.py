@@ -13,7 +13,7 @@ import pandas as pd
 import sqlalchemy as sa
 import sqlalchemy.dialects.postgresql as sa_psql
 import sqlalchemy.orm as sa_orm
-import sqlmodels
+from pvsite_datamodel import  sqlmodels
 
 # Defines the length of time over which a forecast is valid
 FORECAST_TIMESPAN = dt.timedelta(minutes=5)

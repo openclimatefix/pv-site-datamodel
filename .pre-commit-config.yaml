@@ -34,6 +34,7 @@ repos:
             "--per-file-ignores",
             "__init__.py:F401",
             "sdk/python/pvsite_datamodel",
+
           ]
   - repo: https://github.com/PyCQA/isort
     rev: 5.11.4
