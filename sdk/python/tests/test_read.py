@@ -33,3 +33,5 @@ def test_get_pv_generation(generations, db_session):
 
     generations = get_pv_generation(session=db_session)
     assert len(generations) == 40
+
+    # TODO need to test     start_utc, end_utc, client_names
