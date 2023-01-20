@@ -6,13 +6,15 @@ import datetime as dt
 import unittest as t
 import uuid
 
-import connection
+
 import pandas as pd
 import sqlalchemy as sa
 import sqlalchemy.orm as sa_orm
-import sqlmodels
 import testing.postgresql as test_pg
-import write
+
+from pvsite_datamodel import connection
+from pvsite_datamodel  import write
+from pvsite_datamodel import sqlmodels
 
 client_uuid = uuid.uuid4()
 site_uuid = uuid.uuid4()

@@ -1,0 +1,35 @@
+version: "3"
+
+services:
+  postgres_pv:
+    image: postgres:14.5
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+
+
+  tests:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        TESTING: 1
+    environment:
+      - DB_URL_PV=postgresql://postgres:postgres@postgres_pv:5432/postgres
+      - GIT_PYTHON_REFRESH=quiet
+      - LOG_LEVEL=DEBUG
+    command: >
+      bash -c "sleep 10
+      && pytest --cov=./pvsite_datamodel
+      && coverage report -m
+      && coverage xml
+      && cp .coverage ./tests/
+      && cp coverage.xml ./tests/"
+    depends_on:
+      - postgres_pv
+    volumes:
+      - ./tests/:/app/tests
+      - ./pvsite_datamodel/:/app/pvsite_datamodel
