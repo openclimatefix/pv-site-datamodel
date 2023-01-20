@@ -37,6 +37,7 @@ def insert_forecast_values(
 
     # Loop over all the unique sites that have got forecast values
     sites: np.ndarray = df_forecast_values["pv_uuid"].unique()
+    sql_forecast_values = []
     for site_uuid in sites:
 
         # Check whether the site id exits in the table, otherwise return an error
@@ -75,26 +76,25 @@ def insert_forecast_values(
             )
             written_rows.extend(newly_added_rows)
 
-            # For each entry with this targettime:
-            df_target_entries: pd.DataFrame = df_forecast_values.loc[
+            # For each entry with this targettime (there should only be one)
+            df_target_entries: pd.DataFrame = df_site.loc[
                 df_site["target_datetime_utc"] == target_time
             ]
 
             # Create a ForecastValueSQL object for each forecast value, and surface as dict
-            sql_forecast_values = [
-                sqlmodels.ForecastValueSQL(
+            # TODO there might be quicker ways to do this, like go from pandas straight to a dict
+            sql_forecast_value =  sqlmodels.ForecastValueSQL(
                     forecast_uuid=forecast.forecast_uuid,
                     forecast_value_uuid=uuid.uuid4(),
                     datetime_interval_uuid=datetime_interval.datetime_interval_uuid,
                     created_utc=dt.datetime.now(tz=dt.timezone.utc),
-                    forecast_generation_kw=generation_value,
-                ).__dict__
-                for generation_value in df_target_entries["forecast_kw"]
-            ]
+                    forecast_generation_kw=df_target_entries.iloc[0]["forecast_kw"],
+            ).__dict__
+            sql_forecast_values.append(sql_forecast_value)
 
-            # Save it to the db
-            newly_added_rows = upsert(session, sqlmodels.ForecastValueSQL, sql_forecast_values)
-            written_rows.extend(newly_added_rows)
+    # Save it to the db
+    newly_added_rows = upsert(session, sqlmodels.ForecastValueSQL, sql_forecast_values)
+    written_rows.extend(newly_added_rows)
 
     return written_rows
 

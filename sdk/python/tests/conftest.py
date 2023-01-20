@@ -95,7 +95,7 @@ def forecast_valid_site(sites):
         "target_datetime_utc": [
             (datetime.today() - timedelta(minutes=x)).isoformat() for x in range(10)
         ],
-        "forecast_kw": [x for x in range(10)],
+        "forecast_kw": [float(x) for x in range(10)],
         "pv_uuid": [site_uuid for x in range(10)],
     }
 
@@ -104,7 +104,7 @@ def forecast_valid_site(sites):
 def forecast_invalid_site():
     return {
         "target_datetime_utc": [datetime.today().isoformat()],
-        "forecast_kw": [1],
+        "forecast_kw": [1.0],
         "pv_uuid": [uuid.uuid4()],
     }
 
