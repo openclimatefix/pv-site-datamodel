@@ -16,6 +16,7 @@ from pvsite_datamodel import  sqlmodels
 from pvsite_datamodel.write.datetime_intervals import get_or_else_create_datetime_interval
 from pvsite_datamodel.write.upsert import upsert
 from pvsite_datamodel.write.utils import WrittenRow
+from pvsite_datamodel.read import get_site_from_uuid
 
 
 def insert_forecast_values(
@@ -39,11 +40,7 @@ def insert_forecast_values(
     for site_uuid in sites:
 
         # Check whether the site id exits in the table, otherwise return an error
-        query = session.query(sqlmodels.SiteSQL)
-        query = query.filter(sqlmodels.SiteSQL.site_uuid == site_uuid)
-        existing_site: sqlmodels.SiteSQL = query.first()
-        if existing_site is None:
-            raise KeyError(f"Site uuid {site_uuid} not found in sites table")
+        get_site_from_uuid(session=session, site_uuid=site_uuid)
 
         # Create a forcast (sequence) for the site, and write it to db
         forecast: sqlmodels.ForecastSQL = sqlmodels.ForecastSQL(
