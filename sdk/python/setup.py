@@ -18,7 +18,7 @@ URL = "https://github.com/openclimatefix/pvsite-datamodel"
 EMAIL = ""
 AUTHOR = "Open Climate Fix"
 REQUIRES_PYTHON = ">=3.10.0"
-VERSION = "0.1.2"  # Autoincremented by bumpversion.cfg
+VERSION = "0.1.3"  # Autoincremented by bumpversion.cfg
 
 # What packages are required for this module to be executed?
 REQUIRED = ["numpy", "pandas", "pandera", "sqlalchemy", "testing.postgresql"]
