@@ -13,7 +13,7 @@ from pvsite_datamodel.sqlmodels import Base, ClientSQL, SiteSQL
 def db_connection():
     """Pytest fixture for a database connection"""
 
-    # TODO need to setup postgres datbase with docker
+    # TODO need to setup postgres database with docker
     url = os.environ["DB_URL"]
     connection = DatabaseConnection(url=url)
     Base.metadata.create_all(connection.engine)
