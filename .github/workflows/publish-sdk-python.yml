@@ -12,7 +12,7 @@ jobs:
       new_tag: ${{ steps.bumper.outputs.new_ver }}
     defaults:
       run:
-        working-directory: sdk/pvsite-python
+        working-directory: sdk/python
 
     steps:
       - uses: actions/checkout@v3
@@ -30,7 +30,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           tags: true
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-pvsite-datamodel@v2
         with:
           python-version: "3.x"
       - name: Install dependencies
@@ -38,7 +38,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install build
       - name: Build package
-        run: python -m build
+        run: pvsite-datamodel -m build
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
         with:
@@ -49,7 +49,7 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     run:
-      working-directory: sdk/pvsite-python
+      working-directory: sdk/python
 
     steps:
       - run: echo ${{needs.build.outputs.new_tag}}
