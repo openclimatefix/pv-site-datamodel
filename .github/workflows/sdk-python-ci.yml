@@ -4,15 +4,11 @@ on:
   push:
     branches: ["main"]
 
-env:
-  PYTHON_ROOT_DIRECTORY: sdk/python
-  PYTHON_PACKAGE_NAME: pvsite_datamodel
-
 jobs:
   test:
     uses: openclimatefix/.github/.github/workflows/python-test.yml@working-directory
     with:
-      workdir: ${{ env.PYTHON_ROOT_DIRECTORY }}
+      workdir: sdk/python
 
   publish:
     needs: [test]
@@ -20,4 +16,4 @@ jobs:
     secrets:
       token: ${{ secrets.PYPI_API_TOKEN }}
     with:
-      workdir: ${{ env.PYTHON_ROOT_DIRECTORY }}
+      workdir: sdk/python
