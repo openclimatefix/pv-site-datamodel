@@ -39,19 +39,16 @@ repos:
     rev: 5.11.4
     hooks:
       - id: isort
-        args:
-          [
-            "--profile",
-            "black",
-            "--line-length",
-            "100",
-            "sdk/python/pvsite-datamodel",
-          ]
+        args: ["--profile", "black", "--line-length", "100"]
+        files: sdk/python/pvsite-datamodel
+        exclude: __version__.py
   - repo: https://github.com/psf/black
     rev: 22.12.0
     hooks:
       - id: black
         args: ["--line-length", "100"]
+        files: sdk/python/pvsite-datamodel
+        exclude: __version__.py
   # yaml formatting
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v3.0.0-alpha.4
