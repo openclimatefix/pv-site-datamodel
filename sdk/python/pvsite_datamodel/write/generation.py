@@ -2,11 +2,9 @@
 Functions for writing to pvsite db
 """
 
-import datetime as dt
 import logging
 import uuid
 
-import dateutil.parser as dp
 import numpy as np
 import pandas as pd
 import sqlalchemy.orm as sa_orm
@@ -16,7 +14,7 @@ from pvsite_datamodel.sqlmodels import GenerationSQL
 from pvsite_datamodel.write.datetime_intervals import get_or_else_create_datetime_interval
 from pvsite_datamodel.write.upsert import upsert
 from pvsite_datamodel.write.utils import WrittenRow
-from pvsite_datamodel.read import get_site_from_uuid
+from pvsite_datamodel.read.site import get_site_from_uuid
 
 
 

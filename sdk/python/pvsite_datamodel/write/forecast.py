@@ -16,7 +16,7 @@ from pvsite_datamodel import  sqlmodels
 from pvsite_datamodel.write.datetime_intervals import get_or_else_create_datetime_interval
 from pvsite_datamodel.write.upsert import upsert
 from pvsite_datamodel.write.utils import WrittenRow
-from pvsite_datamodel.read import get_site_from_uuid
+from pvsite_datamodel.read.site import get_site_from_uuid
 
 
 def insert_forecast_values(

@@ -8,7 +8,8 @@ import uuid
 from testcontainers.postgres import PostgresContainer
 
 from pvsite_datamodel.connection import DatabaseConnection
-from pvsite_datamodel.sqlmodels import Base, ClientSQL, SiteSQL
+from pvsite_datamodel.sqlmodels import Base, ClientSQL, SiteSQL, GenerationSQL
+from pvsite_datamodel.write.datetime_intervals import get_or_else_create_datetime_interval
 
 
 from testcontainers.postgres import PostgresContainer
@@ -83,6 +84,32 @@ def sites(db_session):
 
 
 @pytest.fixture()
+def generations(db_session, sites):
+    """Create some fake generations"""
+
+    start_times = [datetime.today() - timedelta(minutes=x) for x in range(10)]
+
+    all_generations = []
+    for site in sites:
+        for i in range(0, 10):
+
+            datetime_interval, _ = get_or_else_create_datetime_interval(
+                session=db_session, start_time=start_times[i]
+            )
+
+            generation = GenerationSQL(
+                generation_uuid=uuid.uuid4(),
+                site_uuid=site.site_uuid,
+                power_kw=i,
+                datetime_interval_uuid=datetime_interval.datetime_interval_uuid,
+            )
+            all_generations.append(generation)
+
+    db_session.add_all(all_generations)
+    db_session.commit()
+
+
+@pytest.fixture()
 def test_time():
     return datetime(2022, 7, 25, 0, 0, 0, 0, timezone.utc)
 
@@ -114,9 +141,7 @@ def generation_valid_site(sites):
     site_uuid = sites[0].site_uuid
 
     return {
-        "start_datetime_utc": [
-            (datetime.today() - timedelta(minutes=x)) for x in range(10)
-        ],
+        "start_datetime_utc": [(datetime.today() - timedelta(minutes=x)) for x in range(10)],
         "power_kw": [float(x) for x in range(10)],
         "site_uuid": [site_uuid for x in range(10)],
     }
