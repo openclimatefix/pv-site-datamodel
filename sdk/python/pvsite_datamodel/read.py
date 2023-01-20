@@ -61,3 +61,26 @@ def get_site(
 
     return site
 
+
+def get_all_site(
+    session: Session,
+) -> SiteSQL:
+    """
+    Get all sites
+
+    :param session: database sessions
+    :return: site object
+    """
+
+    logger.debug(f'Getting all sites')
+
+    # start main query
+    query = session.query(SiteSQL)
+
+    # get all results
+    sites = query.all()
+
+    logger.debug(f'Found {len(sites)} sites')
+
+    return sites
+
