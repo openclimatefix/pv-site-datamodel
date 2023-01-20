@@ -9,7 +9,7 @@ import os
 import sys
 from shutil import rmtree
 
-from setuptools import Command, setup
+from setuptools import Command, find_packages, setup
 
 # Package meta-data.
 NAME = "pvsite-datamodel"
@@ -105,6 +105,7 @@ setup(
     install_requires=REQUIRED,
     extras_require=EXTRAS,
     include_package_data=True,
+    packages=find_packages(),
     license="MIT",
     classifiers=[
         # Trove classifiers
