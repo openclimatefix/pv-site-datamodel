@@ -6,7 +6,7 @@ on:
 
 env:
   PYTHON_ROOT_DIRECTORY: sdk/python
-  PYTHON_PACKAGE_NAME: pvsite-datamodel
+  PYTHON_PACKAGE_NAME: pvsite_datamodel
 
 jobs:
   test:
