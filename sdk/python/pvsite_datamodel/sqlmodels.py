@@ -3,17 +3,25 @@ SQLAlchemy definition of the pvsite database schema
 """
 
 import uuid
+from datetime import datetime
 
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import FLOAT, INTEGER, REAL, TIMESTAMP, UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import UniqueConstraint
+from sqlalchemy import Column, DateTime
 
 Base = declarative_base()
 
 
-class SiteSQL(Base):
+class CreatedMixin:
+    """Mixin to add created datetime to model"""
+
+    created_utc = Column(DateTime(timezone=True), default=lambda: datetime.utcnow())
+
+
+class SiteSQL(Base, CreatedMixin):
     """
     Class representing the sites table.
 
@@ -41,8 +49,7 @@ class SiteSQL(Base):
     latitude = sa.Column(FLOAT, nullable=False)
     longitude = sa.Column(FLOAT, nullable=False)
     capacity_kw = sa.Column(REAL, nullable=False)
-    created_utc = sa.Column(TIMESTAMP, nullable=False)
-    updated_utc = sa.Column(TIMESTAMP, nullable=False)
+    updated_utc = sa.Column(TIMESTAMP, nullable=False, default=lambda: datetime.utcnow())
     ml_id = sa.Column(sa.Integer, autoincrement=True, nullable=False, unique=True)
 
     __table_args__ = (UniqueConstraint("client_site_id", client_uuid, name="idx_client"),)
@@ -52,7 +59,7 @@ class SiteSQL(Base):
     generation = relationship("GenerationSQL")
 
 
-class GenerationSQL(Base):
+class GenerationSQL(Base, CreatedMixin):
     """
     Class representing the generation table.
 
@@ -76,10 +83,9 @@ class GenerationSQL(Base):
         nullable=False,
         default=uuid.uuid4,
     )
-    created_utc = sa.Column(TIMESTAMP, nullable=False)
 
 
-class ForecastSQL(Base):
+class ForecastSQL(Base, CreatedMixin):
     """
     Class representing the forecasts table.
 
@@ -96,14 +102,14 @@ class ForecastSQL(Base):
     site_uuid = sa.Column(
         UUID(as_uuid=True), sa.ForeignKey("sites.site_uuid"), nullable=False, default=uuid.uuid4
     )
-    created_utc = sa.Column(TIMESTAMP, nullable=False)
+
     forecast_version = sa.Column(sa.String(32), nullable=False)
 
     # one (forecasts) to many (forecast_values)
     forecast_values = relationship("ForecastValueSQL")
 
 
-class ForecastValueSQL(Base):
+class ForecastValueSQL(Base, CreatedMixin):
     """
     Class representing the forecast_values table.
 
@@ -127,7 +133,7 @@ class ForecastValueSQL(Base):
         default=uuid.uuid4,
     )
     forecast_generation_kw = sa.Column(REAL, nullable=False)
-    created_utc = sa.Column(TIMESTAMP, nullable=False)
+
     forecast_uuid = sa.Column(
         UUID(as_uuid=True),
         sa.ForeignKey("forecasts.forecast_uuid"),
@@ -136,7 +142,7 @@ class ForecastValueSQL(Base):
     )
 
 
-class LatestForecastValueSQL(Base):
+class LatestForecastValueSQL(Base, CreatedMixin):
     """
     Class representing the latest_forecast_values table.
 
@@ -160,7 +166,7 @@ class LatestForecastValueSQL(Base):
         default=uuid.uuid4,
     )
     forecast_generation_kw = sa.Column(REAL, nullable=False)
-    created_utc = sa.Column(TIMESTAMP, nullable=False)
+
     forecast_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, nullable=False)
     site_uuid = sa.Column(
         UUID(as_uuid=True), sa.ForeignKey("sites.site_uuid"), nullable=False, default=uuid.uuid4
@@ -170,7 +176,7 @@ class LatestForecastValueSQL(Base):
     latest_forecast = relationship("SiteSQL", back_populates="latest_forecast_values")
 
 
-class ClientSQL(Base):
+class ClientSQL(Base, CreatedMixin):
     """
     Class representing the clients table.
 
@@ -184,12 +190,11 @@ class ClientSQL(Base):
 
     client_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     client_name = sa.Column(sa.String(255), nullable=False)
-    created_utc = sa.Column(TIMESTAMP, nullable=False)
 
     sites = relationship("SiteSQL")
 
 
-class DatetimeIntervalSQL(Base):
+class DatetimeIntervalSQL(Base, CreatedMixin):
     """
     Class representing the datetime_intervals table.
 
@@ -204,14 +209,13 @@ class DatetimeIntervalSQL(Base):
     datetime_interval_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     start_utc = sa.Column(TIMESTAMP, nullable=False)
     end_utc = sa.Column(TIMESTAMP, nullable=False)
-    created_utc = sa.Column(TIMESTAMP, nullable=False)
 
     generation = relationship("GenerationSQL")
     forecast_values = relationship("ForecastValueSQL")
     latest_forecast_values = relationship("LatestForecastValueSQL")
 
 
-class StatusSQL(Base):
+class StatusSQL(Base, CreatedMixin):
     """
     Class representing the status table:
 
@@ -227,4 +231,3 @@ class StatusSQL(Base):
     status_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     status = sa.Column(sa.String(255))
     message = sa.Column(sa.String(255))
-    created_utc = sa.Column(TIMESTAMP)
