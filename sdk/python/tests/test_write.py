@@ -9,7 +9,9 @@ import pytest
 
 from pvsite_datamodel import connection
 from pvsite_datamodel import sqlmodels
-from pvsite_datamodel import write
+from pvsite_datamodel.write.datetime_intervals import get_or_else_create_datetime_interval
+from pvsite_datamodel.write.forecast import insert_forecast_values
+from pvsite_datamodel.write.generation import insert_generation_values
 
 client_uuid = uuid.uuid4()
 site_uuid = uuid.uuid4()
@@ -29,7 +31,7 @@ def test1_writes_interval_when_not_exist(db_session, test_time):
 
     Needs to be run after test1 to work.
     """
-    datetime_interval, written_rows = write.get_or_else_create_datetime_interval(
+    datetime_interval, written_rows = get_or_else_create_datetime_interval(
         session=db_session, start_time=test_time
     )
     assert len(written_rows) > 0
@@ -48,10 +50,10 @@ def test1_writes_interval_when_not_exist(db_session, test_time):
 
 def test_gets_existing_interval_when_exists(db_session, test_time):
     """Tests function doesn't write to db when the datetime_interval already exists"""
-    _, written_rows = write.get_or_else_create_datetime_interval(
+    _, written_rows = get_or_else_create_datetime_interval(
         session=db_session, start_time=test_time
     )
-    _, written_rows_2 = write.get_or_else_create_datetime_interval(
+    _, written_rows_2 = get_or_else_create_datetime_interval(
         session=db_session, start_time=test_time
     )
     assert len(written_rows) > 0
@@ -62,7 +64,7 @@ def test_inserts_values_for_existing_site(db_session, forecast_valid_site):
     """Tests inserts values successfully"""
 
     df = pd.DataFrame(forecast_valid_site)
-    written_rows = write.insert_forecast_values(session=db_session, df_forecast_values=df)
+    written_rows = insert_forecast_values(session=db_session, df_forecast_values=df)
 
     assert len(written_rows) == 21
     # 10 datetime intervals, 10 forecast values, 1 forecast
@@ -88,8 +90,8 @@ def test_inserts_values_for_existing_site_and_existing_datetime_intervals(
     # Create DataFrame and write to DB
     df = pd.DataFrame(forecast_valid_site)
     # write once and again,
-    _ = write.insert_forecast_values(session=db_session, df_forecast_values=df)
-    written_rows = write.insert_forecast_values(session=db_session, df_forecast_values=df)
+    _ = insert_forecast_values(session=db_session, df_forecast_values=df)
+    written_rows = insert_forecast_values(session=db_session, df_forecast_values=df)
     assert len(written_rows) == 11  # 10 forecast values, 1 forecast
 
     # Check correct data has been written and exists in table
@@ -108,5 +110,21 @@ def test_errors_on_invalid_site(db_session, forecast_invalid_site):
 
     df = pd.DataFrame(forecast_invalid_site)
     with pytest.raises(KeyError):
-        written_rows = write.insert_forecast_values(session=db_session, df_forecast_values=df)
+        written_rows = insert_forecast_values(session=db_session, df_forecast_values=df)
         assert len(written_rows), 0
+
+
+def test_inserts_generation_for_existing_site(db_session, generation_valid_site):
+    """Tests inserts values successfully"""
+
+    df = pd.DataFrame(generation_valid_site)
+    written_rows = insert_generation_values(session=db_session, generation_values_df=df)
+
+    assert len(written_rows) == 20
+    # 10 datetime intervals, 10 generation values
+
+    # Check data has been written and exists in table
+    written_forecastvalues = db_session.query(sqlmodels.GenerationSQL).all()
+    assert len(written_forecastvalues) == 10
+    written_datetimeintervals = db_session.query(sqlmodels.DatetimeIntervalSQL).all()
+    assert len(written_datetimeintervals) == 10

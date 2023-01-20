@@ -95,7 +95,7 @@ def forecast_valid_site(sites):
         "target_datetime_utc": [
             (datetime.today() - timedelta(minutes=x)).isoformat() for x in range(10)
         ],
-        "forecast_kw": [x for x in range(10)],
+        "forecast_kw": [float(x) for x in range(10)],
         "pv_uuid": [site_uuid for x in range(10)],
     }
 
@@ -104,6 +104,28 @@ def forecast_valid_site(sites):
 def forecast_invalid_site():
     return {
         "target_datetime_utc": [datetime.today().isoformat()],
-        "forecast_kw": [1],
+        "forecast_kw": [1.0],
         "pv_uuid": [uuid.uuid4()],
+    }
+
+
+@pytest.fixture()
+def generation_valid_site(sites):
+    site_uuid = sites[0].site_uuid
+
+    return {
+        "start_datetime_utc": [
+            (datetime.today() - timedelta(minutes=x)) for x in range(10)
+        ],
+        "power_kw": [float(x) for x in range(10)],
+        "site_uuid": [site_uuid for x in range(10)],
+    }
+
+
+@pytest.fixture()
+def generation_invalid_site():
+    return {
+        "start_datetime_utc": [datetime.today()],
+        "power_kw": [1.0],
+        "site_uuid": [uuid.uuid4()],
     }
