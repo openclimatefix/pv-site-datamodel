@@ -28,7 +28,7 @@ def insert_generation_values(
 
     :param session: sqlalchemy session for interacting with the database
     :param generation_values_df: pandas dataframe with columns
-    ["target_datetime_utc", "forecast_kw", "pv_uuid"]
+    ["start_datetime_utc", "power_kw", "pv_uuid"]
     :return list[WrittenRow]: list of added rows to DB
     """
 
