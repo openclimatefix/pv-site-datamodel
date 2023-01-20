@@ -10,10 +10,10 @@ import uuid
 import dateutil.parser as dp
 import numpy as np
 import pandas as pd
-import schema
 import sqlalchemy as sa
 import sqlalchemy.dialects.postgresql as sa_psql
 import sqlalchemy.orm as sa_orm
+import sqlmodels
 
 # Defines the length of time over which a forecast is valid
 FORECAST_TIMESPAN = dt.timedelta(minutes=5)
@@ -24,11 +24,11 @@ class WrittenRow(typing.NamedTuple):
     Defines a write to the Database
     """
 
-    table: schema.Base
+    table: sqlmodels.Base
     pk_value: str
 
 
-def upsert(session: sa_orm.Session, table: schema.Base, rows: list[dict]) -> list[WrittenRow]:
+def upsert(session: sa_orm.Session, table: sqlmodels.Base, rows: list[dict]) -> list[WrittenRow]:
     """
     Upsert rows into table
 
@@ -83,20 +83,20 @@ def insert_forecast_values(
     for site_uuid in sites:
 
         # Check whether the site id exits in the table, otherwise return an error
-        query = session.query(schema.SiteSQL)
-        query = query.filter(schema.SiteSQL.site_uuid == site_uuid)
-        existing_site: schema.SiteSQL = query.first()
+        query = session.query(sqlmodels.SiteSQL)
+        query = query.filter(sqlmodels.SiteSQL.site_uuid == site_uuid)
+        existing_site: sqlmodels.SiteSQL = query.first()
         if existing_site is None:
             raise KeyError(f"Site uuid {site_uuid} not found in sites table")
 
         # Create a forcast (sequence) for the site, and write it to db
-        forecast: schema.ForecastSQL = schema.ForecastSQL(
+        forecast: sqlmodels.ForecastSQL = sqlmodels.ForecastSQL(
             forecast_uuid=uuid.uuid4(),
             site_uuid=site_uuid,
             created_utc=dt.datetime.now(tz=dt.timezone.utc),
             forecast_version=forecast_version,
         )
-        newly_written_rows = upsert(session, schema.ForecastSQL, forecast.__dict__)
+        newly_written_rows = upsert(session, sqlmodels.ForecastSQL, forecast.__dict__)
         written_rows.extend(newly_written_rows)
 
         # Get all dataframe forecast value entries for current site_uuid
@@ -129,7 +129,7 @@ def insert_forecast_values(
 
             # Create a ForecastValueSQL object for each forecast value, and surface as dict
             sql_forecast_values = [
-                schema.ForecastValueSQL(
+                sqlmodels.ForecastValueSQL(
                     forecast_uuid=forecast.forecast_uuid,
                     forecast_value_uuid=uuid.uuid4(),
                     datetime_interval_uuid=datetime_interval.datetime_interval_uuid,
@@ -140,7 +140,7 @@ def insert_forecast_values(
             ]
 
             # Save it to the db
-            newly_added_rows = upsert(session, schema.ForecastValueSQL, sql_forecast_values)
+            newly_added_rows = upsert(session, sqlmodels.ForecastValueSQL, sql_forecast_values)
             written_rows.extend(newly_added_rows)
 
     return written_rows
@@ -148,7 +148,7 @@ def insert_forecast_values(
 
 def get_or_else_create_datetime_interval(
     session: sa_orm.Session, start_time: dt.datetime, end_time: dt.datetime = None
-) -> tuple[schema.DatetimeIntervalSQL, list[WrittenRow]]:
+) -> tuple[sqlmodels.DatetimeIntervalSQL, list[WrittenRow]]:
     """
     Gets a DatetimeInterval from the DB by start time if it exists, otherwise it creates a new entry
 
@@ -156,8 +156,8 @@ def get_or_else_create_datetime_interval(
     :param start_time: The start time of the datetime interval
     :param end_time: The end time of the datetime interval. Optional, defaults to the start_time
     + FORECAST_TIMESPAN
-    :return tuple(schema.DatetimeIntervalSQL, list[WrittenRow]): A tuple containing the existing or
-    created DatetimeIntervalSQL object, and a list of WrittenRow objects dictating what was
+    :return tuple(sqlmodels.DatetimeIntervalSQL, list[WrittenRow]): A tuple containing the existing
+    or created DatetimeIntervalSQL object, and a list of WrittenRow objects dictating what was
     written to the DB
     """
 
@@ -166,10 +166,10 @@ def get_or_else_create_datetime_interval(
         end_time = start_time + FORECAST_TIMESPAN
 
     # Check if a datetime interval exists for the input times
-    query = session.query(schema.DatetimeIntervalSQL)
-    query = query.filter(schema.DatetimeIntervalSQL.start_utc == start_time)
-    query = query.filter(schema.DatetimeIntervalSQL.end_utc == end_time)
-    existing_interval: schema.DatetimeIntervalSQL = query.first()
+    query = session.query(sqlmodels.DatetimeIntervalSQL)
+    query = query.filter(sqlmodels.DatetimeIntervalSQL.start_utc == start_time)
+    query = query.filter(sqlmodels.DatetimeIntervalSQL.end_utc == end_time)
+    existing_interval: sqlmodels.DatetimeIntervalSQL = query.first()
 
     # If it does, fetch it's uuid
     if existing_interval is not None:
@@ -177,11 +177,11 @@ def get_or_else_create_datetime_interval(
 
     # If it doesn't, create a new one
     else:
-        datetime_interval: schema.DatetimeIntervalSQL = schema.DatetimeIntervalSQL(
+        datetime_interval: sqlmodels.DatetimeIntervalSQL = sqlmodels.DatetimeIntervalSQL(
             datetime_interval_uuid=uuid.uuid4(),
             start_utc=start_time,
             end_utc=end_time,
             created_utc=dt.datetime.now(tz=dt.timezone.utc),
         )
-        written_rows = upsert(session, schema.DatetimeIntervalSQL, [datetime_interval.__dict__])
+        written_rows = upsert(session, sqlmodels.DatetimeIntervalSQL, [datetime_interval.__dict__])
         return datetime_interval, written_rows

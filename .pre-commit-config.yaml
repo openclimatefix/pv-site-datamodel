@@ -37,7 +37,7 @@ repos:
             --extend-ignore=E203,
             --per-file-ignores,
             "__init__.py:F401",
-            "sdk/pvsite-python/schema.py",
+            "sdk/pvsite-python/sqlmodels.py",
           ]
   - repo: https://github.com/PyCQA/isort
     rev: 5.11.4

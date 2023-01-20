@@ -8,9 +8,9 @@ import uuid
 
 import connection
 import pandas as pd
-import schema
 import sqlalchemy as sa
 import sqlalchemy.orm as sa_orm
+import sqlmodels
 import testing.postgresql as test_pg
 import write
 
@@ -21,15 +21,15 @@ site_uuid = uuid.uuid4()
 def initdb(postgresql):
     """Creates tables in test database according to schema, and writes a site and a client"""
     engine = sa.create_engine(postgresql.url())
-    schema.Base.metadata.create_all(bind=engine)
+    sqlmodels.Base.metadata.create_all(bind=engine)
     print("Created tables")
     with sa_orm.Session(engine) as session:
-        client = schema.ClientSQL(
+        client = sqlmodels.ClientSQL(
             client_uuid=client_uuid,
             client_name="testclient",
             created_utc=dt.datetime.now(dt.timezone.utc),
         )
-        site = schema.SiteSQL(
+        site = sqlmodels.SiteSQL(
             site_uuid=site_uuid,
             client_uuid=client_uuid,
             client_site_id=1,
@@ -71,7 +71,7 @@ class TestConnection(t.TestCase):
         """Tests it can create a connection without erroring"""
         dbcon = connection.DatabaseConnection(self.postgresql.url(), echo=False)
         session = dbcon.get_session()
-        session.query(schema.SiteSQL).first()
+        session.query(sqlmodels.SiteSQL).first()
 
 
 class TestGetOrElseCreateDateTimeInterval(t.TestCase):
@@ -104,9 +104,9 @@ class TestGetOrElseCreateDateTimeInterval(t.TestCase):
 
             # Check data has been written and exists in table
             query_result = (
-                session.query(schema.DatetimeIntervalSQL)
+                session.query(sqlmodels.DatetimeIntervalSQL)
                 .filter(
-                    schema.DatetimeIntervalSQL.datetime_interval_uuid
+                    sqlmodels.DatetimeIntervalSQL.datetime_interval_uuid
                     == datetime_interval.datetime_interval_uuid
                 )
                 .first()
@@ -159,11 +159,11 @@ class TestInsertForecastValues(t.TestCase):
             )  # 10 datetime intervals, 10 forecast values, 1 forecast
 
             # Check data has been written and exists in table
-            written_forecastvalues = session.query(schema.ForecastValueSQL).all()
+            written_forecastvalues = session.query(sqlmodels.ForecastValueSQL).all()
             self.assertEqual(10, len(written_forecastvalues))
-            written_datetimeintervals = session.query(schema.DatetimeIntervalSQL).all()
+            written_datetimeintervals = session.query(sqlmodels.DatetimeIntervalSQL).all()
             self.assertEqual(10, len(written_datetimeintervals))
-            written_forecasts = session.query(schema.ForecastSQL).all()
+            written_forecasts = session.query(sqlmodels.ForecastSQL).all()
             self.assertEqual(1, len(written_forecasts))
 
     def test2_InsertsValuesForExistingSiteAndExistingDatetimeIntervals(self):
@@ -179,11 +179,11 @@ class TestInsertForecastValues(t.TestCase):
             self.assertEqual(11, len(written_rows))  # 10 forecast values, 1 forecast
 
             # Check correct data has been written and exists in table
-            written_forecastvalues = session.query(schema.ForecastValueSQL).all()
+            written_forecastvalues = session.query(sqlmodels.ForecastValueSQL).all()
             self.assertEqual(20, len(written_forecastvalues))  # 10 more since previous test
-            written_datetimeintervals = session.query(schema.DatetimeIntervalSQL).all()
+            written_datetimeintervals = session.query(sqlmodels.DatetimeIntervalSQL).all()
             self.assertEqual(10, len(written_datetimeintervals))  # Unchanged from previous test
-            written_forecasts = session.query(schema.ForecastSQL).all()
+            written_forecasts = session.query(sqlmodels.ForecastSQL).all()
             self.assertEqual(2, len(written_forecasts))  # 1 more since previous test
 
     def test3_ErrorsOnInvalidSite(self):
