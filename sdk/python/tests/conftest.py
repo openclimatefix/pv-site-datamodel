@@ -1,50 +1,62 @@
 """ Pytest fixtures for tests """
 import os
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import pytest
 import uuid
+from testcontainers.postgres import PostgresContainer
+
 from pvsite_datamodel.connection import DatabaseConnection
 from pvsite_datamodel.sqlmodels import Base, ClientSQL, SiteSQL
 
 
-@pytest.fixture
-def db_connection():
-    """Pytest fixture for a database connection"""
+from testcontainers.postgres import PostgresContainer
+import sqlalchemy
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 
-    # TODO need to setup postgres database with docker
-    url = os.environ["DB_URL"]
-    connection = DatabaseConnection(url=url)
-    Base.metadata.create_all(connection.engine)
 
-    yield connection
+@pytest.fixture(scope="session")
+def engine():
+    with PostgresContainer("postgres:14.5") as postgres:
 
-    Base.metadata.drop_all(connection.engine)
+        # TODO need to setup postgres database with docker
+        url = postgres.get_connection_url()
+        engine = create_engine(url)
+        Base.metadata.create_all(engine)
+
+        yield engine
 
 
 @pytest.fixture(scope="function", autouse=True)
-def db_session(db_connection):
-    """Creates a new database session for a test."""
+def db_session(engine):
+    """Returns an sqlalchemy session, and after the test tears down everything properly."""
+    connection = engine.connect()
+    # begin the nested transaction
+    transaction = connection.begin()
+    # use the connection with the already started transaction
 
-    connection = db_connection.engine.connect()
-    t = connection.begin()
+    with Session(bind=connection) as session:
 
-    with db_connection.get_session() as s:
-        s.begin()
-        yield s
+        yield session
 
-        s.rollback()
-
-        t.rollback()
+        session.close()
+        # roll back the broader transaction
+        transaction.rollback()
+        # put back the connection to the connection pool
         connection.close()
+        session.flush()
+
+    engine.dispose()
 
 
 @pytest.fixture()
 def sites(db_session):
-    """ create some fake sites """
+    """create some fake sites"""
 
-    for i in range(0,4):
+    sites = []
+    for i in range(0, 4):
         client = ClientSQL(
             client_uuid=uuid.uuid4(),
             client_name=f"testclient_{i}",
@@ -65,3 +77,33 @@ def sites(db_session):
         db_session.add(site)
         db_session.commit()
 
+        sites.append(site)
+
+    return sites
+
+
+@pytest.fixture()
+def test_time():
+    return datetime(2022, 7, 25, 0, 0, 0, 0, timezone.utc)
+
+
+@pytest.fixture()
+def forecast_valid_site(sites):
+    site_uuid = sites[0].site_uuid
+
+    return {
+        "target_datetime_utc": [
+            (datetime.today() - timedelta(minutes=x)).isoformat() for x in range(10)
+        ],
+        "forecast_kw": [x for x in range(10)],
+        "pv_uuid": [site_uuid for x in range(10)],
+    }
+
+
+@pytest.fixture()
+def forecast_invalid_site():
+    return {
+        "target_datetime_utc": [datetime.today().isoformat()],
+        "forecast_kw": [1],
+        "pv_uuid": [uuid.uuid4()],
+    }

@@ -13,4 +13,3 @@ def test_get_site(sites, db_session):
 def test_get_site_not_exists(sites, db_session):
     with pytest.raises(Exception):
         _ = get_site(session=db_session, client_name="testclient_100", client_id=1)
-
