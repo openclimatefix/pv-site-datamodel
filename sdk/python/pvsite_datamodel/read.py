@@ -32,7 +32,7 @@ def get_site(
     query = query.filter(SiteSQL.client_site_id == client_id)
 
     # filter on client_name
-    query = query.filter(SiteSQL.client_name == client_name)
+    query = query.filter(ClientSQL.client_name == client_name)
 
     # get all results
     site = query.first()

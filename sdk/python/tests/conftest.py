@@ -59,7 +59,7 @@ def sites(db_session):
             capacity_kw=4,
             created_utc=datetime.now(timezone.utc),
             updated_utc=datetime.now(timezone.utc),
-            ml_id=1,
+            ml_id=i,
         )
         db_session.add(client)
         db_session.add(site)
