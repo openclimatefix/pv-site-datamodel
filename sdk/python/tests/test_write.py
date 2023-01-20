@@ -11,6 +11,7 @@ from pvsite_datamodel import connection
 from pvsite_datamodel import sqlmodels
 from pvsite_datamodel.write.datetime_intervals import get_or_else_create_datetime_interval
 from pvsite_datamodel.write.forecast import insert_forecast_values
+from pvsite_datamodel.write.generation import insert_generation_values
 
 client_uuid = uuid.uuid4()
 site_uuid = uuid.uuid4()
@@ -111,3 +112,19 @@ def test_errors_on_invalid_site(db_session, forecast_invalid_site):
     with pytest.raises(KeyError):
         written_rows = insert_forecast_values(session=db_session, df_forecast_values=df)
         assert len(written_rows), 0
+
+
+def test_inserts_generation_for_existing_site(db_session, generation_valid_site):
+    """Tests inserts values successfully"""
+
+    df = pd.DataFrame(generation_valid_site)
+    written_rows = insert_generation_values(session=db_session, generation_values_df=df)
+
+    assert len(written_rows) == 20
+    # 10 datetime intervals, 10 generation values
+
+    # Check data has been written and exists in table
+    written_forecastvalues = db_session.query(sqlmodels.GenerationSQL).all()
+    assert len(written_forecastvalues) == 10
+    written_datetimeintervals = db_session.query(sqlmodels.DatetimeIntervalSQL).all()
+    assert len(written_datetimeintervals) == 10
