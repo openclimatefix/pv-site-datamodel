@@ -8,7 +8,7 @@
         <img src="https://img.shields.io/github/actions/workflow/status/openclimatefix/pv-datamodel/generate-ddl.yml?label=codegen"></a>
     <a href="https://github.com/openclimatefix/pv-datamodel/actions/workflows/publish-docs.yml" alt="Documentation publishing pipeline">
         <img src="https://img.shields.io/github/actions/workflow/status/openclimatefix/pv-datamodel/publish-docs.yml?label=publish"></a>
-    <a href="https://github.com/badges/shields/graphs/contributors" alt="Contributors">
+    <a href="https://github.com/openclimatefix/pv-datamodel/graphs/contributors" alt="Contributors">
         <img src="https://img.shields.io/github/contributors/openclimatefix/pv-datamodel" /></a>
 </p>
 
