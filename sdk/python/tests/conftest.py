@@ -1,7 +1,5 @@
 """ Pytest fixtures for tests """
-
 from datetime import datetime, timedelta, timezone
-from typing import List
 
 import pytest
 import uuid
@@ -15,33 +13,44 @@ from sqlalchemy.orm import Session
 
 
 @pytest.fixture(scope="session")
-def session(request):
-    postgres = PostgresContainer("postgres:14.5").start()
+def engine():
+    with PostgresContainer("postgres:14.5") as postgres:
 
-    # create session with db container information
-    engine = create_engine(postgres.get_connection_url())
-    version, = engine.execute("select version()").fetchone()
+        # TODO need to setup postgres database with docker
+        url = postgres.get_connection_url()
+        engine = create_engine(url)
+        Base.metadata.create_all(engine)
 
-    # create schema in database
-    Base.metadata.create_all(engine)
+        yield engine
 
-    session = Session(bind=engine)
 
-    def stop_db():
-        print("[fixture] stopping db container")
+@pytest.fixture(scope="function", autouse=True)
+def db_session(engine):
+    """Returns an sqlalchemy session, and after the test tears down everything properly."""
+    connection = engine.connect()
+    # begin the nested transaction
+    transaction = connection.begin()
+    # use the connection with the already started transaction
+
+    with Session(bind=connection) as session:
+
+        yield session
+
         session.close()
+        # roll back the broader transaction
+        transaction.rollback()
+        # put back the connection to the connection pool
+        connection.close()
         session.flush()
-        postgres.stop()
 
-    request.addfinalizer(stop_db)
-    return session
+    engine.dispose()
 
 
 @pytest.fixture()
-def sites(session) -> List[SiteSQL]:
+def sites(db_session):
     """create some fake sites"""
 
-    sites: List[SiteSQL] = []
+    sites = []
     for i in range(0, 4):
         client = ClientSQL(
             client_uuid=uuid.uuid4(),
@@ -59,10 +68,9 @@ def sites(session) -> List[SiteSQL]:
             updated_utc=datetime.now(timezone.utc),
             ml_id=i,
         )
-
-        session.add(client)
-        session.add(site)
-        session.commit()
+        db_session.add(client)
+        db_session.add(site)
+        db_session.commit()
 
         sites.append(site)
 
@@ -70,7 +78,7 @@ def sites(session) -> List[SiteSQL]:
 
 
 @pytest.fixture()
-def generations(session, sites):
+def generations(db_session, sites):
     """Create some fake generations"""
 
     start_times = [datetime.today() - timedelta(minutes=x) for x in range(10)]
@@ -78,8 +86,9 @@ def generations(session, sites):
     all_generations = []
     for site in sites:
         for i in range(0, 10):
+
             datetime_interval, _ = get_or_else_create_datetime_interval(
-                session=session, start_time=start_times[i]
+                session=db_session, start_time=start_times[i]
             )
 
             generation = GenerationSQL(
@@ -90,8 +99,8 @@ def generations(session, sites):
             )
             all_generations.append(generation)
 
-    session.add_all(all_generations)
-    session.commit()
+    db_session.add_all(all_generations)
+    db_session.commit()
 
 
 @pytest.fixture()

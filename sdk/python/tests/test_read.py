@@ -1,5 +1,7 @@
 """ Test read functions """
 
+from sqlalchemy.orm import Query
+
 from pvsite_datamodel.read.site import get_site, get_all_site, get_site_from_uuid
 from pvsite_datamodel.read.generation import get_pv_generation_by_client, get_pv_generation_by_site
 from pvsite_datamodel.sqlmodels import SiteSQL
@@ -35,7 +37,8 @@ def test_get_pv_generation(generations, db_session):
     # TODO need to test     start_utc, end_utc, client_names
 
 
-def test_get_pv_generation_by_site(sites, db_session):
-    test_site: SiteSQL = sites[0]
-    generations = get_pv_generation_by_site(session=db_session, site_uuids=[test_site.site_uuid])
+def test_get_pv_generation_by_site(generations, db_session):
+    query: Query = db_session.query(SiteSQL)
+    site: SiteSQL = query.first()
+    generations = get_pv_generation_by_site(session=db_session, site_uuids=[site.site_uuid])
     assert len(generations) == 10
