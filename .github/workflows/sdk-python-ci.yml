@@ -1,6 +1,6 @@
 name: CI Pipeline for SDK - Python
 
-on: ["push", "pull_request"]
+on: [push, pull_request]
 
 jobs:
   test:
@@ -13,7 +13,7 @@ jobs:
 
   publish:
     needs: ["test"]
-    if: github.ref_name == main
+    if: github.ref_name == 'main'
     uses: openclimatefix/.github/.github/workflows/python-release.yml@working-directory
     secrets:
       token: ${{ secrets.PYPI_API_TOKEN }}
