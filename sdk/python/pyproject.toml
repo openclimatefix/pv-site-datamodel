@@ -10,20 +10,29 @@ authors = [
 ]
 requires-python = ">=3.10.0"
 version = "0.1.6"  # Autoincremented by bumpversion.cfg
-classifiers = [
-    "Programming Language :: Python :: 3"
-]
-dependencies = [
-    "numpy",
-    "pandas",
-    "pandera",
-    "sqlalchemy",
-    "mypy",
+classifiers = ["Programming Language :: Python :: 3"]
+dynamic = ["dependencies"]
+
+[project.optional-dependencies]
+tests = [
+  'testcontainers.postgres',
+  'pytest',
 ]
 
 [project.urls]
 "GitHub" = "https://github.com/openclimatefix/pvsite-datamodel"
 
+
+[tool.setuptools]
+include-package-data = true
+packages = [
+    "pvsite_datamodel",
+    "pvsite_datamodel.read",
+    "pvsite_datamodel.write",
+]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
 
 [tool.mypy]
 python_version = "3.10"
@@ -39,7 +48,3 @@ exclude = [
 addopts = [
     "--import-mode=importlib",
 ]
-
-[tool.setuptools]
-include-package-data = true
-packages = ["pvsite_datamodel"]
