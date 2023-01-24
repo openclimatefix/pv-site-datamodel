@@ -1,14 +1,10 @@
 name: CI Pipeline for SDK - Python
 
-on:
-  push:
-    branches: ["main"]
-
+on: ["push", "pull_request"]
 
 jobs:
   test:
-#    needs: ["gen"]
-    uses: openclimatefix/.github/.github/workflows/python-test.yml@working-directory
+    uses: openclimatefix/.github/.github/workflows/python-test.yml@python-options
     with:
       workdir: sdk/python
       pytest_cov_dir: pvsite_datamodel
@@ -16,10 +12,10 @@ jobs:
       os_list: '["ubuntu-latest"]'
 
   publish:
-    # needs: ["test"]
+    needs: ["test"]
+    if: github.ref_name == main
     uses: openclimatefix/.github/.github/workflows/python-release.yml@working-directory
     secrets:
       token: ${{ secrets.PYPI_API_TOKEN }}
     with:
       workdir: sdk/python
-

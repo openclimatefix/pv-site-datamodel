@@ -1,62 +1,47 @@
 """ Pytest fixtures for tests """
-import os
 
 from datetime import datetime, timedelta, timezone
+from typing import List
 
 import pytest
 import uuid
-from testcontainers.postgres import PostgresContainer
 
-from pvsite_datamodel.connection import DatabaseConnection
 from pvsite_datamodel.sqlmodels import Base, ClientSQL, SiteSQL, GenerationSQL
 from pvsite_datamodel.write.datetime_intervals import get_or_else_create_datetime_interval
 
-
 from testcontainers.postgres import PostgresContainer
-import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
 
 @pytest.fixture(scope="session")
-def engine():
-    with PostgresContainer("postgres:14.5") as postgres:
+def session(request):
+    postgres = PostgresContainer("postgres:14.5").start()
 
-        # TODO need to setup postgres database with docker
-        url = postgres.get_connection_url()
-        engine = create_engine(url)
-        Base.metadata.create_all(engine)
+    # create session with db container information
+    engine = create_engine(postgres.get_connection_url())
+    version, = engine.execute("select version()").fetchone()
 
-        yield engine
+    # create schema in database
+    Base.metadata.create_all(engine)
 
+    session = Session(bind=engine)
 
-@pytest.fixture(scope="function", autouse=True)
-def db_session(engine):
-    """Returns an sqlalchemy session, and after the test tears down everything properly."""
-    connection = engine.connect()
-    # begin the nested transaction
-    transaction = connection.begin()
-    # use the connection with the already started transaction
-
-    with Session(bind=connection) as session:
-
-        yield session
-
+    def stop_db():
+        print("[fixture] stopping db container")
         session.close()
-        # roll back the broader transaction
-        transaction.rollback()
-        # put back the connection to the connection pool
-        connection.close()
         session.flush()
+        postgres.stop()
 
-    engine.dispose()
+    request.addfinalizer(stop_db)
+    return session
 
 
 @pytest.fixture()
-def sites(db_session):
+def sites(session) -> List[SiteSQL]:
     """create some fake sites"""
 
-    sites = []
+    sites: List[SiteSQL] = []
     for i in range(0, 4):
         client = ClientSQL(
             client_uuid=uuid.uuid4(),
@@ -74,9 +59,10 @@ def sites(db_session):
             updated_utc=datetime.now(timezone.utc),
             ml_id=i,
         )
-        db_session.add(client)
-        db_session.add(site)
-        db_session.commit()
+
+        session.add(client)
+        session.add(site)
+        session.commit()
 
         sites.append(site)
 
@@ -84,7 +70,7 @@ def sites(db_session):
 
 
 @pytest.fixture()
-def generations(db_session, sites):
+def generations(session, sites):
     """Create some fake generations"""
 
     start_times = [datetime.today() - timedelta(minutes=x) for x in range(10)]
@@ -92,9 +78,8 @@ def generations(db_session, sites):
     all_generations = []
     for site in sites:
         for i in range(0, 10):
-
             datetime_interval, _ = get_or_else_create_datetime_interval(
-                session=db_session, start_time=start_times[i]
+                session=session, start_time=start_times[i]
             )
 
             generation = GenerationSQL(
@@ -105,8 +90,8 @@ def generations(db_session, sites):
             )
             all_generations.append(generation)
 
-    db_session.add_all(all_generations)
-    db_session.commit()
+    session.add_all(all_generations)
+    session.commit()
 
 
 @pytest.fixture()

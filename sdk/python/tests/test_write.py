@@ -7,21 +7,25 @@ import uuid
 import pandas as pd
 import pytest
 
-from pvsite_datamodel import connection
-from pvsite_datamodel import sqlmodels
+from pvsite_datamodel.connection import DatabaseConnection
+from pvsite_datamodel.sqlmodels import (
+    SiteSQL,
+    DatetimeIntervalSQL,
+    ForecastSQL,
+    ForecastValueSQL,
+    GenerationSQL,
+)
 from pvsite_datamodel.write.datetime_intervals import get_or_else_create_datetime_interval
-from pvsite_datamodel.write.forecast import insert_forecast_values
-from pvsite_datamodel.write.generation import insert_generation_values
+from pvsite_datamodel.write import insert_generation_values, insert_forecast_values
 
 client_uuid = uuid.uuid4()
 site_uuid = uuid.uuid4()
 
 
 def test_connection(engine, sites):
-
-    dbcon = connection.DatabaseConnection(engine.url, echo=False)
+    dbcon = DatabaseConnection(engine.url, echo=False)
     with dbcon.get_session() as session:
-        session.query(sqlmodels.SiteSQL).first()
+        session.query(SiteSQL).first()
 
 
 #
@@ -38,9 +42,9 @@ def test1_writes_interval_when_not_exist(db_session, test_time):
 
     # Check data has been written and exists in table
     query_result = (
-        db_session.query(sqlmodels.DatetimeIntervalSQL)
+        db_session.query(DatetimeIntervalSQL)
         .filter(
-            sqlmodels.DatetimeIntervalSQL.datetime_interval_uuid
+            DatetimeIntervalSQL.datetime_interval_uuid
             == datetime_interval.datetime_interval_uuid
         )
         .first()
@@ -70,16 +74,16 @@ def test_inserts_values_for_existing_site(db_session, forecast_valid_site):
     # 10 datetime intervals, 10 forecast values, 1 forecast
 
     # Check data has been written and exists in table
-    written_forecastvalues = db_session.query(sqlmodels.ForecastValueSQL).all()
+    written_forecastvalues = db_session.query(ForecastValueSQL).all()
     assert len(written_forecastvalues) == 10
-    written_datetimeintervals = db_session.query(sqlmodels.DatetimeIntervalSQL).all()
+    written_datetimeintervals = db_session.query(DatetimeIntervalSQL).all()
     assert len(written_datetimeintervals) == 10
-    written_forecasts = db_session.query(sqlmodels.ForecastSQL).all()
+    written_forecasts = db_session.query(ForecastSQL).all()
     assert len(written_forecasts) == 1
 
 
 def test_inserts_values_for_existing_site_and_existing_datetime_intervals(
-    db_session, forecast_valid_site
+        db_session, forecast_valid_site
 ):
     """
     Tests inserts values successfully without creating redundant datetime intervals
@@ -95,13 +99,13 @@ def test_inserts_values_for_existing_site_and_existing_datetime_intervals(
     assert len(written_rows) == 11  # 10 forecast values, 1 forecast
 
     # Check correct data has been written and exists in table
-    written_forecastvalues = db_session.query(sqlmodels.ForecastValueSQL).all()
+    written_forecastvalues = db_session.query(ForecastValueSQL).all()
     assert len(written_forecastvalues) == 20  # 10 more since previous test
 
-    written_datetimeintervals = db_session.query(sqlmodels.DatetimeIntervalSQL).all()
+    written_datetimeintervals = db_session.query(DatetimeIntervalSQL).all()
     assert len(written_datetimeintervals) == 10  # Unchanged from previous test
 
-    written_forecasts = db_session.query(sqlmodels.ForecastSQL).all()
+    written_forecasts = db_session.query(ForecastSQL).all()
     assert len(written_forecasts) == 2  # 1 more since previous test
 
 
@@ -124,7 +128,7 @@ def test_inserts_generation_for_existing_site(db_session, generation_valid_site)
     # 10 datetime intervals, 10 generation values
 
     # Check data has been written and exists in table
-    written_forecastvalues = db_session.query(sqlmodels.GenerationSQL).all()
+    written_forecastvalues = db_session.query(GenerationSQL).all()
     assert len(written_forecastvalues) == 10
-    written_datetimeintervals = db_session.query(sqlmodels.DatetimeIntervalSQL).all()
+    written_datetimeintervals = db_session.query(DatetimeIntervalSQL).all()
     assert len(written_datetimeintervals) == 10

@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools_scm>=3.4"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pvsite-datamodel"
+description = "SDK for interacting with the PVSite database"
+authors = [
+    { name = "Open Climate Fix" }
+]
+requires-python = ">=3.10.0"
+version = "0.1.6"  # Autoincremented by bumpversion.cfg
+classifiers = [
+    "Programming Language :: Python :: 3"
+]
+dependencies = [
+    "numpy",
+    "pandas",
+    "pandera",
+    "sqlalchemy",
+    "mypy",
+]
+
+[project.urls]
+"GitHub" = "https://github.com/openclimatefix/pvsite-datamodel"
+
+
+[tool.mypy]
+python_version = "3.10"
+plugins = [
+    "sqlalchemy.ext.mypy.plugin",
+    "pandera.mypy"
+]
+exclude = [
+    "^gen/*$", # TOML basic string (double-quotes, backslash and other characters need escaping)
+]
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]
+
+[tool.setuptools]
+include-package-data = true
+packages = ["pvsite_datamodel"]

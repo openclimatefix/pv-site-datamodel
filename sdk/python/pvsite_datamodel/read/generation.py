@@ -1,44 +1,40 @@
 """ Read pv generation functions """
 import logging
-from datetime import datetime, timezone
-from typing import List, Optional, Union
+import uuid
+from datetime import datetime
+from typing import List, Optional
 
-from sqlalchemy import desc
-from sqlalchemy.orm import Session, joinedload
+from pvsite_datamodel.sqlmodels import ClientSQL, DatetimeIntervalSQL, GenerationSQL, SiteSQL
+from sqlalchemy.orm import Session
 
-from pvsite_datamodel.sqlmodels import GenerationSQL, SiteSQL, DatetimeIntervalSQL, ClientSQL
+from .utils import filter_query_by_datetime_interval
 
 logger = logging.getLogger(__name__)
 
 
-def get_pv_generation(
+def get_pv_generation_by_client(
     session: Session,
     start_utc: Optional[datetime] = None,
     end_utc: Optional[datetime] = None,
     client_names: Optional[List[str]] = None,
-) -> Union[List[GenerationSQL]]:
+) -> List[GenerationSQL]:
     """
-    Get the generation data
+    Get the generation data by client
+
     :param session: database session
     :param end_utc: search filters < on 'datetime_utc'. Can be None
     :param start_utc: search filters >= on 'datetime_utc'. Can be None
     :param client_names: optional list of provider names
-    :return: either list of pv yields, or pv systems
+    :return:list of pv yields
     """
 
     # start main query
     query = session.query(GenerationSQL)
     query = query.join(SiteSQL)
     query = query.join(ClientSQL)
-    query = query.join(DatetimeIntervalSQL)
 
-    # filter on start time
-    if start_utc is not None:
-        query = query.filter(DatetimeIntervalSQL.start_utc >= start_utc)
-
-    # filter on end time
-    if end_utc is not None:
-        query = query.filter(DatetimeIntervalSQL.end_utc < end_utc)
+    # Filter by time interval
+    query = filter_query_by_datetime_interval(query=query, start_utc=start_utc, end_utc=end_utc)
 
     if client_names is not None:
         query = query.filter(ClientSQL.client_name.in_(client_names))
@@ -48,6 +44,41 @@ def get_pv_generation(
         SiteSQL.site_uuid,
         DatetimeIntervalSQL.start_utc,
     )
+
+    # get all results
+    generations: List[GenerationSQL] = query.all()
+
+    return generations
+
+
+def get_pv_generation_by_site(
+    session: Session,
+    start_utc: Optional[datetime] = None,
+    end_utc: Optional[datetime] = None,
+    site_uuids: Optional[List[uuid.UUID]] = None,
+) -> List[GenerationSQL]:
+    """
+    Get the generation data by site
+
+    :param session: database session
+    :param start_utc: search filters >= on 'datetime_utc'
+    :param end_utc: search fileters < on 'datetime_utc'
+    :param site_uuids: optional list of site uuids
+    :return: list of pv yields
+    """
+
+    # start main query
+    query = session.query(GenerationSQL)
+    query = query.join(SiteSQL)
+
+    # Filter by time interval
+    query = filter_query_by_datetime_interval(query=query, start_utc=start_utc, end_utc=end_utc)
+
+    if site_uuids is not None:
+        query = query.filter(SiteSQL.site_uuid.in_(site_uuids))
+
+    # Order by 'created_utc' desc
+    query = query.order_by(SiteSQL.site_uuid, DatetimeIntervalSQL.start_utc)
 
     # get all results
     generations: List[GenerationSQL] = query.all()

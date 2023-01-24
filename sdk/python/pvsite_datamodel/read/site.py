@@ -3,14 +3,15 @@ Functions for reading to pvsite db
 """
 
 import logging
+from typing import List, Optional
 
-from sqlalchemy.orm import Session
 from pvsite_datamodel.sqlmodels import ClientSQL, SiteSQL
+from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
 
 
-def get_site_from_uuid(session: Session, site_uuid: str):
+def get_site_from_uuid(session: Session, site_uuid: str) -> Optional[SiteSQL]:
     """
     Get site object from uuid.
 
@@ -22,16 +23,14 @@ def get_site_from_uuid(session: Session, site_uuid: str):
     """
     query = session.query(SiteSQL)
     query = query.filter(SiteSQL.site_uuid == site_uuid)
-    existing_site: SiteSQL = query.first()
+    existing_site: Optional[SiteSQL] = query.first()
     if existing_site is None:
         raise KeyError(f"Site uuid {site_uuid} not found in sites table")
 
     return existing_site
 
 
-def get_site(
-    session: Session, client_name: str, client_id: str
-) -> SiteSQL:
+def get_site(session: Session, client_name: str, client_id: str) -> Optional[SiteSQL]:
     """
     Get site from client name and client id
 
@@ -41,7 +40,7 @@ def get_site(
     :return: site object
     """
 
-    logger.debug(f'Getting site for {client_name=} and {client_id=}')
+    logger.debug(f"Getting site for {client_name=} and {client_id=}")
 
     # start main query
     query = session.query(SiteSQL)
@@ -54,7 +53,7 @@ def get_site(
     query = query.filter(ClientSQL.client_name == client_name)
 
     # get all results
-    site = query.first()
+    site: Optional[SiteSQL] = query.first()
 
     if site is None:
         raise Exception(f"Could not find site with {client_id=} and {client_name=}")
@@ -64,7 +63,7 @@ def get_site(
 
 def get_all_site(
     session: Session,
-) -> SiteSQL:
+) -> List[SiteSQL]:
     """
     Get all sites
 
@@ -72,7 +71,7 @@ def get_all_site(
     :return: site object
     """
 
-    logger.debug(f'Getting all sites')
+    logger.debug("Getting all sites")
 
     # start main query
     query = session.query(SiteSQL)
@@ -80,7 +79,6 @@ def get_all_site(
     # get all results
     sites = query.all()
 
-    logger.debug(f'Found {len(sites)} sites')
+    logger.debug(f"Found {len(sites)} sites")
 
     return sites
-
