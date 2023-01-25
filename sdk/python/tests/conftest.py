@@ -4,18 +4,19 @@ from datetime import datetime, timedelta, timezone
 import pytest
 import uuid
 
-from pvsite_datamodel.sqlmodels import Base, ClientSQL, SiteSQL, GenerationSQL
+from pvsite_datamodel.sqlmodels import Base, ClientSQL, SiteSQL, GenerationSQL, StatusSQL
 from pvsite_datamodel.write.datetime_intervals import get_or_else_create_datetime_interval
 
 from testcontainers.postgres import PostgresContainer
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
+from typing import List
+
 
 @pytest.fixture(scope="session")
 def engine():
     with PostgresContainer("postgres:14.5") as postgres:
-
         # TODO need to setup postgres database with docker
         url = postgres.get_connection_url()
         engine = create_engine(url)
@@ -33,7 +34,6 @@ def db_session(engine):
     # use the connection with the already started transaction
 
     with Session(bind=connection) as session:
-
         yield session
 
         session.close()
@@ -86,7 +86,6 @@ def generations(db_session, sites):
     all_generations = []
     for site in sites:
         for i in range(0, 10):
-
             datetime_interval, _ = get_or_else_create_datetime_interval(
                 session=db_session, start_time=start_times[i]
             )
@@ -148,3 +147,21 @@ def generation_invalid_site():
         "power_kw": [1.0],
         "site_uuid": [uuid.uuid4()],
     }
+
+
+@pytest.fixture()
+def statuses(db_session) -> List[StatusSQL]:
+    """Create some fake statuses"""
+
+    statuses: List[StatusSQL] = []
+    for i in range(0, 4):
+        status = StatusSQL(
+            status_uuid=uuid.uuid4(),
+            status="OK",
+            message=f"Status {i}",
+        )
+        db_session.add(status)
+        db_session.commit()
+        statuses.append(status)
+
+    return statuses

@@ -2,7 +2,6 @@
 Tests
 """
 
-import uuid
 
 import pandas as pd
 import pytest
@@ -17,9 +16,6 @@ from pvsite_datamodel.sqlmodels import (
 )
 from pvsite_datamodel.write.datetime_intervals import get_or_else_create_datetime_interval
 from pvsite_datamodel.write import insert_generation_values, insert_forecast_values
-
-client_uuid = uuid.uuid4()
-site_uuid = uuid.uuid4()
 
 
 def test_connection(engine, sites):

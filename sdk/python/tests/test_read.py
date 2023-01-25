@@ -4,7 +4,8 @@ from sqlalchemy.orm import Query
 
 from pvsite_datamodel.read.site import get_site, get_all_site, get_site_from_uuid
 from pvsite_datamodel.read.generation import get_pv_generation_by_client, get_pv_generation_by_site
-from pvsite_datamodel.sqlmodels import SiteSQL
+from pvsite_datamodel.read.status import get_latest_status
+from pvsite_datamodel.sqlmodels import SiteSQL, StatusSQL
 import pytest
 
 
@@ -30,7 +31,6 @@ def test_get_all_site(sites, db_session):
 
 
 def test_get_pv_generation(generations, db_session):
-
     generations = get_pv_generation_by_client(session=db_session)
     assert len(generations) == 40
 
@@ -42,3 +42,9 @@ def test_get_pv_generation_by_site(generations, db_session):
     site: SiteSQL = query.first()
     generations = get_pv_generation_by_site(session=db_session, site_uuids=[site.site_uuid])
     assert len(generations) == 10
+
+
+def test_get_latest_status(statuses, db_session):
+    status: StatusSQL = get_latest_status(db_session)
+
+    assert status.message == "Status 3"
