@@ -1,11 +1,12 @@
 """ Test read functions """
 
+import datetime as dt
 import uuid
 
 from sqlalchemy.orm import Query
 from typing import List
 
-from pvsite_datamodel import SiteSQL, StatusSQL
+from pvsite_datamodel import SiteSQL, StatusSQL, ClientSQL, DatetimeIntervalSQL
 from pvsite_datamodel.read import get_all_sites
 from pvsite_datamodel.read import get_site_by_uuid
 from pvsite_datamodel.read import get_site_by_client_site_id
@@ -13,6 +14,7 @@ from pvsite_datamodel.read import get_pv_generation_by_sites
 from pvsite_datamodel.read import get_latest_status
 from pvsite_datamodel.read import get_pv_generation_by_client
 from pvsite_datamodel.read import get_latest_forecast_values_by_site
+from pvsite_datamodel.read.utils import filter_query_by_datetime_interval
 
 import pytest
 
@@ -66,15 +68,34 @@ class TestGetPVGenerationByClient:
 
     def test_returns_all_generations_without_input_client(self, generations, db_session):
         generations = get_pv_generation_by_client(session=db_session)
+
         assert len(generations) == 40
 
     def test_returns_all_generations_for_input_client(self, generations, db_session):
-        # TODO
-        pass
+        query: Query = db_session.query(ClientSQL)
+        client: ClientSQL = query.first()
+
+        generations = get_pv_generation_by_client(
+            session=db_session,
+            client_names=[client.client_name]
+        )
+
+        assert len(generations) == 10
 
     def test_returns_all_generations_in_datetime_window(self, generations, db_session):
-        # TODO
-        pass
+        query: Query = db_session.query(ClientSQL)
+        client: ClientSQL = query.first()
+        window_lower: dt.datetime = dt.datetime.today() - dt.timedelta(minutes=7)
+        window_upper: dt.datetime = dt.datetime.today() + dt.timedelta(minutes=8)
+
+        generations = get_pv_generation_by_client(
+            session=db_session,
+            client_names=[client.client_name],
+            start_utc=window_lower,
+            end_utc=window_upper
+        )
+
+        assert len(generations) == 7
 
 
 class TestGetPVGenerationBySites:
@@ -146,3 +167,18 @@ class TestGetLatestForecastValuesBySite:
         )
 
         assert len(latest_forecast_values) == len(sites)
+
+
+class TestFilterQueryByDatetimeInterval:
+    """Tests for the filter_query_by_datetime_interval function"""
+
+    def test_returns_datetime_intervals_in_filter(self, datetimeintervals, db_session):
+        query: Query = db_session.query(DatetimeIntervalSQL)
+        query = filter_query_by_datetime_interval(
+            query=query,
+            start_utc=dt.datetime.today() - dt.timedelta(minutes=7)
+        )
+
+        datetime_intervals: List[DatetimeIntervalSQL] = query.all()
+
+        assert len(datetime_intervals) == 7

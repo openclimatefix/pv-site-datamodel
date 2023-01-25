@@ -15,14 +15,12 @@ def filter_query_by_datetime_interval(
     """
     Applies a filter on the input query according to the Datetime Interval table.
 
-    Adds a join to the datetime interval table to the input query
+    Ensure DatetimeIntervalSQL has been joined to query already
     :param query: The sqlalchemy query
-    :param start_utc: search filters >= on 'datetime_utc'. Can be None
-    :param end_utc: search filters < on 'datetime_utc'. Can be None
+    :param start_utc: search filters >= on 'start_utc'. Can be None
+    :param end_utc: search filters < on 'end_utc'. Can be None
     :return: The sqlalchemy query
     """
-
-    query = query.join(DatetimeIntervalSQL)
 
     # filter on start time
     if start_utc is not None:

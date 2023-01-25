@@ -11,7 +11,7 @@ from pvsite_datamodel import (
     GenerationSQL,
     StatusSQL,
     LatestForecastValueSQL,
-    ForecastSQL
+    ForecastSQL,
 )
 from pvsite_datamodel.write.datetime_intervals import get_or_else_create_datetime_interval
 
@@ -142,6 +142,16 @@ def latestforecastvalues(db_session, sites):
 
     db_session.add_all(latest_forecast_values)
     db_session.commit()
+
+
+@pytest.fixture()
+def datetimeintervals(db_session):
+    """Create fake datetime intervals"""
+
+    start_times: List[datetime] = [datetime.today() - timedelta(minutes=x) for x in range(10)]
+
+    for time in start_times:
+        get_or_else_create_datetime_interval(session=db_session, start_time=time)
 
 
 @pytest.fixture()

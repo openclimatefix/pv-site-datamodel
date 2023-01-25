@@ -32,6 +32,7 @@ def get_pv_generation_by_client(
     query = session.query(GenerationSQL)
     query = query.join(SiteSQL)
     query = query.join(ClientSQL)
+    query = query.join(DatetimeIntervalSQL)
 
     # Filter by time interval
     query = filter_query_by_datetime_interval(query=query, start_utc=start_utc, end_utc=end_utc)
@@ -70,6 +71,7 @@ def get_pv_generation_by_sites(
     # start main query
     query = session.query(GenerationSQL)
     query = query.join(SiteSQL)
+    query = query.join(DatetimeIntervalSQL)
 
     # Filter by time interval
     query = filter_query_by_datetime_interval(query=query, start_utc=start_utc, end_utc=end_utc)

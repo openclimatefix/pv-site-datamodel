@@ -12,7 +12,7 @@ from sqlalchemy import orm as sa_orm
 
 
 def get_or_else_create_datetime_interval(
-    session: sa_orm.Session, start_time: dt.datetime, end_time: dt.datetime = None
+    session: sa_orm.Session, start_time: dt.datetime, end_time: dt.datetime | None = None
 ) -> tuple[DatetimeIntervalSQL, list[WrittenRow]]:
     """
     Gets a DatetimeInterval from the DB by start time if it exists, otherwise it creates a new entry
