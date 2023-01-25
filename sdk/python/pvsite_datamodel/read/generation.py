@@ -51,7 +51,7 @@ def get_pv_generation_by_client(
     return generations
 
 
-def get_pv_generation_by_site(
+def get_pv_generation_by_sites(
     session: Session,
     start_utc: Optional[datetime] = None,
     end_utc: Optional[datetime] = None,

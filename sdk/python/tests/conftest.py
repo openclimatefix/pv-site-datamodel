@@ -4,7 +4,9 @@ from datetime import datetime, timedelta, timezone
 import pytest
 import uuid
 
-from pvsite_datamodel.sqlmodels import Base, ClientSQL, SiteSQL, GenerationSQL, StatusSQL
+from pvsite_datamodel.sqlmodels import (
+    Base, ClientSQL, SiteSQL, GenerationSQL, StatusSQL, LatestForecastValueSQL, ForecastSQL
+)
 from pvsite_datamodel.write.datetime_intervals import get_or_else_create_datetime_interval
 
 from testcontainers.postgres import PostgresContainer
@@ -99,6 +101,40 @@ def generations(db_session, sites):
             all_generations.append(generation)
 
     db_session.add_all(all_generations)
+    db_session.commit()
+
+
+@pytest.fixture()
+def latestforecastvalues(db_session, sites):
+    """Create some fake latest forecast values"""
+
+    latest_forecast_values = []
+    forecast_version: str = "0.0.0"
+    start_times = [datetime.today() - timedelta(minutes=x) for x in range(10)]
+
+    for site in sites:
+        forecast: ForecastSQL = ForecastSQL(
+            forecast_uuid=uuid.uuid4(),
+            site_uuid=site.site_uuid,
+            forecast_version=forecast_version,
+        )
+        for i in range(0, 10):
+            datetime_interval, _ = get_or_else_create_datetime_interval(
+                session=db_session, start_time=start_times[i]
+            )
+
+            latest_forecast_value: LatestForecastValueSQL = LatestForecastValueSQL(
+                latest_forecast_value_uuid=uuid.uuid4(),
+                datetime_interval_uuid=datetime_interval.datetime_interval_uuid,
+                forecast_generation_kw=i,
+                forecast_uuid=forecast.forecast_uuid,
+                site_uuid=site.site_uuid,
+                forecast_version=forecast_version,
+            )
+
+            latest_forecast_values.append(latest_forecast_value)
+
+    db_session.add_all(latest_forecast_values)
     db_session.commit()
 
 
