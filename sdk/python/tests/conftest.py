@@ -1,27 +1,30 @@
 """ Pytest fixtures for tests """
-import os
-
 from datetime import datetime, timedelta, timezone
 
 import pytest
 import uuid
-from testcontainers.postgres import PostgresContainer
 
-from pvsite_datamodel.connection import DatabaseConnection
-from pvsite_datamodel.sqlmodels import Base, ClientSQL, SiteSQL, GenerationSQL
+from pvsite_datamodel.sqlmodels import Base
+from pvsite_datamodel import (
+    ClientSQL,
+    SiteSQL,
+    GenerationSQL,
+    StatusSQL,
+    LatestForecastValueSQL,
+    ForecastSQL,
+)
 from pvsite_datamodel.write.datetime_intervals import get_or_else_create_datetime_interval
 
-
 from testcontainers.postgres import PostgresContainer
-import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
+
+from typing import List
 
 
 @pytest.fixture(scope="session")
 def engine():
     with PostgresContainer("postgres:14.5") as postgres:
-
         # TODO need to setup postgres database with docker
         url = postgres.get_connection_url()
         engine = create_engine(url)
@@ -39,7 +42,6 @@ def db_session(engine):
     # use the connection with the already started transaction
 
     with Session(bind=connection) as session:
-
         yield session
 
         session.close()
@@ -92,7 +94,6 @@ def generations(db_session, sites):
     all_generations = []
     for site in sites:
         for i in range(0, 10):
-
             datetime_interval, _ = get_or_else_create_datetime_interval(
                 session=db_session, start_time=start_times[i]
             )
@@ -107,6 +108,50 @@ def generations(db_session, sites):
 
     db_session.add_all(all_generations)
     db_session.commit()
+
+
+@pytest.fixture()
+def latestforecastvalues(db_session, sites):
+    """Create some fake latest forecast values"""
+
+    latest_forecast_values = []
+    forecast_version: str = "0.0.0"
+    start_times = [datetime.today() - timedelta(minutes=x) for x in range(10)]
+
+    for site in sites:
+        forecast: ForecastSQL = ForecastSQL(
+            forecast_uuid=uuid.uuid4(),
+            site_uuid=site.site_uuid,
+            forecast_version=forecast_version,
+        )
+        for i in range(0, 10):
+            datetime_interval, _ = get_or_else_create_datetime_interval(
+                session=db_session, start_time=start_times[i]
+            )
+
+            latest_forecast_value: LatestForecastValueSQL = LatestForecastValueSQL(
+                latest_forecast_value_uuid=uuid.uuid4(),
+                datetime_interval_uuid=datetime_interval.datetime_interval_uuid,
+                forecast_generation_kw=i,
+                forecast_uuid=forecast.forecast_uuid,
+                site_uuid=site.site_uuid,
+                forecast_version=forecast_version,
+            )
+
+            latest_forecast_values.append(latest_forecast_value)
+
+    db_session.add_all(latest_forecast_values)
+    db_session.commit()
+
+
+@pytest.fixture()
+def datetimeintervals(db_session):
+    """Create fake datetime intervals"""
+
+    start_times: List[datetime] = [datetime.today() - timedelta(minutes=x) for x in range(10)]
+
+    for time in start_times:
+        get_or_else_create_datetime_interval(session=db_session, start_time=time)
 
 
 @pytest.fixture()
@@ -154,3 +199,21 @@ def generation_invalid_site():
         "power_kw": [1.0],
         "site_uuid": [uuid.uuid4()],
     }
+
+
+@pytest.fixture()
+def statuses(db_session) -> List[StatusSQL]:
+    """Create some fake statuses"""
+
+    statuses: List[StatusSQL] = []
+    for i in range(0, 4):
+        status = StatusSQL(
+            status_uuid=uuid.uuid4(),
+            status="OK",
+            message=f"Status {i}",
+        )
+        db_session.add(status)
+        db_session.commit()
+        statuses.append(status)
+
+    return statuses

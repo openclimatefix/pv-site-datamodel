@@ -4,13 +4,14 @@ SQLAlchemy definition of the pvsite database schema
 
 import uuid
 from datetime import datetime
+from typing import List
 
 import sqlalchemy as sa
+from sqlalchemy import Column, DateTime
 from sqlalchemy.dialects.postgresql import FLOAT, INTEGER, REAL, TIMESTAMP, UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import UniqueConstraint
-from sqlalchemy import Column, DateTime
 
 Base = declarative_base()
 
@@ -54,9 +55,9 @@ class SiteSQL(Base, CreatedMixin):
 
     __table_args__ = (UniqueConstraint("client_site_id", client_uuid, name="idx_client"),)
 
-    forecasts = relationship("ForecastSQL")
-    latest_forecast_values = relationship("LatestForecastValueSQL")
-    generation = relationship("GenerationSQL")
+    forecasts: List["ForecastSQL"] = relationship("ForecastSQL")
+    latest_forecast_values: List["LatestForecastValueSQL"] = relationship("LatestForecastValueSQL")
+    generation: List["GenerationSQL"] = relationship("GenerationSQL")
 
 
 class GenerationSQL(Base, CreatedMixin):
@@ -106,7 +107,7 @@ class ForecastSQL(Base, CreatedMixin):
     forecast_version = sa.Column(sa.String(32), nullable=False)
 
     # one (forecasts) to many (forecast_values)
-    forecast_values = relationship("ForecastValueSQL")
+    forecast_values: List["ForecastValueSQL"] = relationship("ForecastValueSQL")
 
 
 class ForecastValueSQL(Base, CreatedMixin):
@@ -173,7 +174,7 @@ class LatestForecastValueSQL(Base, CreatedMixin):
     )
     forecast_version = sa.Column(sa.String(32), nullable=False)
 
-    latest_forecast = relationship("SiteSQL", back_populates="latest_forecast_values")
+    latest_forecast: SiteSQL = relationship("SiteSQL", back_populates="latest_forecast_values")
 
 
 class ClientSQL(Base, CreatedMixin):
@@ -191,7 +192,7 @@ class ClientSQL(Base, CreatedMixin):
     client_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     client_name = sa.Column(sa.String(255), nullable=False)
 
-    sites = relationship("SiteSQL")
+    sites: List[SiteSQL] = relationship("SiteSQL")
 
 
 class DatetimeIntervalSQL(Base, CreatedMixin):
@@ -210,9 +211,9 @@ class DatetimeIntervalSQL(Base, CreatedMixin):
     start_utc = sa.Column(TIMESTAMP, nullable=False)
     end_utc = sa.Column(TIMESTAMP, nullable=False)
 
-    generation = relationship("GenerationSQL")
-    forecast_values = relationship("ForecastValueSQL")
-    latest_forecast_values = relationship("LatestForecastValueSQL")
+    generation: List[GenerationSQL] = relationship("GenerationSQL")
+    forecast_values: List[ForecastValueSQL] = relationship("ForecastValueSQL")
+    latest_forecast_values: List[LatestForecastValueSQL] = relationship("LatestForecastValueSQL")
 
 
 class StatusSQL(Base, CreatedMixin):
