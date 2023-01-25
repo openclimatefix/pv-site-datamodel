@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   test:
-    uses: openclimatefix/.github/.github/workflows/python-test.yml@python-options
+    uses: openclimatefix/.github/.github/workflows/python-test.yml@main
     with:
       workdir: sdk/python
       pytest_cov_dir: pvsite_datamodel
@@ -14,7 +14,7 @@ jobs:
   publish:
     needs: ["test"]
     if: github.ref_name == 'main'
-    uses: openclimatefix/.github/.github/workflows/python-release.yml@working-directory
+    uses: openclimatefix/.github/.github/workflows/python-release.yml@main
     secrets:
       token: ${{ secrets.PYPI_API_TOKEN }}
     with:
