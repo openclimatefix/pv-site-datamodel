@@ -34,20 +34,23 @@ def get_latest_forecast_values_by_site(
 
     output_dict: Dict[uuid.UUID, List[LatestForecastValueSQL]] = {}
 
+    # Filter the query on the desired sites
+    query = query.where(LatestForecastValueSQL.site_uuid.in_(site_uuids))
+
+    # order by site, target time and created time desc
+    query.join(DatetimeIntervalSQL)
+    query.order_by(
+        LatestForecastValueSQL.site_uuid,
+        DatetimeIntervalSQL.start_utc,
+        LatestForecastValueSQL.created_utc,
+    )
+
+    latest_forecast_values: List[LatestForecastValueSQL] = query.all()
+
     for site_uuid in site_uuids:
-
-        # filter on site_uuid
-        site_query: Query = query.filter(LatestForecastValueSQL.site_uuid == site_uuid)
-        site_query = site_query.join(DatetimeIntervalSQL)
-
-        # order by target time and created time desc
-        site_query = site_query.order_by(
-            DatetimeIntervalSQL.start_utc,
-            LatestForecastValueSQL.created_utc,
-        )
-
-        # get all results
-        site_latest_forecast_values: List[LatestForecastValueSQL] = site_query.all()
+        site_latest_forecast_values: List[LatestForecastValueSQL] = [
+            lfv for lfv in latest_forecast_values if lfv.site_uuid == site_uuid
+        ]
 
         output_dict[site_uuid] = site_latest_forecast_values
 
