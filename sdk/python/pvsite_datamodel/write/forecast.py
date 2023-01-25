@@ -10,7 +10,7 @@ import dateutil.parser as dp
 import numpy.typing as npt
 import pandas as pd
 import sqlalchemy.orm as sa_orm
-from pvsite_datamodel.read.site import get_site_from_uuid
+from pvsite_datamodel.read.site import get_site_by_uuid
 from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL
 from pvsite_datamodel.write.datetime_intervals import get_or_else_create_datetime_interval
 from pvsite_datamodel.write.upsert import upsert
@@ -39,7 +39,7 @@ def insert_forecast_values(
     for site_uuid in sites:
 
         # Check whether the site id exits in the table, otherwise return an error
-        get_site_from_uuid(session=session, site_uuid=site_uuid)
+        get_site_by_uuid(session=session, site_uuid=site_uuid)
 
         # Create a forcast (sequence) for the site, and write it to db
         forecast: ForecastSQL = ForecastSQL(

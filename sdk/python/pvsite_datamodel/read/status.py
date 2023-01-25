@@ -2,16 +2,18 @@
 Functions to read from the Status table
 """
 
+from typing import Optional
+
 from pvsite_datamodel.sqlmodels import StatusSQL
 from sqlalchemy.orm import Session
 
 
-def get_latest_status(session: Session) -> StatusSQL:
+def get_latest_status(session: Session) -> Optional[StatusSQL]:
     """
-    Read last input data last updated
+    Gets the latest entry in the status table. Returns None if there are no entries
 
     :param session: database session
-    return: Latest input data object
+    return: Latest StatusSQL object, or None
     """
 
     # Query status table, ordered by created time

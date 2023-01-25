@@ -8,7 +8,7 @@ import uuid
 import numpy.typing as npt
 import pandas as pd
 import sqlalchemy.orm as sa_orm
-from pvsite_datamodel.read.site import get_site_from_uuid
+from pvsite_datamodel.read.site import get_site_by_uuid
 from pvsite_datamodel.sqlmodels import GenerationSQL
 
 # Defines the length of time over which a forecast is valid
@@ -39,7 +39,7 @@ def insert_generation_values(
     for site_uuid in site_uuids:
 
         # Check whether the site id exits in the table, otherwise return an error
-        get_site_from_uuid(session=session, site_uuid=site_uuid)
+        get_site_by_uuid(session=session, site_uuid=site_uuid)
 
         # Get all dataframe forecast value entries for current site_uuid
         df_site: pd.DataFrame = generation_values_df.loc[

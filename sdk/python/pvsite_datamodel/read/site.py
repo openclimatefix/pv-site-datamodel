@@ -11,7 +11,9 @@ from sqlalchemy.orm import Session
 logger = logging.getLogger(__name__)
 
 
-def get_site_from_uuid(session: Session, site_uuid: str) -> Optional[SiteSQL]:
+def get_site_by_uuid(session: Session, site_uuid: str) -> Optional[SiteSQL]:
+    # TODO: if this raises an exception when there is nothing to return, it will never return None
+    # TODO: So the return type should be SiteSQL not Optional[SiteSQL]
     """
     Get site object from uuid.
 
@@ -30,38 +32,77 @@ def get_site_from_uuid(session: Session, site_uuid: str) -> Optional[SiteSQL]:
     return existing_site
 
 
-def get_site(session: Session, client_name: str, client_id: str) -> Optional[SiteSQL]:
+def get_site_by_client_site_id(
+    session: Session, client_name: str, client_site_id: int
+) -> Optional[SiteSQL]:
+    # TODO: if this raises an exception when there is nothing to return, it will never return None
+    # TODO: So the return type should be SiteSQL not Optional[SiteSQL]
     """
-    Get site from client name and client id
+    Get site from client name and client site id
 
     :param session: database sessions
     :param client_name: client name
-    :param client_id: client id
-    :return: site object
+    :param client_site_id: client's id of site
+    :return: site object, or None
     """
 
-    logger.debug(f"Getting site for {client_name=} and {client_id=}")
+    logger.debug(f"Getting {client_name}'s site {client_site_id}")
 
     # start main query
     query = session.query(SiteSQL)
     query = query.join(ClientSQL)
 
-    # select the correct client id
-    query = query.filter(SiteSQL.client_site_id == client_id)
+    # select the correct client site id
+    query = query.filter(SiteSQL.client_site_id == client_site_id)
 
     # filter on client_name
     query = query.filter(ClientSQL.client_name == client_name)
 
-    # get all results
+    # get first result (should only be one site)
     site: Optional[SiteSQL] = query.first()
 
     if site is None:
-        raise Exception(f"Could not find site with {client_id=} and {client_name=}")
+        raise Exception(f"Could not find site {client_site_id} from client {client_name}")
 
     return site
 
 
-def get_all_site(
+def get_site_by_client_site_name(
+    session: Session, client_name: str, client_site_name: str
+) -> Optional[SiteSQL]:
+    # TODO: if this raises an exception when there is nothing to return, it will never return None
+    # TODO: So the return type should be SiteSQL not Optional[SiteSQL]
+    """
+    Get site from client name and client site id
+
+    :param session: database sessions
+    :param client_name: client name
+    :param client_site_name: client's name of site
+    :return: site object, or None
+    """
+
+    logger.debug(f"Getting {client_name}'s site {client_site_name}")
+
+    # start main query
+    query = session.query(SiteSQL)
+    query = query.join(ClientSQL)
+
+    # select the correct client site name
+    query = query.filter(SiteSQL.client_site_name == client_site_name)
+
+    # filter on client_name
+    query = query.filter(ClientSQL.client_name == client_name)
+
+    # get first result (should only be one site)
+    site: Optional[SiteSQL] = query.first()
+
+    if site is None:
+        raise Exception(f"Could not find site {client_site_name} from client {client_name}")
+
+    return site
+
+
+def get_all_sites(
     session: Session,
 ) -> List[SiteSQL]:
     """
