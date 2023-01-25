@@ -4,8 +4,14 @@ from datetime import datetime, timedelta, timezone
 import pytest
 import uuid
 
-from pvsite_datamodel.sqlmodels import (
-    Base, ClientSQL, SiteSQL, GenerationSQL, StatusSQL, LatestForecastValueSQL, ForecastSQL
+from pvsite_datamodel.sqlmodels import Base
+from pvsite_datamodel import (
+    ClientSQL,
+    SiteSQL,
+    GenerationSQL,
+    StatusSQL,
+    LatestForecastValueSQL,
+    ForecastSQL
 )
 from pvsite_datamodel.write.datetime_intervals import get_or_else_create_datetime_interval
 

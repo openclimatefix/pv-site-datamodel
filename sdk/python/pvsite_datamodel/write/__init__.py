@@ -1,5 +1,5 @@
 """
-Write functions for PVSite db
+Functions for writing to the PVSite database
 """
 
 from .forecast import insert_forecast_values

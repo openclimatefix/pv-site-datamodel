@@ -11,7 +11,7 @@ from pvsite_datamodel.sqlmodels import (
     GenerationSQL,
 )
 
-from pvsite_datamodel.connection import DatabaseConnection
+from pvsite_datamodel import DatabaseConnection
 from pvsite_datamodel.write.datetime_intervals import get_or_else_create_datetime_interval
 from pvsite_datamodel.write import insert_forecast_values
 from pvsite_datamodel.write import insert_generation_values

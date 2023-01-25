@@ -5,14 +5,14 @@ import uuid
 from sqlalchemy.orm import Query
 from typing import List
 
-from pvsite_datamodel.sqlmodels import SiteSQL, StatusSQL
-from pvsite_datamodel.read.site import get_all_sites
-from pvsite_datamodel.read.site import get_site_by_uuid
-from pvsite_datamodel.read.site import get_site_by_client_site_id
-from pvsite_datamodel.read.generation import get_pv_generation_by_sites
-from pvsite_datamodel.read.status import get_latest_status
-from pvsite_datamodel.read.generation import get_pv_generation_by_client
-from pvsite_datamodel.read.latest_forecast_values import get_latest_forecast_values_by_site
+from pvsite_datamodel import SiteSQL, StatusSQL
+from pvsite_datamodel.read import get_all_sites
+from pvsite_datamodel.read import get_site_by_uuid
+from pvsite_datamodel.read import get_site_by_client_site_id
+from pvsite_datamodel.read import get_pv_generation_by_sites
+from pvsite_datamodel.read import get_latest_status
+from pvsite_datamodel.read import get_pv_generation_by_client
+from pvsite_datamodel.read import get_latest_forecast_values_by_site
 
 import pytest
 
