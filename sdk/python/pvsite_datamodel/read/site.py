@@ -11,13 +11,11 @@ from sqlalchemy.orm import Session
 logger = logging.getLogger(__name__)
 
 
-def get_site_by_uuid(session: Session, site_uuid: str) -> Optional[SiteSQL]:
-    # TODO: if this raises an exception when there is nothing to return, it will never return None
-    # TODO: So the return type should be SiteSQL not Optional[SiteSQL]
+def get_site_by_uuid(session: Session, site_uuid: str) -> SiteSQL:
     """
     Get site object from uuid.
 
-    Raise error if site does not exists
+    Raise error if site does not exist
 
     :param session: database sessions
     :param site_uuid: the site uuid
@@ -32,11 +30,7 @@ def get_site_by_uuid(session: Session, site_uuid: str) -> Optional[SiteSQL]:
     return existing_site
 
 
-def get_site_by_client_site_id(
-    session: Session, client_name: str, client_site_id: int
-) -> Optional[SiteSQL]:
-    # TODO: if this raises an exception when there is nothing to return, it will never return None
-    # TODO: So the return type should be SiteSQL not Optional[SiteSQL]
+def get_site_by_client_site_id(session: Session, client_name: str, client_site_id: int) -> SiteSQL:
     """
     Get site from client name and client site id
 
@@ -69,9 +63,7 @@ def get_site_by_client_site_id(
 
 def get_site_by_client_site_name(
     session: Session, client_name: str, client_site_name: str
-) -> Optional[SiteSQL]:
-    # TODO: if this raises an exception when there is nothing to return, it will never return None
-    # TODO: So the return type should be SiteSQL not Optional[SiteSQL]
+) -> SiteSQL:
     """
     Get site from client name and client site id
 
@@ -102,11 +94,9 @@ def get_site_by_client_site_name(
     return site
 
 
-def get_all_sites(
-    session: Session,
-) -> List[SiteSQL]:
+def get_all_sites(session: Session) -> List[SiteSQL]:
     """
-    Get all sites
+    Gets all sites from sites table
 
     :param session: database sessions
     :return: site object
