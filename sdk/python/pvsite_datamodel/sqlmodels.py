@@ -2,6 +2,7 @@
 SQLAlchemy definition of the pvsite database schema
 """
 from __future__ import annotations
+
 # This means we can use Typing of objects that have jet to be defined
 
 import uuid
@@ -85,6 +86,9 @@ class GenerationSQL(Base, CreatedMixin):
         sa.ForeignKey("datetime_intervals.datetime_interval_uuid"),
         nullable=False,
         default=uuid.uuid4,
+    )
+    datetime_interval: DatetimeIntervalSQL = relationship(
+        "DatetimeIntervalSQL", back_populates="generation"
     )
 
 
@@ -177,7 +181,9 @@ class LatestForecastValueSQL(Base, CreatedMixin):
     forecast_version = sa.Column(sa.String(32), nullable=False)
 
     latest_forecast: SiteSQL = relationship("SiteSQL", back_populates="latest_forecast_values")
-    datetime_interval: DatetimeIntervalSQL = relationship("DatetimeIntervalSQL", back_populates="latest_forecast_values")
+    datetime_interval: DatetimeIntervalSQL = relationship(
+        "DatetimeIntervalSQL", back_populates="latest_forecast_values"
+    )
 
 
 class ClientSQL(Base, CreatedMixin):
