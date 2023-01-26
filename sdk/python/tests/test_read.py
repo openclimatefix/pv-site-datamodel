@@ -155,6 +155,7 @@ class TestGetLatestForecastValuesBySite:
 
         assert len(latest_forecast_values) == 1
         assert len(latest_forecast_values[site.site_uuid]) == 10
+        assert latest_forecast_values[site.site_uuid][0].datetime_interval is not None
 
     def test_gets_latest_forecast_values_with_multiple_sites(
             self, latestforecastvalues, db_session):
