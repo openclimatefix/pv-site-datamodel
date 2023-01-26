@@ -14,7 +14,7 @@ jobs:
   publish:
     needs: ["test"]
     if: github.ref_name == 'main'
-    uses: openclimatefix/.github/.github/workflows/python-release.yml@main
+    uses: openclimatefix/.github/.github/workflows/python-release.yml@fix-python-release
     secrets:
       token: ${{ secrets.PYPI_API_TOKEN }}
     with:
