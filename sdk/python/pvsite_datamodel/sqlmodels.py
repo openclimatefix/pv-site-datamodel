@@ -2,7 +2,6 @@
 SQLAlchemy definition of the pvsite database schema
 """
 from __future__ import annotations
-
 # This means we can use Typing of objects that have jet to be defined
 
 import uuid
