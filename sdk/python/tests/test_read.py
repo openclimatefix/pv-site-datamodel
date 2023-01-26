@@ -176,10 +176,16 @@ class TestGetLatestForecastValuesBySite:
         latest_forecast_values = get_latest_forecast_values_by_site(
             session=db_session,
             site_uuids=[site.site_uuid],
-            start_utc=dt.datetime.today() - dt.timedelta(minutes=60)
+            start_utc=dt.datetime.today() - dt.timedelta(minutes=7)
         )
+        assert len(latest_forecast_values[site.site_uuid]) == 7
 
-        assert len(latest_forecast_values) == len(site)
+        latest_forecast_values = get_latest_forecast_values_by_site(
+            session=db_session,
+            site_uuids=[site.site_uuid],
+            start_utc=dt.datetime.today() - dt.timedelta(minutes=5)
+        )
+        assert len(latest_forecast_values[site.site_uuid]) == 5
 
 
 class TestFilterQueryByDatetimeInterval:

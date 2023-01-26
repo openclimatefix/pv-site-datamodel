@@ -24,9 +24,10 @@ def get_latest_forecast_values_by_site(
 
     # start main query
     query: Query = session.query(LatestForecastValueSQL)
+    query = query.join(DatetimeIntervalSQL)
 
     if start_utc is not None:
-        query = query.filter(LatestForecastValueSQL.target_time >= start_utc)
+        query = query.filter(DatetimeIntervalSQL.start_utc >= start_utc)
 
         # also filter on creation time, to speed up things
         created_utc_filter = start_utc - dt.timedelta(days=1)
@@ -38,7 +39,6 @@ def get_latest_forecast_values_by_site(
     query = query.where(LatestForecastValueSQL.site_uuid.in_(site_uuids))
 
     # order by site, target time and created time desc
-    query.join(DatetimeIntervalSQL)
     query.order_by(
         LatestForecastValueSQL.site_uuid,
         DatetimeIntervalSQL.start_utc,
