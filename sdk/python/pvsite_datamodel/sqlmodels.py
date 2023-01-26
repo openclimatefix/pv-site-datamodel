@@ -175,6 +175,7 @@ class LatestForecastValueSQL(Base, CreatedMixin):
     forecast_version = sa.Column(sa.String(32), nullable=False)
 
     latest_forecast: SiteSQL = relationship("SiteSQL", back_populates="latest_forecast_values")
+    datetime_interval: DatetimeIntervalSQL = relationship("DatetimeIntervalSQL", back_populates="latest_forecast_values")
 
 
 class ClientSQL(Base, CreatedMixin):
