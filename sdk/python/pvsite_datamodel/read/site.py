@@ -1,22 +1,19 @@
-"""
-Functions for reading to pvsite db
-"""
+"""Functions for reading to pvsite db."""
 
 import logging
 from typing import List, Optional
 
-from pvsite_datamodel.sqlmodels import ClientSQL, SiteSQL
 from sqlalchemy.orm import Session
+
+from pvsite_datamodel.sqlmodels import ClientSQL, SiteSQL
 
 logger = logging.getLogger(__name__)
 
 
 def get_site_by_uuid(session: Session, site_uuid: str) -> SiteSQL:
-    """
-    Get site object from uuid.
+    """Get site object from uuid.
 
-    Raise error if site does not exist
-
+    Raise error if site does not exist.
     :param session: database sessions
     :param site_uuid: the site uuid
     :return: the site object
@@ -31,15 +28,13 @@ def get_site_by_uuid(session: Session, site_uuid: str) -> SiteSQL:
 
 
 def get_site_by_client_site_id(session: Session, client_name: str, client_site_id: int) -> SiteSQL:
-    """
-    Get site from client name and client site id
+    """Get site from client name and client site id.
 
     :param session: database sessions
     :param client_name: client name
     :param client_site_id: client's id of site
     :return: site object, or None
     """
-
     logger.debug(f"Getting {client_name}'s site {client_site_id}")
 
     # start main query
@@ -64,15 +59,13 @@ def get_site_by_client_site_id(session: Session, client_name: str, client_site_i
 def get_site_by_client_site_name(
     session: Session, client_name: str, client_site_name: str
 ) -> SiteSQL:
-    """
-    Get site from client name and client site id
+    """Get site from client name and client site id.
 
     :param session: database sessions
     :param client_name: client name
     :param client_site_name: client's name of site
     :return: site object, or None
     """
-
     logger.debug(f"Getting {client_name}'s site {client_site_name}")
 
     # start main query
@@ -95,13 +88,11 @@ def get_site_by_client_site_name(
 
 
 def get_all_sites(session: Session) -> List[SiteSQL]:
-    """
-    Gets all sites from sites table
+    """Get all sites from the sites table.
 
     :param session: database sessions
     :return: site object
     """
-
     logger.debug("Getting all sites")
 
     # start main query

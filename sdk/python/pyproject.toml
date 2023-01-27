@@ -45,7 +45,24 @@ exclude = [
 ]
 
 [tool.ruff]
+select = [
+    "E", # pycodestyle
+    "W", # newline at end of files
+    "F", # pyflakes
+    "N", # pep8 naming
+    "B", # flake8-bugbear
+    "I", # isosort
+    "D", # pydocstyle
+    "S", # flake8-bandit
+    "T20", # flake8-print
+    "PT" # flake8-print
+]
 line-length = 100
+ignore = ["D203", "D213"]
+exclude = ["__init__.py"]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["E402"]
 
 [tool.pytest.ini_options]
 addopts = [

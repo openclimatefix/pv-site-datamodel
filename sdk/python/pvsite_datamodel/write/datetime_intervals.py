@@ -1,21 +1,19 @@
-"""
-Functions for wiritng datetime intervals
-"""
+"""Functions for wiritng datetime intervals."""
 
 import datetime as dt
 import uuid
 
+from sqlalchemy import orm as sa_orm
+
 from pvsite_datamodel.sqlmodels import DatetimeIntervalSQL
 from pvsite_datamodel.write.upsert import upsert
 from pvsite_datamodel.write.utils import FORECAST_TIMESPAN, WrittenRow
-from sqlalchemy import orm as sa_orm
 
 
 def get_or_else_create_datetime_interval(
     session: sa_orm.Session, start_time: dt.datetime, end_time: dt.datetime | None = None
 ) -> tuple[DatetimeIntervalSQL, list[WrittenRow]]:
-    """
-    Gets a DatetimeInterval from the DB by start time if it exists, otherwise it creates a new entry
+    """Gets/creates a DatetimeInterval from the DB depending on existence.
 
     :param session: The SQLAlchemy session used for performing db updates
     :param start_time: The start time of the datetime interval
@@ -25,7 +23,6 @@ def get_or_else_create_datetime_interval(
     or created DatetimeIntervalSQL object, and a list of WrittenRow objects dictating what was
     written to the DB
     """
-
     # End time defaults to the start time + FORECAST_TIMESPAN timedelta
     if end_time is None:
         end_time = start_time + FORECAST_TIMESPAN

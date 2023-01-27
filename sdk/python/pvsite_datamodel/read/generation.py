@@ -1,11 +1,12 @@
-""" Read pv generation functions """
+"""Read pv generation functions."""
 import logging
 import uuid
 from datetime import datetime
 from typing import List, Optional
 
-from pvsite_datamodel.sqlmodels import ClientSQL, DatetimeIntervalSQL, GenerationSQL, SiteSQL
 from sqlalchemy.orm import Session
+
+from pvsite_datamodel.sqlmodels import ClientSQL, DatetimeIntervalSQL, GenerationSQL, SiteSQL
 
 from .utils import filter_query_by_datetime_interval
 
@@ -18,16 +19,14 @@ def get_pv_generation_by_client(
     end_utc: Optional[datetime] = None,
     client_names: Optional[List[str]] = None,
 ) -> List[GenerationSQL]:
-    """
-    Get the generation data by client
+    """Get the generation data by client.
 
     :param session: database session
     :param end_utc: search filters < on 'datetime_utc'. Can be None
     :param start_utc: search filters >= on 'datetime_utc'. Can be None
     :param client_names: optional list of provider names
-    :return:list of pv yields
+    :return:list of pv yields.
     """
-
     # start main query
     query = session.query(GenerationSQL)
     query = query.join(SiteSQL)
@@ -58,8 +57,7 @@ def get_pv_generation_by_sites(
     end_utc: Optional[datetime] = None,
     site_uuids: Optional[List[uuid.UUID]] = None,
 ) -> List[GenerationSQL]:
-    """
-    Get the generation data by site
+    """Get the generation data by site.
 
     :param session: database session
     :param start_utc: search filters >= on 'datetime_utc'
@@ -67,7 +65,6 @@ def get_pv_generation_by_sites(
     :param site_uuids: optional list of site uuids
     :return: list of pv yields
     """
-
     # start main query
     query = session.query(GenerationSQL)
     query = query.join(SiteSQL)
