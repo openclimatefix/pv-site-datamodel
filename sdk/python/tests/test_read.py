@@ -112,6 +112,7 @@ class TestGetPVGenerationBySites:
 
         assert len(generations) == 10
         assert generations[0].datetime_interval is not None
+        assert generations[0].site is not None
 
     def test_gets_generation_for_multiple_input_sites(self, generations, db_session):
         query: Query = db_session.query(SiteSQL)
