@@ -1,6 +1,4 @@
-"""
-Functions for writing to pvsite db
-"""
+"""Functions for writing to pvsite db."""
 import datetime as dt
 import logging
 import uuid
@@ -8,6 +6,7 @@ import uuid
 import numpy.typing as npt
 import pandas as pd
 import sqlalchemy.orm as sa_orm
+
 from pvsite_datamodel.read.site import get_site_by_uuid
 from pvsite_datamodel.sqlmodels import GenerationSQL
 
@@ -21,15 +20,13 @@ def insert_generation_values(
     session: sa_orm.Session,
     generation_values_df: pd.DataFrame,
 ) -> list[WrittenRow]:
-    """
-    Inserts a dataframe of forecast values into the database.
+    """Insert a dataframe of forecast values into the database.
 
     :param session: sqlalchemy session for interacting with the database
     :param generation_values_df: pandas dataframe with columns
     ["start_datetime_utc", "power_kw", "pv_uuid"]
     :return list[WrittenRow]: list of added rows to DB
     """
-
     # Track rows added to DB
     written_rows: list[WrittenRow] = []
 

@@ -1,4 +1,4 @@
-""" Database Connection class"""
+"""Database Connection class."""
 import logging
 
 from sqlalchemy import create_engine
@@ -10,19 +10,20 @@ logger = logging.getLogger(__name__)
 
 
 class DatabaseConnection:
-    """Database connection class"""
+    """Database connection class."""
 
     def __init__(self, url: URL | str, echo: bool = True):
-        """
-        Set up database connection
+        """Set up database connection.
 
-        url: the database url, used for connecting
+        :param url: the database url, used for connecting
+        :param echo: whether to echo
         """
         self.url = url
         self.engine = create_engine(self.url, echo=echo)
         self.Session = sessionmaker(bind=self.engine)
-        assert self.url is not None, Exception("Need to set url for database connection")
+        if self.url is None:
+            raise Exception("Need to set url for database connection")
 
     def get_session(self) -> Session:
-        """Get sqlalamcy session"""
+        """Get sqlalchemy session."""
         return self.Session()

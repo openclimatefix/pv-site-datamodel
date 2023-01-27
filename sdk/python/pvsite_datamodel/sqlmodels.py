@@ -1,6 +1,5 @@
-"""
-SQLAlchemy definition of the pvsite database schema
-"""
+"""SQLAlchemy definition of the pvsite database schema."""
+
 from __future__ import annotations
 
 # This means we can use Typing of objects that have jet to be defined
@@ -20,14 +19,13 @@ Base = declarative_base()
 
 
 class CreatedMixin:
-    """Mixin to add created datetime to model"""
+    """Mixin to add created datetime to model."""
 
     created_utc = Column(DateTime(timezone=True), default=lambda: datetime.utcnow())
 
 
 class SiteSQL(Base, CreatedMixin):
-    """
-    Class representing the sites table.
+    """Class representing the sites table.
 
     Each site row specifies a single panel or cluster of panels
     found on a residential house or commercial building. Their
@@ -64,8 +62,7 @@ class SiteSQL(Base, CreatedMixin):
 
 
 class GenerationSQL(Base, CreatedMixin):
-    """
-    Class representing the generation table.
+    """Class representing the generation table.
 
     Each generation row specifies a generated power output over a
     given time range for a site.
@@ -94,8 +91,7 @@ class GenerationSQL(Base, CreatedMixin):
 
 
 class ForecastSQL(Base, CreatedMixin):
-    """
-    Class representing the forecasts table.
+    """Class representing the forecasts table.
 
     Each forecast row refers to a sequence of predicted solar generation values
     over a set of target times for a site.
@@ -118,8 +114,7 @@ class ForecastSQL(Base, CreatedMixin):
 
 
 class ForecastValueSQL(Base, CreatedMixin):
-    """
-    Class representing the forecast_values table.
+    """Class representing the forecast_values table.
 
     Each forecast_value row is a prediction for the power output
     of a site over a target datetime interval. Many predictions
@@ -151,8 +146,7 @@ class ForecastValueSQL(Base, CreatedMixin):
 
 
 class LatestForecastValueSQL(Base, CreatedMixin):
-    """
-    Class representing the latest_forecast_values table.
+    """Class representing the latest_forecast_values table.
 
     Each latest_forecast_value row is a prediction for the power output
     of a site over a target datetime interval. Only the most recent
@@ -188,8 +182,7 @@ class LatestForecastValueSQL(Base, CreatedMixin):
 
 
 class ClientSQL(Base, CreatedMixin):
-    """
-    Class representing the clients table.
+    """Class representing the clients table.
 
     Each client row defines a provider of site data
 
@@ -206,8 +199,7 @@ class ClientSQL(Base, CreatedMixin):
 
 
 class DatetimeIntervalSQL(Base, CreatedMixin):
-    """
-    Class representing the datetime_intervals table.
+    """Class representing the datetime_intervals table.
 
     Each datetime_interval row defines a timespan between a start and end time
 
@@ -227,8 +219,7 @@ class DatetimeIntervalSQL(Base, CreatedMixin):
 
 
 class StatusSQL(Base, CreatedMixin):
-    """
-    Class representing the status table:
+    """Class representing the status table.
 
     Each status row defines a message reporting on the status of the
     services within the nowcasting domain

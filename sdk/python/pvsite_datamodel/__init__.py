@@ -1,6 +1,4 @@
-"""
-Python SDK for reading/writing to/from pvsite database
-"""
+"""Python SDK for reading/writing to/from pvsite database."""
 
 from .connection import DatabaseConnection
 from .sqlmodels import (

@@ -28,7 +28,7 @@ class Sites(Base):
     ml_id = sa.Column(sa.Integer(), autoincrement=True)
 
     __table_args__ = (
-                
+
     UniqueConstraint("client_site_id",client_uuid, name='idx_client')
             )
 

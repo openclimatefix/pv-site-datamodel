@@ -1,27 +1,24 @@
-"""
-Functions for reading from latest_forecast_values table
-"""
+"""Functions for reading from latest_forecast_values table."""
 
 import datetime as dt
 import uuid
 from typing import Dict, List, Optional
 
-from pvsite_datamodel.sqlmodels import DatetimeIntervalSQL, LatestForecastValueSQL
 from sqlalchemy.orm import Query, Session
+
+from pvsite_datamodel.sqlmodels import DatetimeIntervalSQL, LatestForecastValueSQL
 
 
 def get_latest_forecast_values_by_site(
     session: Session, site_uuids: List[uuid.UUID], start_utc: Optional[dt.datetime] = None
 ) -> Dict[uuid.UUID, List[LatestForecastValueSQL]]:
-    """
-    Get the latest forecast values by input sites
+    """Get the latest forecast values by input sites.
 
     :param session: The sqlalchemy database session
     :param site_uuids: list of site_uuids for which to fetch latest forecast values
     :param start_utc: filters on forecast values target_time >= start_utc
     :return: dict containing {site_uuid1: List[LatestForecastValueSQL], site_uuid2: ...}
     """
-
     # start main query
     query: Query = session.query(LatestForecastValueSQL)
     query = query.join(DatetimeIntervalSQL)
