@@ -44,6 +44,9 @@ exclude = [
     "^gen/*$", # TOML basic string (double-quotes, backslash and other characters need escaping)
 ]
 
+[tool.ruff]
+line-length = 100
+
 [tool.pytest.ini_options]
 addopts = [
     "--import-mode=importlib",
