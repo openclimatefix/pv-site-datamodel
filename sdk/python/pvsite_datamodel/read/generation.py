@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from typing import List, Optional
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, contains_eager
 
 from pvsite_datamodel.sqlmodels import ClientSQL, DatetimeIntervalSQL, GenerationSQL, SiteSQL
 
@@ -78,6 +78,10 @@ def get_pv_generation_by_sites(
 
     # Order by 'created_utc' desc
     query = query.order_by(SiteSQL.site_uuid, DatetimeIntervalSQL.start_utc)
+
+    # make sure this is all loaded
+    query = query.options(contains_eager(GenerationSQL.datetime_interval)).populate_existing()
+    query = query.options(contains_eager(GenerationSQL.site)).populate_existing()
 
     # get all results
     generations: List[GenerationSQL] = query.all()
