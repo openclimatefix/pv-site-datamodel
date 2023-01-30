@@ -2,6 +2,8 @@
 <p align="center">
     <a href="https://dbdocs.io/ocf/pvsite" alt="Interactive pvdatamodel documentation">
         <img src="https://img.shields.io/badge/docs-dbdocs.io-blue" /></a>
+    <a href="https://pypi.org/project/pvsite-datamodel/0.1.18/" alt="PyPi package">
+        <img src="https://img.shields.io/pypi/v/pvsite-datamodel"></a>
     <a href="https://github.com/openclimatefix/pv-datamodel/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc" alt="Issues">
         <img src="https://img.shields.io/github/issues/openclimatefix/pv-datamodel"/></a>
     <a href="https://github.com/openclimatefix/pv-datamodel/actions/workflows/generate-ddl.yml" alt="Code generation pipeline">
