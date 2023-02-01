@@ -10,7 +10,10 @@ from pvsite_datamodel.sqlmodels import DatetimeIntervalSQL, LatestForecastValueS
 
 
 def get_latest_forecast_values_by_site(
-    session: Session, site_uuids: List[uuid.UUID], start_utc: Optional[dt.datetime] = None, model=LatestForecastValueSQL
+    session: Session,
+    site_uuids: List[uuid.UUID],
+    start_utc: Optional[dt.datetime] = None,
+    model=LatestForecastValueSQL,
 ) -> Dict[uuid.UUID, List[LatestForecastValueSQL]]:
     """Get the latest forecast values by input sites.
 
