@@ -4,7 +4,6 @@ import datetime as dt
 import logging
 import uuid
 
-import dateutil.parser as dp
 import numpy.typing as npt
 import pandas as pd
 import sqlalchemy.orm as sa_orm
@@ -63,11 +62,9 @@ def insert_forecast_values(
 
         # For each target time:
         for target_time in target_times:
-            # Convert the target_time string to a datetime object
-            target_time_as_datetime: dt.datetime = dp.isoparse(target_time)
 
             datetime_interval, newly_added_rows = get_or_else_create_datetime_interval(
-                session=session, start_time=target_time_as_datetime
+                session=session, start_time=target_time
             )
             written_rows.extend(newly_added_rows)
 

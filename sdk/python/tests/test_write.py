@@ -1,24 +1,22 @@
-"""Test write functions"""
+"""Test write functions."""
 
 import pandas as pd
 import pytest
 
+from pvsite_datamodel import DatabaseConnection
 from pvsite_datamodel.sqlmodels import (
-    SiteSQL,
     DatetimeIntervalSQL,
     ForecastSQL,
     ForecastValueSQL,
     GenerationSQL,
+    SiteSQL,
 )
-
-from pvsite_datamodel import DatabaseConnection
+from pvsite_datamodel.write import insert_forecast_values, insert_generation_values
 from pvsite_datamodel.write.datetime_intervals import get_or_else_create_datetime_interval
-from pvsite_datamodel.write import insert_forecast_values
-from pvsite_datamodel.write import insert_generation_values
 
 
 class TestDatabaseConnection:
-    """Tests for the DatabaseConnection class"""
+    """Tests for the DatabaseConnection class."""
 
     def test_connection(self, engine, sites):
         dbcon = DatabaseConnection(engine.url, echo=False)
@@ -27,7 +25,7 @@ class TestDatabaseConnection:
 
 
 class TestGetOrElseCreateDatetimeInterval:
-    """Tests for the get_or_else_create_datetime_interval function"""
+    """Tests for the get_or_else_create_datetime_interval function."""
 
     def test_writes_interval_when_not_exists(self, db_session, test_time):
         # Call function with test_time
@@ -59,7 +57,7 @@ class TestGetOrElseCreateDatetimeInterval:
 
 
 class TestInsertForecastValues:
-    """Tests for the insert_forecast_values function"""
+    """Tests for the insert_forecast_values function."""
 
     def test_inserts_values_for_existing_site(self, db_session, forecast_valid_site):
         df = pd.DataFrame(forecast_valid_site)
@@ -79,10 +77,7 @@ class TestInsertForecastValues:
     def test_inserts_values_for_existing_site_and_existing_datetime_intervals(
             self, db_session, forecast_valid_site
     ):
-        """
-        Tests inserts values successfully without creating redundant datetime intervals
-        """
-
+        """Tests inserts values successfully without creating redundant datetime intervals."""
         # Create DataFrame and write to DB
         df = pd.DataFrame(forecast_valid_site)
         # write once and again,
@@ -101,20 +96,18 @@ class TestInsertForecastValues:
         assert len(written_forecasts) == 2  # 1 more since previous test
 
     def test_errors_on_invalid_site(self, db_session, forecast_invalid_site):
-        """Tests function errors when incoming pv_uuid does not exist in sites table"""
-
+        """Tests function errors when incoming pv_uuid does not exist in sites table."""
         df = pd.DataFrame(forecast_invalid_site)
         with pytest.raises(KeyError):
             written_rows = insert_forecast_values(session=db_session, df_forecast_values=df)
-            assert len(written_rows), 0
+            assert len(written_rows) == 0
 
 
 class TestInsertGenerationValues:
-    """Tests for the insert_generation_values function"""
+    """Tests for the insert_generation_values function."""
 
     def test_inserts_generation_for_existing_site(self, db_session, generation_valid_site):
-        """Tests inserts values successfully"""
-
+        """Tests inserts values successfully."""
         df = pd.DataFrame(generation_valid_site)
         written_rows = insert_generation_values(session=db_session, generation_values_df=df)
 

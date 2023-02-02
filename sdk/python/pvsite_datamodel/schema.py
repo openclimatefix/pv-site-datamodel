@@ -10,6 +10,8 @@ from pandera.typing import Series
 class InputForecastValuesSchema(pa.SchemaModel):
     """Schema defining the makeup of the input forecast values dataframe."""
 
+    # TODO: utilise this
+
     target_datetime_utc: Series[DateTime] = pa.Field()
     forecast_kw: Series[Float] = pa.Field(ge=0)
     pv_uuid: Series[String] = pa.Field(le=32)

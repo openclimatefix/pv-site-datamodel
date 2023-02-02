@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 # This means we can use Typing of objects that have jet to be defined
-
 import uuid
 from datetime import datetime
 from typing import List

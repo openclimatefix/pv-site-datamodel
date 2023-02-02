@@ -1,26 +1,23 @@
-""" Pytest fixtures for tests """
-from datetime import datetime, timedelta, timezone
+"""Pytest fixtures for tests."""
+import datetime as dt
+import uuid
+from typing import List
 
 import pytest
-import uuid
-
-from pvsite_datamodel.sqlmodels import Base
-from pvsite_datamodel import (
-    ClientSQL,
-    SiteSQL,
-    ForecastValueSQL,
-    GenerationSQL,
-    StatusSQL,
-    LatestForecastValueSQL,
-    ForecastSQL,
-)
-from pvsite_datamodel.write.datetime_intervals import get_or_else_create_datetime_interval
-
-from testcontainers.postgres import PostgresContainer
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
+from testcontainers.postgres import PostgresContainer
 
-from typing import List
+from pvsite_datamodel import (
+    ClientSQL,
+    ForecastSQL,
+    GenerationSQL,
+    LatestForecastValueSQL,
+    SiteSQL,
+    StatusSQL,
+)
+from pvsite_datamodel.sqlmodels import Base
+from pvsite_datamodel.write.datetime_intervals import get_or_else_create_datetime_interval
 
 
 @pytest.fixture(scope="session")
@@ -34,9 +31,9 @@ def engine():
         yield engine
 
 
-@pytest.fixture(scope="function", autouse=True)
+@pytest.fixture(autouse=True)
 def db_session(engine):
-    """Returns an sqlalchemy session, and after the test tears down everything properly."""
+    """Return a sqlalchemy session, which tears down everything properly post-test."""
     connection = engine.connect()
     # begin the nested transaction
     transaction = connection.begin()
@@ -57,14 +54,13 @@ def db_session(engine):
 
 @pytest.fixture()
 def sites(db_session):
-    """create some fake sites"""
-
+    """Create some fake sites."""
     sites = []
     for i in range(0, 4):
         client = ClientSQL(
             client_uuid=uuid.uuid4(),
             client_name=f"testclient_{i}",
-            created_utc=datetime.now(timezone.utc),
+            created_utc=dt.datetime.now(dt.timezone.utc),
         )
         site = SiteSQL(
             site_uuid=uuid.uuid4(),
@@ -73,8 +69,8 @@ def sites(db_session):
             latitude=51,
             longitude=3,
             capacity_kw=4,
-            created_utc=datetime.now(timezone.utc),
-            updated_utc=datetime.now(timezone.utc),
+            created_utc=dt.datetime.now(dt.timezone.utc),
+            updated_utc=dt.datetime.now(dt.timezone.utc),
             ml_id=i,
         )
         db_session.add(client)
@@ -88,9 +84,8 @@ def sites(db_session):
 
 @pytest.fixture()
 def generations(db_session, sites):
-    """Create some fake generations"""
-
-    start_times = [datetime.today() - timedelta(minutes=x) for x in range(10)]
+    """Create some fake generations."""
+    start_times = [dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)]
 
     all_generations = []
     for site in sites:
@@ -113,11 +108,10 @@ def generations(db_session, sites):
 
 @pytest.fixture()
 def latestforecastvalues(db_session, sites):
-    """Create some fake latest forecast values"""
-
+    """Create some fake latest forecast values."""
     latest_forecast_values = []
     forecast_version: str = "0.0.0"
-    start_times = [datetime.today() - timedelta(minutes=x) for x in range(10)]
+    start_times = [dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)]
 
     for site in sites:
         forecast: ForecastSQL = ForecastSQL(
@@ -146,46 +140,11 @@ def latestforecastvalues(db_session, sites):
 
 
 @pytest.fixture()
-def forecast_values(db_session, sites):
-    """Create some fake forecast values"""
-
-    forecast_values = []
-    forecast_version: str = "0.0.0"
-    start_times = [datetime.today() - timedelta(minutes=x) for x in range(10)]
-
-    for site in sites:
-        forecast: ForecastSQL = ForecastSQL(
-            forecast_uuid=uuid.uuid4(),
-            site_uuid=site.site_uuid,
-            forecast_version=forecast_version,
-        )
-
-        db_session.add(forecast)
-        db_session.commit()
-
-        for i in range(0, 10):
-            datetime_interval, _ = get_or_else_create_datetime_interval(
-                session=db_session, start_time=start_times[i]
-            )
-
-            forecast_value: ForecastValueSQL = ForecastValueSQL(
-                forecast_value_uuid=uuid.uuid4(),
-                datetime_interval_uuid=datetime_interval.datetime_interval_uuid,
-                forecast_generation_kw=i,
-                forecast_uuid=forecast.forecast_uuid,
-            )
-
-            forecast_values.append(forecast_value)
-
-    db_session.add_all(forecast_values)
-    db_session.commit()
-
-
-@pytest.fixture()
 def datetimeintervals(db_session):
-    """Create fake datetime intervals"""
-
-    start_times: List[datetime] = [datetime.today() - timedelta(minutes=x) for x in range(10)]
+    """Create fake datetime intervals."""
+    start_times: List[dt.datetime] = [
+        dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)
+    ]
 
     for time in start_times:
         get_or_else_create_datetime_interval(session=db_session, start_time=time)
@@ -193,7 +152,7 @@ def datetimeintervals(db_session):
 
 @pytest.fixture()
 def test_time():
-    return datetime(2022, 7, 25, 0, 0, 0, 0, timezone.utc)
+    return dt.datetime(2022, 7, 25, 0, 0, 0, 0, dt.timezone.utc)
 
 
 @pytest.fixture()
@@ -202,7 +161,7 @@ def forecast_valid_site(sites):
 
     return {
         "target_datetime_utc": [
-            (datetime.today() - timedelta(minutes=x)).isoformat() for x in range(10)
+            dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)
         ],
         "forecast_kw": [float(x) for x in range(10)],
         "pv_uuid": [site_uuid for x in range(10)],
@@ -212,7 +171,7 @@ def forecast_valid_site(sites):
 @pytest.fixture()
 def forecast_invalid_site():
     return {
-        "target_datetime_utc": [datetime.today().isoformat()],
+        "target_datetime_utc": [dt.datetime.now(dt.timezone.utc)],
         "forecast_kw": [1.0],
         "pv_uuid": [uuid.uuid4()],
     }
@@ -223,16 +182,18 @@ def generation_valid_site(sites):
     site_uuid = sites[0].site_uuid
 
     return {
-        "start_datetime_utc": [(datetime.today() - timedelta(minutes=x)) for x in range(10)],
+        "start_datetime_utc": [
+            dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)
+        ],
         "power_kw": [float(x) for x in range(10)],
-        "site_uuid": [site_uuid for x in range(10)],
+        "site_uuid": [site_uuid for _ in range(10)],
     }
 
 
 @pytest.fixture()
 def generation_invalid_site():
     return {
-        "start_datetime_utc": [datetime.today()],
+        "start_datetime_utc": [dt.datetime.now(dt.timezone.utc)],
         "power_kw": [1.0],
         "site_uuid": [uuid.uuid4()],
     }
@@ -240,8 +201,7 @@ def generation_invalid_site():
 
 @pytest.fixture()
 def statuses(db_session) -> List[StatusSQL]:
-    """Create some fake statuses"""
-
+    """Create some fake statuses."""
     statuses: List[StatusSQL] = []
     for i in range(0, 4):
         status = StatusSQL(

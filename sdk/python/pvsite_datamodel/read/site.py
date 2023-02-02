@@ -51,7 +51,7 @@ def get_site_by_client_site_id(session: Session, client_name: str, client_site_i
     site: Optional[SiteSQL] = query.first()
 
     if site is None:
-        raise Exception(f"Could not find site {client_site_id} from client {client_name}")
+        raise KeyError(f"Could not find site {client_site_id} from client {client_name}")
 
     return site
 
