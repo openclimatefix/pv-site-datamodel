@@ -59,6 +59,7 @@ class SiteSQL(Base, CreatedMixin):
     forecasts: List["ForecastSQL"] = relationship("ForecastSQL")
     latest_forecast_values: List["LatestForecastValueSQL"] = relationship("LatestForecastValueSQL")
     generation: List["GenerationSQL"] = relationship("GenerationSQL")
+    client: DatetimeIntervalSQL = relationship("ClientSQL", back_populates="sites")
 
 
 class GenerationSQL(Base, CreatedMixin):
