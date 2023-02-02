@@ -100,7 +100,7 @@ class TestInsertForecastValues:
         df = pd.DataFrame(forecast_invalid_site)
         with pytest.raises(KeyError):
             written_rows = insert_forecast_values(session=db_session, df_forecast_values=df)
-        assert len(written_rows), 0
+            assert len(written_rows) == 0
 
 
 class TestInsertGenerationValues:
