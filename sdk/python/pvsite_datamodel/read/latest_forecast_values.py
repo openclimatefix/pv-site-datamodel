@@ -4,7 +4,7 @@ import datetime as dt
 import uuid
 from typing import Dict, List, Optional, Union
 
-from sqlalchemy.orm import Query, Session
+from sqlalchemy.orm import Query, Session, contains_eager
 
 from pvsite_datamodel.sqlmodels import (
     DatetimeIntervalSQL,
@@ -105,6 +105,11 @@ def get_forecast_values_by_site_latest(
         ForecastValueSQL.created_utc,
     )
 
+    # make sure this is all loaded
+    query = query.options(contains_eager(ForecastValueSQL.forecast)).populate_existing()
+    query = query.options(contains_eager(ForecastValueSQL.datetime_interval)).populate_existing()
+
+    # query results
     forecast_values: List[ForecastValueSQL] = query.all()
 
     for site_uuid in site_uuids:
