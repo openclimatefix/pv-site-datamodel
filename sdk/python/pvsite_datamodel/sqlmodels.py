@@ -141,7 +141,11 @@ class ForecastValueSQL(Base, CreatedMixin):
         UUID(as_uuid=True),
         sa.ForeignKey("forecasts.forecast_uuid"),
         nullable=False,
-        default=uuid.uuid4,
+    )
+
+    forecast: ForecastSQL = relationship("ForecastSQL", back_populates="forecast_values")
+    datetime_interval: DatetimeIntervalSQL = relationship(
+        "DatetimeIntervalSQL", back_populates="forecast_values"
     )
 
 
