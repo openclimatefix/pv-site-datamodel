@@ -159,10 +159,12 @@ def test_time():
 def forecast_valid_site(sites):
     site_uuid = sites[0].site_uuid
 
+    start_utc = [dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)]
+    end_utc = [d + dt.timedelta(minutes=10) for d in start_utc]
+
     return {
-        "target_datetime_utc": [
-            dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)
-        ],
+        "target_start_utc": start_utc,
+        "target_end_utc": end_utc,
         "forecast_kw": [float(x) for x in range(10)],
         "pv_uuid": [site_uuid for x in range(10)],
     }
@@ -170,8 +172,10 @@ def forecast_valid_site(sites):
 
 @pytest.fixture()
 def forecast_invalid_site():
+    now = dt.datetime.now(dt.timezone.utc)
     return {
-        "target_datetime_utc": [dt.datetime.now(dt.timezone.utc)],
+        "target_start_utc": [now],
+        "target_end_utc": [now + dt.timedelta(minutes=10)],
         "forecast_kw": [1.0],
         "pv_uuid": [uuid.uuid4()],
     }
