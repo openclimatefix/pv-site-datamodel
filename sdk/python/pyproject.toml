@@ -63,6 +63,8 @@ exclude = ["__init__.py"]
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["E402"]
+"tests/*" = ["S101", "D102", "D103", "PT004"]
+"setup.py" = ["D100"]
 
 [tool.pytest.ini_options]
 addopts = [

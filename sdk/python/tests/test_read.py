@@ -1,26 +1,27 @@
-""" Test read functions """
+"""Test read functions."""
 
 import datetime as dt
 import uuid
-
-from sqlalchemy.orm import Query
 from typing import List
 
-from pvsite_datamodel import SiteSQL, StatusSQL, ClientSQL, DatetimeIntervalSQL
-from pvsite_datamodel.read import get_all_sites
-from pvsite_datamodel.read import get_site_by_uuid
-from pvsite_datamodel.read import get_site_by_client_site_id
-from pvsite_datamodel.read import get_pv_generation_by_sites
-from pvsite_datamodel.read import get_latest_status
-from pvsite_datamodel.read import get_pv_generation_by_client
-from pvsite_datamodel.read import get_latest_forecast_values_by_site
-from pvsite_datamodel.read.utils import filter_query_by_datetime_interval
-
 import pytest
+from sqlalchemy.orm import Query
+
+from pvsite_datamodel import ClientSQL, DatetimeIntervalSQL, SiteSQL, StatusSQL
+from pvsite_datamodel.read import (
+    get_all_sites,
+    get_latest_forecast_values_by_site,
+    get_latest_status,
+    get_pv_generation_by_client,
+    get_pv_generation_by_sites,
+    get_site_by_client_site_id,
+    get_site_by_uuid,
+)
+from pvsite_datamodel.read.utils import filter_query_by_datetime_interval
 
 
 class TestGetAllSites:
-    """Tests for the get_all_sites function"""
+    """Tests for the get_all_sites function."""
 
     def test_returns_all_sites(self, sites, db_session):
         out = get_all_sites(db_session)
@@ -30,7 +31,7 @@ class TestGetAllSites:
 
 
 class TestGetSiteByUUID:
-    """Tests for the get_site_by_uuid function"""
+    """Tests for the get_site_by_uuid function."""
 
     def tests_gets_site_for_existing_uuid(self, sites, db_session):
         site = get_site_by_uuid(session=db_session, site_uuid=sites[0].site_uuid)
@@ -38,12 +39,12 @@ class TestGetSiteByUUID:
         assert site == sites[0]
 
     def test_raises_error_for_nonexistant_site(self, sites, db_session):
-        with pytest.raises(Exception):
+        with pytest.raises(KeyError):
             _ = get_site_by_uuid(session=db_session, site_uuid=uuid.uuid4())
 
 
 class TestGetSiteByClientSiteID:
-    """Tests for the get_site_by_client_site_id function"""
+    """Tests for the get_site_by_client_site_id function."""
 
     def test_gets_site_successfully(self, sites, db_session):
         site = get_site_by_client_site_id(
@@ -55,7 +56,7 @@ class TestGetSiteByClientSiteID:
         assert site.client_site_id == 1
 
     def test_raises_exception_when_no_such_site_exists(self, sites, db_session):
-        with pytest.raises(Exception):
+        with pytest.raises(KeyError):
             _ = get_site_by_client_site_id(
                 session=db_session,
                 client_name="testclient_100",
@@ -64,7 +65,7 @@ class TestGetSiteByClientSiteID:
 
 
 class TestGetPVGenerationByClient:
-    """Tests for the get_pv_generation_by_client function"""
+    """Tests for the get_pv_generation_by_client function."""
 
     def test_returns_all_generations_without_input_client(self, generations, db_session):
         generations = get_pv_generation_by_client(session=db_session)
@@ -99,7 +100,7 @@ class TestGetPVGenerationByClient:
 
 
 class TestGetPVGenerationBySites:
-    """Tests for the get_pv_generation_by_sites function"""
+    """Tests for the get_pv_generation_by_sites function."""
 
     def test_gets_generation_for_single_input_site(self, generations, db_session):
         query: Query = db_session.query(SiteSQL)
@@ -135,7 +136,7 @@ class TestGetPVGenerationBySites:
 
 
 class TestGetLatestStatus:
-    """Tests for the get_latest_status function"""
+    """Tests for the get_latest_status function."""
 
     def test_gets_latest_status_when_exists(self, statuses, db_session):
         status: StatusSQL = get_latest_status(db_session)
@@ -144,7 +145,7 @@ class TestGetLatestStatus:
 
 
 class TestGetLatestForecastValuesBySite:
-    """Tests for the get_latest_forecast_values_by_site function"""
+    """Tests for the get_latest_forecast_values_by_site function."""
 
     def test_gets_latest_forecast_values_with_single_site(self, latestforecastvalues, db_session):
         query: Query = db_session.query(SiteSQL)
@@ -192,7 +193,7 @@ class TestGetLatestForecastValuesBySite:
 
 
 class TestFilterQueryByDatetimeInterval:
-    """Tests for the filter_query_by_datetime_interval function"""
+    """Tests for the filter_query_by_datetime_interval function."""
 
     def test_returns_datetime_intervals_in_filter(self, datetimeintervals, db_session):
         query: Query = db_session.query(DatetimeIntervalSQL)
