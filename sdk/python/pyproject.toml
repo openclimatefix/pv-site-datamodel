@@ -9,7 +9,7 @@ authors = [
     { name = "Open Climate Fix" }
 ]
 requires-python = ">=3.10.0"
-version = "0.1.23"  # Autoincremented by bumpversion.cfg
+version = "0.1.24"  # Autoincremented by bumpversion.cfg
 classifiers = ["Programming Language :: Python :: 3"]
 dynamic = ["dependencies"]
 
