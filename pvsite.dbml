@@ -83,7 +83,7 @@ Table forecast_values {
 
     *Approximate size: *
     One forecast value every 5 minutes per site per forecast.
-    Each forecast'self prediction sequence covers 24 hours of target
+    Each forecasts prediction sequence covers 24 hours of target
     intervals = ~324,000,000 rows per day
   '''
 }

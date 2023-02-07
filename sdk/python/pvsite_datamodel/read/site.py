@@ -32,10 +32,10 @@ def get_site_by_client_site_id(session: Session, client_name: str, client_site_i
 
     :param session: database sessions
     :param client_name: client name
-    :param client_site_id: client'self id of site
+    :param client_site_id: client's id of site
     :return: site object, or None
     """
-    logger.debug(f"Getting {client_name}'self site {client_site_id}")
+    logger.debug(f"Getting {client_name}'s site {client_site_id}")
 
     # start main query
     query = session.query(SiteSQL)
@@ -63,10 +63,10 @@ def get_site_by_client_site_name(
 
     :param session: database sessions
     :param client_name: client name
-    :param client_site_name: client'self name of site
+    :param client_site_name: client's name of site
     :return: site object, or None
     """
-    logger.debug(f"Getting {client_name}'self site {client_site_name}")
+    logger.debug(f"Getting {client_name}'s site {client_site_name}")
 
     # start main query
     query = session.query(SiteSQL)

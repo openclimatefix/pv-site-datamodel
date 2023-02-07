@@ -12,7 +12,6 @@ import sqlalchemy.orm as sa_orm
 from pvsite_datamodel.read.site import get_site_by_uuid
 from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL
 from pvsite_datamodel.write.datetime_intervals import get_or_else_create_datetime_interval
-from pvsite_datamodel.write.upsert import upsert
 from pvsite_datamodel.write.utils import UUIDV4, WrittenRow
 
 
@@ -45,7 +44,6 @@ def insert_forecast_values(
 
     # Loop over all the unique sites that have got forecast values
     sites: npt.ndarray[uuid.UUID] = forecast_values_df["site_uuid"].unique()
-    sql_forecast_values = []
     for site_uuid in sites:
 
         # Check whether the site id exits in the table, otherwise return an error
@@ -53,52 +51,45 @@ def insert_forecast_values(
 
         # Create a forcast (sequence) for the site, and write it to db
         forecast: ForecastSQL = ForecastSQL(
+            # Explicitely setting the UUID because we need it for ForecastValueSQL.
             forecast_uuid=uuid.uuid4(),
             site_uuid=site_uuid,
             created_utc=dt.datetime.now(tz=dt.timezone.utc),
             forecast_version=forecast_version,
         )
-        newly_written_rows = upsert(session, ForecastSQL, forecast.__dict__)
-        written_rows.extend(newly_written_rows)
+        session.add(forecast)
+        written_rows.append(forecast)
 
         # Get all dataframe forecast value entries for current site_uuid
-        df_site: pd.DataFrame = forecast_values_df.loc[forecast_values_df["site_uuid"] == site_uuid]
-
-        # Filter the forecasted values by target_time
-        target_times: npt.ndarray[dt.datetime] = df_site["target_datetime_utc"].unique()
+        df_site: pd.DataFrame = forecast_values_df.loc[
+            forecast_values_df["site_uuid"] == site_uuid
+        ]
 
         # Print a warning if there are duplicate target_times for this site's forecast
-        if len(target_times) != len(df_site):
+        if len(df_site["target_start_utc"].unique()) != len(df_site):
             logging.warning(
                 f"duplicate target times exist in forecast {forecast.forecast_uuid} "
                 f"for site {site_uuid}"
             )
 
         # For each target time:
-        for target_time in target_times:
+        for _, row in df_site.iterrows():
+            # Create a datatime interval if it doesn't already exist
             datetime_interval, newly_added_rows = get_or_else_create_datetime_interval(
-                session=session, start_time=target_time
+                session=session,
+                start_time=row["target_start_utc"],
+                end_time=row["target_end_utc"],
             )
             written_rows.extend(newly_added_rows)
 
-            # For each entry with this targettime (there should only be one)
-            df_target_entries: pd.DataFrame = df_site.loc[
-                df_site["target_datetime_utc"] == target_time
-                ]
-
-            # Create a ForecastValueSQL object for each forecast value, and surface as dict
-            # TODO there might be quicker ways to do this, like go from pandas straight to a dict
+            # Create a forecast value entry for the parent forecast
             sql_forecast_value = ForecastValueSQL(
                 forecast_uuid=forecast.forecast_uuid,
-                forecast_value_uuid=uuid.uuid4(),
                 datetime_interval_uuid=datetime_interval.datetime_interval_uuid,
                 created_utc=dt.datetime.now(tz=dt.timezone.utc),
-                forecast_generation_kw=df_target_entries.iloc[0]["forecast_kw"],
-            ).__dict__
-            sql_forecast_values.append(sql_forecast_value)
-
-    # Save it to the db
-    newly_added_rows = upsert(session, ForecastValueSQL, sql_forecast_values)
-    written_rows.extend(newly_added_rows)
+                forecast_generation_kw=row["forecast_kw"],
+            )
+            session.add(sql_forecast_value)
+            written_rows.append(sql_forecast_value)
 
     return written_rows
