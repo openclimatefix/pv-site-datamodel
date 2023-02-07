@@ -2,6 +2,7 @@
 
 import datetime as dt
 import logging
+import typing
 import uuid
 
 import numpy.typing as npt
@@ -18,7 +19,10 @@ from pvsite_datamodel.write.utils import UUIDV4, WrittenRow
 class ForecastValuesSchema(pa.SchemaModel):
     """Schema for the dataframe used by the insert_forecast_values function."""
 
-    target_datetime_utc: pa.typing.Series[pd.DatetimeTZDtype] = pa.Field(
+    target_start_utc: pa.typing.Series[pd.DatetimeTZDtype] = pa.Field(
+        dtype_kwargs={"unit": "ns", "tz": "UTC"}
+    )
+    target_end_utc: typing.Optional[pa.typing.Series[pd.DatetimeTZDtype]] = pa.Field(
         dtype_kwargs={"unit": "ns", "tz": "UTC"}
     )
     forecast_kw: pa.typing.Series[pa.dtypes.Float] = pa.Field(ge=0)

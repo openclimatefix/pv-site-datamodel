@@ -20,7 +20,7 @@ from pvsite_datamodel.write.utils import UUIDV4, WrittenRow
 class GenerationValuesSchema(pa.SchemaModel):
     """Schema for the dataframe used by the insert_generation_values function."""
 
-    start_datetime_utc: pa.typing.Series[pd.DatetimeTZDtype] = pa.Field(
+    start_utc: pa.typing.Series[pd.DatetimeTZDtype] = pa.Field(
         dtype_kwargs={"unit": "ns", "tz": "UTC"}
     )
     power_kw: pa.typing.Series[pa.dtypes.Float] = pa.Field(ge=0)
@@ -57,7 +57,7 @@ def insert_generation_values(
             ]
 
         # Filter the forecasted values by target_time
-        start_datetimes: npt.ndarray[dt.datetime] = df_site["start_datetime_utc"].unique()
+        start_datetimes: npt.ndarray[dt.datetime] = df_site["start_utc"].unique()
 
         # Print a warning if there are duplicate target_times for this site's forecast
         if len(start_datetimes) != len(df_site):
@@ -72,7 +72,7 @@ def insert_generation_values(
 
             # For each entry with this target time:
             df_target_entries: pd.DataFrame = df_site.loc[
-                df_site["start_datetime_utc"] == start_datetimes
+                df_site["start_utc"] == start_datetimes
                 ]
 
             # Create a GenerationSQL object for each generation, and surface as dict

@@ -195,7 +195,7 @@ def generation_valid_site(sites):
     site_uuid = sites[0].site_uuid
 
     return {
-        "start_datetime_utc": [
+        "start_utc": [
             dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)
         ],
         "power_kw": [float(x) for x in range(10)],
@@ -206,7 +206,7 @@ def generation_valid_site(sites):
 @pytest.fixture()
 def generation_invalid_dataframe():
     return {
-        "start_datetime_utc": [dt.datetime.now(dt.timezone.utc)],
+        "start_utc": [dt.datetime.now(dt.timezone.utc)],
         "power_kw": [1.0],
         "site_uuid": ["ahsjdkri48ggfhdu47fyajs837ghv612"],
     }
