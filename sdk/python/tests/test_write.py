@@ -2,6 +2,7 @@
 
 import pandas as pd
 import pytest
+from pandera.errors import SchemaError
 
 from pvsite_datamodel import DatabaseConnection
 from pvsite_datamodel.sqlmodels import (
@@ -61,7 +62,7 @@ class TestInsertForecastValues:
 
     def test_inserts_values_for_existing_site(self, db_session, forecast_valid_site):
         df = pd.DataFrame(forecast_valid_site)
-        written_rows = insert_forecast_values(session=db_session, df_forecast_values=df)
+        written_rows = insert_forecast_values(session=db_session, forecast_values_df=df)
 
         assert len(written_rows) == 21
         # 10 datetime intervals, 10 forecast values, 1 forecast
@@ -81,8 +82,8 @@ class TestInsertForecastValues:
         # Create DataFrame and write to DB
         df = pd.DataFrame(forecast_valid_site)
         # write once and again,
-        _ = insert_forecast_values(session=db_session, df_forecast_values=df)
-        written_rows = insert_forecast_values(session=db_session, df_forecast_values=df)
+        _ = insert_forecast_values(session=db_session, forecast_values_df=df)
+        written_rows = insert_forecast_values(session=db_session, forecast_values_df=df)
         assert len(written_rows) == 11  # 10 forecast values, 1 forecast
 
         # Check correct data has been written and exists in table
@@ -96,10 +97,17 @@ class TestInsertForecastValues:
         assert len(written_forecasts) == 2  # 1 more since previous test
 
     def test_errors_on_invalid_site(self, db_session, forecast_invalid_site):
-        """Tests function errors when incoming pv_uuid does not exist in sites table."""
+        """Tests function errors when incoming site_uuid does not exist in sites table."""
         df = pd.DataFrame(forecast_invalid_site)
         with pytest.raises(KeyError):
-            written_rows = insert_forecast_values(session=db_session, df_forecast_values=df)
+            written_rows = insert_forecast_values(session=db_session, forecast_values_df=df)
+            assert len(written_rows) == 0
+
+    def test_errors_on_invalid_dataframe(self, db_session, forecast_invalid_dataframe):
+        """Tests function errors on invalid dataframe."""
+        df = pd.DataFrame(forecast_invalid_dataframe)
+        with pytest.raises(SchemaError):
+            written_rows = insert_forecast_values(session=db_session, forecast_values_df=df)
             assert len(written_rows) == 0
 
 
@@ -119,3 +127,10 @@ class TestInsertGenerationValues:
         assert len(written_forecastvalues) == 10
         written_datetimeintervals = db_session.query(DatetimeIntervalSQL).all()
         assert len(written_datetimeintervals) == 10
+
+    def test_errors_on_invalid_dataframe(self, db_session, generation_invalid_dataframe):
+        """Tests function errors on invalid dataframe."""
+        df = pd.DataFrame(generation_invalid_dataframe)
+        with pytest.raises(SchemaError):
+            written_rows = insert_generation_values(session=db_session, generation_values_df=df)
+            assert len(written_rows) == 0

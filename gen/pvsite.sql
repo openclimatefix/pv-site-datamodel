@@ -136,7 +136,7 @@ are made for each site at each target interval.
 
 *Approximate size: *
 One forecast value every 5 minutes per site per forecast.
-Each forecast"s prediction sequence covers 24 hours of target
+Each forecast"self prediction sequence covers 24 hours of target
 intervals = ~324,000,000 rows per day';
 
 COMMENT ON COLUMN "forecast_values"."datetime_interval_uuid" IS 'The time interval over which this predicted power value applies';
