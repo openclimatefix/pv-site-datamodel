@@ -2,7 +2,6 @@
 
 import datetime as dt
 import logging
-import typing
 import uuid
 
 import numpy.typing as npt
@@ -20,13 +19,21 @@ class ForecastValuesSchema(pa.SchemaModel):
     """Schema for the dataframe used by the insert_forecast_values function."""
 
     target_start_utc: pa.typing.Series[pd.DatetimeTZDtype] = pa.Field(
-        dtype_kwargs={"unit": "ns", "tz": "UTC"}
+        dtype_kwargs={"unit": "ns", "tz": "UTC"},
+        description="The start of the target time period for the forecast value."
     )
-    target_end_utc: typing.Optional[pa.typing.Series[pd.DatetimeTZDtype]] = pa.Field(
-        dtype_kwargs={"unit": "ns", "tz": "UTC"}
+
+    target_end_utc: pa.typing.Series[pd.DatetimeTZDtype] = pa.Field(
+        dtype_kwargs={"unit": "ns", "tz": "UTC"},
+        description="The end of the target time period for the forecast value."
     )
-    forecast_kw: pa.typing.Series[pa.dtypes.Float] = pa.Field(ge=0)
-    site_uuid: pa.typing.Series[UUIDV4] = pa.Field()
+    forecast_kw: pa.typing.Series[pa.dtypes.Float] = pa.Field(
+        ge=0,
+        description="The forecast generation for the site in kilowatts."
+    )
+    site_uuid: pa.typing.Series[UUIDV4] = pa.Field(
+        description="The UUID of the site for which the forecast value was created."
+    )
 
 
 def insert_forecast_values(
