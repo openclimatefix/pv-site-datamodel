@@ -166,7 +166,7 @@ def forecast_valid_site(sites):
         "target_start_utc": start_utc,
         "target_end_utc": end_utc,
         "forecast_kw": [float(x) for x in range(10)],
-        "pv_uuid": [site_uuid for x in range(10)],
+        "site_uuid": [site_uuid for x in range(10)],
     }
 
 
@@ -177,7 +177,16 @@ def forecast_invalid_site():
         "target_start_utc": [now],
         "target_end_utc": [now + dt.timedelta(minutes=10)],
         "forecast_kw": [1.0],
-        "pv_uuid": [uuid.uuid4()],
+        "site_uuid": [uuid.uuid4()],
+    }
+
+
+@pytest.fixture()
+def forecast_invalid_dataframe():
+    return {
+        "target_datetime_utc": [dt.datetime.now(dt.timezone.utc).isoformat()],
+        "forecast_Mw": [1.0],
+        "site_uuid": ["not a uuid"],
     }
 
 
@@ -186,7 +195,7 @@ def generation_valid_site(sites):
     site_uuid = sites[0].site_uuid
 
     return {
-        "start_datetime_utc": [
+        "start_utc": [
             dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)
         ],
         "power_kw": [float(x) for x in range(10)],
@@ -195,11 +204,11 @@ def generation_valid_site(sites):
 
 
 @pytest.fixture()
-def generation_invalid_site():
+def generation_invalid_dataframe():
     return {
-        "start_datetime_utc": [dt.datetime.now(dt.timezone.utc)],
+        "start_utc": [dt.datetime.now(dt.timezone.utc)],
         "power_kw": [1.0],
-        "site_uuid": [uuid.uuid4()],
+        "site_uuid": ["ahsjdkri48ggfhdu47fyajs837ghv612"],
     }
 
 
