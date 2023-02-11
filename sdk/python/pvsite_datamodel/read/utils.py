@@ -3,9 +3,8 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy.orm import Query
-
 from pvsite_datamodel.sqlmodels import DatetimeIntervalSQL
+from sqlalchemy.orm import Query
 
 
 def filter_query_by_datetime_interval(

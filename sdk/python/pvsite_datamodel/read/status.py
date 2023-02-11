@@ -2,9 +2,8 @@
 
 from typing import Optional
 
-from sqlalchemy.orm import Session
-
 from pvsite_datamodel.sqlmodels import StatusSQL
+from sqlalchemy.orm import Session
 
 
 def get_latest_status(session: Session) -> Optional[StatusSQL]:

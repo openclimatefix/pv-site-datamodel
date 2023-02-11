@@ -3,11 +3,10 @@
 import datetime as dt
 import uuid
 
-from sqlalchemy import orm as sa_orm
-
 from pvsite_datamodel.sqlmodels import DatetimeIntervalSQL
 from pvsite_datamodel.write.upsert import upsert
 from pvsite_datamodel.write.utils import FORECAST_TIMESPAN, WrittenRow
+from sqlalchemy import orm as sa_orm
 
 
 def get_or_else_create_datetime_interval(

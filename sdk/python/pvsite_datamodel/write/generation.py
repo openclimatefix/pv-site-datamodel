@@ -7,7 +7,6 @@ import numpy.typing as npt
 import pandas as pd
 import pandera as pa
 import sqlalchemy.orm as sa_orm
-
 from pvsite_datamodel.read.site import get_site_by_uuid
 from pvsite_datamodel.sqlmodels import GenerationSQL
 

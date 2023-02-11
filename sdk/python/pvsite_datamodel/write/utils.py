@@ -7,7 +7,6 @@ from typing import Iterable, Optional, Union
 
 import pandas as pd
 import pandera as pa
-
 from pvsite_datamodel.sqlmodels import Base
 
 
