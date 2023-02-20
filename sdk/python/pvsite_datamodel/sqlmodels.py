@@ -8,10 +8,8 @@ from datetime import datetime
 from typing import List
 
 import sqlalchemy as sa
-from sqlalchemy import Column, DateTime
-from sqlalchemy.dialects.postgresql import FLOAT, INTEGER, REAL, TIMESTAMP, UUID
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.schema import UniqueConstraint
 
 Base = declarative_base()
@@ -20,7 +18,7 @@ Base = declarative_base()
 class CreatedMixin:
     """Mixin to add created datetime to model."""
 
-    created_utc = Column(DateTime(timezone=True), default=lambda: datetime.utcnow())
+    created_utc = sa.Column(sa.DateTime, default=lambda: datetime.utcnow())
 
 
 class SiteSQL(Base, CreatedMixin):
@@ -38,27 +36,33 @@ class SiteSQL(Base, CreatedMixin):
 
     site_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     client_uuid = sa.Column(
-        UUID(as_uuid=True), sa.ForeignKey("clients.client_uuid"), nullable=False, default=uuid.uuid4
+        UUID(as_uuid=True),
+        sa.ForeignKey("clients.client_uuid"),
+        nullable=False,
     )
-    client_site_id = sa.Column(INTEGER)
-    client_site_name = sa.Column(sa.String(255))
+    client_site_id = sa.Column(sa.Integer, index=True)
+    client_site_name = sa.Column(sa.String(255), index=True)
+
     region = sa.Column(sa.String(255))
     dno = sa.Column(sa.String(255))
     gsp = sa.Column(sa.String(255))
-    orientation = sa.Column(REAL)
-    tilt = sa.Column(REAL)
-    latitude = sa.Column(FLOAT, nullable=False)
-    longitude = sa.Column(FLOAT, nullable=False)
-    capacity_kw = sa.Column(REAL, nullable=False)
-    updated_utc = sa.Column(TIMESTAMP, nullable=False, default=lambda: datetime.utcnow())
+
+    # For metadata `NULL` means "we don't know".
+    orientation = sa.Column(sa.Float)
+    tilt = sa.Column(sa.Float)
+    latitude = sa.Column(sa.Float)
+    longitude = sa.Column(sa.Float)
+    capacity_kw = sa.Column(sa.Float)
+
     ml_id = sa.Column(sa.Integer, autoincrement=True, nullable=False, unique=True)
 
-    __table_args__ = (UniqueConstraint("client_site_id", client_uuid, name="idx_client"),)
+    __table_args__ = (
+        UniqueConstraint("client_site_id", client_uuid, name="idx_client"),
+    )
 
     forecasts: List["ForecastSQL"] = relationship("ForecastSQL")
-    latest_forecast_values: List["LatestForecastValueSQL"] = relationship("LatestForecastValueSQL")
     generation: List["GenerationSQL"] = relationship("GenerationSQL")
-    client: DatetimeIntervalSQL = relationship("ClientSQL", back_populates="sites")
+    client: ClientSQL = relationship("ClientSQL", back_populates="sites")
 
 
 class GenerationSQL(Base, CreatedMixin):
@@ -73,20 +77,20 @@ class GenerationSQL(Base, CreatedMixin):
 
     __tablename__ = "generation"
 
-    generation_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
+    generation_uuid = sa.Column(
+        UUID(as_uuid=True), default=uuid.uuid4, primary_key=True
+    )
     site_uuid = sa.Column(
-        UUID(as_uuid=True), sa.ForeignKey("sites.site_uuid"), nullable=False, default=uuid.uuid4
-    )
-    power_kw = sa.Column(REAL, nullable=False)
-    datetime_interval_uuid = sa.Column(
         UUID(as_uuid=True),
-        sa.ForeignKey("datetime_intervals.datetime_interval_uuid"),
+        sa.ForeignKey("sites.site_uuid"),
         nullable=False,
-        default=uuid.uuid4,
+        index=True,
     )
-    datetime_interval: DatetimeIntervalSQL = relationship(
-        "DatetimeIntervalSQL", back_populates="generation"
-    )
+    generation_power_kw = sa.Column(sa.Float, nullable=False)
+
+    start_utc = sa.Column(sa.DateTime, nullable=False, index=True)
+    end_utc = sa.Column(sa.DateTime, nullable=False)
+
     site: SiteSQL = relationship("SiteSQL", back_populates="generation")
 
 
@@ -104,7 +108,10 @@ class ForecastSQL(Base, CreatedMixin):
 
     forecast_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     site_uuid = sa.Column(
-        UUID(as_uuid=True), sa.ForeignKey("sites.site_uuid"), nullable=False, default=uuid.uuid4
+        UUID(as_uuid=True),
+        sa.ForeignKey("sites.site_uuid"),
+        nullable=False,
+        index=True,
     )
 
     forecast_version = sa.Column(sa.String(32), nullable=False)
@@ -128,60 +135,32 @@ class ForecastValueSQL(Base, CreatedMixin):
 
     __tablename__ = "forecast_values"
 
-    forecast_value_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    datetime_interval_uuid = sa.Column(
-        UUID(as_uuid=True),
-        sa.ForeignKey("datetime_intervals.datetime_interval_uuid"),
-        nullable=False,
-        default=uuid.uuid4,
+    forecast_value_uuid = sa.Column(
+        UUID(as_uuid=True), default=uuid.uuid4, primary_key=True
     )
-    forecast_generation_kw = sa.Column(REAL, nullable=False)
+
+    start_utc = sa.Column(sa.DateTime, nullable=False, index=True)
+    end_utc = sa.Column(sa.DateTime, nullable=False)
+    forecast_power_kw = sa.Column(sa.Float, nullable=False)
 
     forecast_uuid = sa.Column(
         UUID(as_uuid=True),
         sa.ForeignKey("forecasts.forecast_uuid"),
         nullable=False,
+        index=True,
     )
 
-    forecast: ForecastSQL = relationship("ForecastSQL", back_populates="forecast_values")
-    datetime_interval: DatetimeIntervalSQL = relationship(
-        "DatetimeIntervalSQL", back_populates="forecast_values"
-    )
-
-
-class LatestForecastValueSQL(Base, CreatedMixin):
-    """Class representing the latest_forecast_values table.
-
-    Each latest_forecast_value row is a prediction for the power output
-    of a site over a target datetime interval. Only the most recent
-    prediction for each target time interval is stored in this table
-    per site.
-
-    *Approximate size: *
-    One forecast value every 5 minutes per site per forecast
-    sequence = ~1,125,000 rows per day
-    """
-
-    __tablename__ = "latest_forecast_values"
-
-    latest_forecast_value_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    datetime_interval_uuid = sa.Column(
-        UUID(as_uuid=True),
-        sa.ForeignKey("datetime_intervals.datetime_interval_uuid"),
-        nullable=False,
-        default=uuid.uuid4,
-    )
-    forecast_generation_kw = sa.Column(REAL, nullable=False)
-
-    forecast_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, nullable=False)
+    # This is redundant from the Forecast table, but it means we can save a JOIN for a very frequent
+    # query, which is getting forecasts for given sites.
     site_uuid = sa.Column(
-        UUID(as_uuid=True), sa.ForeignKey("sites.site_uuid"), nullable=False, default=uuid.uuid4
+        UUID(as_uuid=True),
+        sa.ForeignKey("sites.site_uuid"),
+        nullable=False,
+        index=True,
     )
-    forecast_version = sa.Column(sa.String(32), nullable=False)
 
-    latest_forecast: SiteSQL = relationship("SiteSQL", back_populates="latest_forecast_values")
-    datetime_interval: DatetimeIntervalSQL = relationship(
-        "DatetimeIntervalSQL", back_populates="latest_forecast_values"
+    forecast: ForecastSQL = relationship(
+        "ForecastSQL", back_populates="forecast_values"
     )
 
 
@@ -200,26 +179,6 @@ class ClientSQL(Base, CreatedMixin):
     client_name = sa.Column(sa.String(255), nullable=False)
 
     sites: List[SiteSQL] = relationship("SiteSQL")
-
-
-class DatetimeIntervalSQL(Base, CreatedMixin):
-    """Class representing the datetime_intervals table.
-
-    Each datetime_interval row defines a timespan between a start and end time
-
-    *Approximate size: *
-    One interval every 5 minutes per day = ~288 rows per day
-    """
-
-    __tablename__ = "datetime_intervals"
-
-    datetime_interval_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    start_utc = sa.Column(TIMESTAMP, nullable=False)
-    end_utc = sa.Column(TIMESTAMP, nullable=False)
-
-    generation: List[GenerationSQL] = relationship("GenerationSQL")
-    forecast_values: List[ForecastValueSQL] = relationship("ForecastValueSQL")
-    latest_forecast_values: List[LatestForecastValueSQL] = relationship("LatestForecastValueSQL")
 
 
 class StatusSQL(Base, CreatedMixin):

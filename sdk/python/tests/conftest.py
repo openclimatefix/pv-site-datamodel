@@ -12,12 +12,10 @@ from pvsite_datamodel import (
     ClientSQL,
     ForecastSQL,
     GenerationSQL,
-    LatestForecastValueSQL,
     SiteSQL,
     StatusSQL,
 )
 from pvsite_datamodel.sqlmodels import Base
-from pvsite_datamodel.write.datetime_intervals import get_or_else_create_datetime_interval
 
 
 @pytest.fixture(scope="session")
@@ -70,7 +68,6 @@ def sites(db_session):
             longitude=3,
             capacity_kw=4,
             created_utc=dt.datetime.now(dt.timezone.utc),
-            updated_utc=dt.datetime.now(dt.timezone.utc),
             ml_id=i,
         )
         db_session.add(client)
@@ -85,20 +82,19 @@ def sites(db_session):
 @pytest.fixture()
 def generations(db_session, sites):
     """Create some fake generations."""
-    start_times = [dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)]
+    start_times = [
+        dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)
+    ]
 
     all_generations = []
     for site in sites:
         for i in range(0, 10):
-            datetime_interval, _ = get_or_else_create_datetime_interval(
-                session=db_session, start_time=start_times[i]
-            )
-
             generation = GenerationSQL(
                 generation_uuid=uuid.uuid4(),
                 site_uuid=site.site_uuid,
-                power_kw=i,
-                datetime_interval_uuid=datetime_interval.datetime_interval_uuid,
+                generation_power_kw=i,
+                start_utc=start_times[i],
+                end_utc=start_times[i] + dt.timedelta(minutes=5),
             )
             all_generations.append(generation)
 
@@ -111,7 +107,9 @@ def latestforecastvalues(db_session, sites):
     """Create some fake latest forecast values."""
     latest_forecast_values = []
     forecast_version: str = "0.0.0"
-    start_times = [dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)]
+    start_times = [
+        dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)
+    ]
 
     for site in sites:
         forecast: ForecastSQL = ForecastSQL(
@@ -119,35 +117,9 @@ def latestforecastvalues(db_session, sites):
             site_uuid=site.site_uuid,
             forecast_version=forecast_version,
         )
-        for i in range(0, 10):
-            datetime_interval, _ = get_or_else_create_datetime_interval(
-                session=db_session, start_time=start_times[i]
-            )
-
-            latest_forecast_value: LatestForecastValueSQL = LatestForecastValueSQL(
-                latest_forecast_value_uuid=uuid.uuid4(),
-                datetime_interval_uuid=datetime_interval.datetime_interval_uuid,
-                forecast_generation_kw=i,
-                forecast_uuid=forecast.forecast_uuid,
-                site_uuid=site.site_uuid,
-                forecast_version=forecast_version,
-            )
-
-            latest_forecast_values.append(latest_forecast_value)
 
     db_session.add_all(latest_forecast_values)
     db_session.commit()
-
-
-@pytest.fixture()
-def datetimeintervals(db_session):
-    """Create fake datetime intervals."""
-    start_times: List[dt.datetime] = [
-        dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)
-    ]
-
-    for time in start_times:
-        get_or_else_create_datetime_interval(session=db_session, start_time=time)
 
 
 @pytest.fixture()
@@ -159,7 +131,9 @@ def test_time():
 def forecast_valid_site(sites):
     site_uuid = sites[0].site_uuid
 
-    start_utc = [dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)]
+    start_utc = [
+        dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)
+    ]
     end_utc = [d + dt.timedelta(minutes=10) for d in start_utc]
 
     return {
@@ -196,7 +170,8 @@ def generation_valid_site(sites):
 
     return {
         "start_utc": [
-            dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)
+            dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x)
+            for x in range(10)
         ],
         "power_kw": [float(x) for x in range(10)],
         "site_uuid": [site_uuid for _ in range(10)],

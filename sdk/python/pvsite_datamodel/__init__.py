@@ -3,11 +3,9 @@
 from .connection import DatabaseConnection
 from .sqlmodels import (
     ClientSQL,
-    DatetimeIntervalSQL,
     ForecastSQL,
     ForecastValueSQL,
     GenerationSQL,
-    LatestForecastValueSQL,
     SiteSQL,
     StatusSQL,
 )

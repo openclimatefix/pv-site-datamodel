@@ -7,17 +7,15 @@ from typing import List
 import pytest
 from sqlalchemy.orm import Query
 
-from pvsite_datamodel import ClientSQL, DatetimeIntervalSQL, SiteSQL, StatusSQL
+from pvsite_datamodel import ClientSQL, SiteSQL, StatusSQL
 from pvsite_datamodel.read import (
     get_all_sites,
-    get_latest_forecast_values_by_site,
     get_latest_status,
     get_pv_generation_by_client,
     get_pv_generation_by_sites,
     get_site_by_client_site_id,
     get_site_by_uuid,
 )
-from pvsite_datamodel.read.utils import filter_query_by_datetime_interval
 
 
 class TestGetAllSites:
@@ -112,7 +110,7 @@ class TestGetPVGenerationBySites:
         )
 
         assert len(generations) == 10
-        assert generations[0].datetime_interval is not None
+        assert generations[0].start_utc is not None
         assert generations[0].site is not None
 
     def test_gets_generation_for_multiple_input_sites(self, generations, db_session):
@@ -142,66 +140,3 @@ class TestGetLatestStatus:
         status: StatusSQL = get_latest_status(db_session)
 
         assert status.message == "Status 3"
-
-
-class TestGetLatestForecastValuesBySite:
-    """Tests for the get_latest_forecast_values_by_site function."""
-
-    def test_gets_latest_forecast_values_with_single_site(self, latestforecastvalues, db_session):
-        query: Query = db_session.query(SiteSQL)
-        site: SiteSQL = query.first()
-
-        latest_forecast_values = get_latest_forecast_values_by_site(
-            session=db_session,
-            site_uuids=[site.site_uuid]
-        )
-
-        assert len(latest_forecast_values) == 1
-        assert len(latest_forecast_values[site.site_uuid]) == 10
-        assert latest_forecast_values[site.site_uuid][0].datetime_interval is not None
-
-    def test_gets_latest_forecast_values_with_multiple_sites(
-            self, latestforecastvalues, db_session):
-        query: Query = db_session.query(SiteSQL)
-        sites: SiteSQL = query.all()
-
-        latest_forecast_values = get_latest_forecast_values_by_site(
-            session=db_session,
-            site_uuids=[site.site_uuid for site in sites]
-        )
-
-        assert len(latest_forecast_values) == len(sites)
-
-    def test_gets_latest_forecast_values_filter_start_utc(
-            self, latestforecastvalues, db_session):
-        query: Query = db_session.query(SiteSQL)
-        site: SiteSQL = query.first()
-
-        latest_forecast_values = get_latest_forecast_values_by_site(
-            session=db_session,
-            site_uuids=[site.site_uuid],
-            start_utc=dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=7)
-        )
-        assert len(latest_forecast_values[site.site_uuid]) == 7
-
-        latest_forecast_values = get_latest_forecast_values_by_site(
-            session=db_session,
-            site_uuids=[site.site_uuid],
-            start_utc=dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=5)
-        )
-        assert len(latest_forecast_values[site.site_uuid]) == 5
-
-
-class TestFilterQueryByDatetimeInterval:
-    """Tests for the filter_query_by_datetime_interval function."""
-
-    def test_returns_datetime_intervals_in_filter(self, datetimeintervals, db_session):
-        query: Query = db_session.query(DatetimeIntervalSQL)
-        query = filter_query_by_datetime_interval(
-            query=query,
-            start_utc=dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=7)
-        )
-
-        datetime_intervals: List[DatetimeIntervalSQL] = query.all()
-
-        assert len(datetime_intervals) == 7
