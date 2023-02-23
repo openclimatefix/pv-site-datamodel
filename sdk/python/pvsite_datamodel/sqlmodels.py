@@ -56,9 +56,7 @@ class SiteSQL(Base, CreatedMixin):
 
     ml_id = sa.Column(sa.Integer, autoincrement=True, nullable=False, unique=True)
 
-    __table_args__ = (
-        UniqueConstraint("client_site_id", client_uuid, name="idx_client"),
-    )
+    __table_args__ = (UniqueConstraint("client_site_id", client_uuid, name="idx_client"),)
 
     forecasts: List["ForecastSQL"] = relationship("ForecastSQL")
     generation: List["GenerationSQL"] = relationship("GenerationSQL")
@@ -77,9 +75,7 @@ class GenerationSQL(Base, CreatedMixin):
 
     __tablename__ = "generation"
 
-    generation_uuid = sa.Column(
-        UUID(as_uuid=True), default=uuid.uuid4, primary_key=True
-    )
+    generation_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     site_uuid = sa.Column(
         UUID(as_uuid=True),
         sa.ForeignKey("sites.site_uuid"),
@@ -135,9 +131,7 @@ class ForecastValueSQL(Base, CreatedMixin):
 
     __tablename__ = "forecast_values"
 
-    forecast_value_uuid = sa.Column(
-        UUID(as_uuid=True), default=uuid.uuid4, primary_key=True
-    )
+    forecast_value_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
 
     start_utc = sa.Column(sa.DateTime, nullable=False, index=True)
     end_utc = sa.Column(sa.DateTime, nullable=False)
@@ -159,9 +153,7 @@ class ForecastValueSQL(Base, CreatedMixin):
         index=True,
     )
 
-    forecast: ForecastSQL = relationship(
-        "ForecastSQL", back_populates="forecast_values"
-    )
+    forecast: ForecastSQL = relationship("ForecastSQL", back_populates="forecast_values")
 
 
 class ClientSQL(Base, CreatedMixin):

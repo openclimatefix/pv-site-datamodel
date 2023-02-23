@@ -8,18 +8,13 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from testcontainers.postgres import PostgresContainer
 
-from pvsite_datamodel import (
-    ClientSQL,
-    ForecastSQL,
-    GenerationSQL,
-    SiteSQL,
-    StatusSQL,
-)
+from pvsite_datamodel import ClientSQL, GenerationSQL, SiteSQL, StatusSQL
 from pvsite_datamodel.sqlmodels import Base
 
 
 @pytest.fixture(scope="session")
 def engine():
+    """Database engine fixture."""
     with PostgresContainer("postgres:14.5") as postgres:
         # TODO need to setup postgres database with docker
         url = postgres.get_connection_url()
@@ -56,12 +51,14 @@ def sites(db_session):
     sites = []
     for i in range(0, 4):
         client = ClientSQL(
-            client_uuid=uuid.uuid4(),
             client_name=f"testclient_{i}",
             created_utc=dt.datetime.now(dt.timezone.utc),
         )
+
+        db_session.add(client)
+        db_session.commit()
+
         site = SiteSQL(
-            site_uuid=uuid.uuid4(),
             client_uuid=client.client_uuid,
             client_site_id=1,
             latitude=51,
@@ -70,7 +67,6 @@ def sites(db_session):
             created_utc=dt.datetime.now(dt.timezone.utc),
             ml_id=i,
         )
-        db_session.add(client)
         db_session.add(site)
         db_session.commit()
 
@@ -82,15 +78,12 @@ def sites(db_session):
 @pytest.fixture()
 def generations(db_session, sites):
     """Create some fake generations."""
-    start_times = [
-        dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)
-    ]
+    start_times = [dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)]
 
     all_generations = []
     for site in sites:
         for i in range(0, 10):
             generation = GenerationSQL(
-                generation_uuid=uuid.uuid4(),
                 site_uuid=site.site_uuid,
                 generation_power_kw=i,
                 start_utc=start_times[i],
@@ -103,26 +96,6 @@ def generations(db_session, sites):
 
 
 @pytest.fixture()
-def latestforecastvalues(db_session, sites):
-    """Create some fake latest forecast values."""
-    latest_forecast_values = []
-    forecast_version: str = "0.0.0"
-    start_times = [
-        dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)
-    ]
-
-    for site in sites:
-        forecast: ForecastSQL = ForecastSQL(
-            forecast_uuid=uuid.uuid4(),
-            site_uuid=site.site_uuid,
-            forecast_version=forecast_version,
-        )
-
-    db_session.add_all(latest_forecast_values)
-    db_session.commit()
-
-
-@pytest.fixture()
 def test_time():
     return dt.datetime(2022, 7, 25, 0, 0, 0, 0, dt.timezone.utc)
 
@@ -131,9 +104,7 @@ def test_time():
 def forecast_valid_site(sites):
     site_uuid = sites[0].site_uuid
 
-    start_utc = [
-        dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)
-    ]
+    start_utc = [dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)]
     end_utc = [d + dt.timedelta(minutes=10) for d in start_utc]
 
     return {
@@ -170,8 +141,7 @@ def generation_valid_site(sites):
 
     return {
         "start_utc": [
-            dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x)
-            for x in range(10)
+            dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)
         ],
         "power_kw": [float(x) for x in range(10)],
         "site_uuid": [site_uuid for _ in range(10)],
@@ -193,7 +163,6 @@ def statuses(db_session) -> List[StatusSQL]:
     statuses: List[StatusSQL] = []
     for i in range(0, 4):
         status = StatusSQL(
-            status_uuid=uuid.uuid4(),
             status="OK",
             message=f"Status {i}",
         )

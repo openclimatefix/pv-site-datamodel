@@ -12,9 +12,7 @@ from pvsite_datamodel.write.generation import insert_generation_values
 class TestInsertGenerationValues:
     """Tests for the insert_generation_values function."""
 
-    def test_inserts_generation_for_existing_site(
-        self, db_session, generation_valid_site
-    ):
+    def test_inserts_generation_for_existing_site(self, db_session, generation_valid_site):
         """Tests inserts values successfully."""
         df = pd.DataFrame(generation_valid_site)
         insert_generation_values(db_session, df)

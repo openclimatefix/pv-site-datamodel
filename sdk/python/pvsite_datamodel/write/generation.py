@@ -30,9 +30,7 @@ def _upsert(session: Session, table: Base, rows: list[dict]):
     if not update_dict:
         raise ValueError("insert_or_update resulted in an empty update_dict")
 
-    stmt = stmt.on_conflict_do_update(
-        index_elements=primary_key_names, set_=update_dict
-    )
+    stmt = stmt.on_conflict_do_update(index_elements=primary_key_names, set_=update_dict)
     session.execute(stmt, rows)
 
 
@@ -47,9 +45,7 @@ def insert_generation_values(
     """
     # Check for duplicated (site_uuid, start_utc) entries.
     # TODO Should we have a unique constraint on those in the Database instead?
-    sites_with_duplicate_times = df[df.duplicated(["site_uuid", "start_utc"])][
-        "site_uuid"
-    ].unique()
+    sites_with_duplicate_times = df[df.duplicated(["site_uuid", "start_utc"])]["site_uuid"].unique()
     if len(sites_with_duplicate_times) > 0:
         for site_uuid in sites_with_duplicate_times:
             _log.warning(f'duplicate target datetimes for site "{site_uuid}"')

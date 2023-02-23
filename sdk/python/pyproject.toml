@@ -1,44 +1,33 @@
-[build-system]
-requires = ["setuptools>=64", "setuptools_scm>=3.4"]
-build-backend = "setuptools.build_meta"
-
-[project]
+[tool.poetry]
 name = "pvsite-datamodel"
+version = "0.1.24"
 description = "SDK for interacting with the PVSite database"
-authors = [
-    { name = "Open Climate Fix" }
-]
-requires-python = ">=3.10.0"
-version = "0.1.24"  # Autoincremented by bumpversion.cfg
-classifiers = ["Programming Language :: Python :: 3"]
-dynamic = ["dependencies"]
+authors = ["Open Climate Fix"]
+readme = "README.md"
 
-[project.optional-dependencies]
-tests = [
-  'testcontainers.postgres',
-  'pytest',
-]
+[tool.poetry.dependencies]
+python = "^3.10"
+sqlalchemy = "1.4.46"
+psycopg2-binary = "^2.9.5"
+pandas = "^1.5.3"
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.0.249"
+pytest = "^7.2.1"
+testcontainers = "^3.7.1"
+black = "^23.1.0"
+isort = "^5.12.0"
+pytest-cov = "^4.0.0"
 
 [project.urls]
 "GitHub" = "https://github.com/openclimatefix/pvsite-datamodel"
 
 
-[tool.setuptools]
-include-package-data = true
-packages = [
-    "pvsite_datamodel",
-    "pvsite_datamodel.read",
-    "pvsite_datamodel.write",
-]
-
-[tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
-
 [tool.mypy]
 python_version = "3.10"
 plugins = [
     "sqlalchemy.ext.mypy.plugin",
-    "pandera.mypy"
 ]
 exclude = [
     "^gen/*$", # TOML basic string (double-quotes, backslash and other characters need escaping)
@@ -51,22 +40,35 @@ select = [
     "F", # pyflakes
     "N", # pep8 naming
     "B", # flake8-bugbear
-    "I", # isosort
+    # We install isort separately because we want to use the profile="black" option
+    # "I", # isosort
     "D", # pydocstyle
     "S", # flake8-bandit
     "T20", # flake8-print
     "PT" # flake8-print
 ]
+fixable = ['E']
 line-length = 100
-ignore = ["D203", "D213"]
+ignore = ["D203", "D213", "D200" ,"D202", "D210", "D212", "D415", "D105"]
 exclude = ["__init__.py"]
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["E402"]
-"tests/*" = ["S101", "D102", "D103", "PT004", "PT012"]
+"tests/*" = ["S101", "D", "PT004", "PT012"]
 "setup.py" = ["D100"]
 
 [tool.pytest.ini_options]
 addopts = [
     "--import-mode=importlib",
 ]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.black]
+line-length = 100

@@ -1,18 +1,35 @@
 name: CI Pipeline for SDK - Python
 
-on: [push, pull_request]
+on: push
 
 jobs:
-  test:
-    uses: openclimatefix/.github/.github/workflows/python-test.yml@main
-    with:
-      workdir: sdk/python
-      pytest_cov_dir: pvsite_datamodel
-      python-version: '["3.10"]'
-      os_list: '["ubuntu-latest"]'
+  run_the_tests:
+    name: Run the tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+
+      - name: Install poetry
+        run: pipx install poetry==1.3.2
+
+      - name: Install python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: poetry
+
+      - name: Install python dependencies
+        run: poetry install --directory ./sdk/python
+
+      - name: Run the tests
+        run: poetry run --directory ./sdk/python/tests pytest --cov=./sdk/python/pvsite_datamodel --cov-report=xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
 
   publish:
-    needs: ["test"]
+    needs: ["run_the_tests"]
     if: github.ref_name == 'main'
     uses: openclimatefix/.github/.github/workflows/python-release.yml@main
     secrets:

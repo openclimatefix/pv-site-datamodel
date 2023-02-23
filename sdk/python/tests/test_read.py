@@ -46,9 +46,7 @@ class TestGetSiteByClientSiteID:
 
     def test_gets_site_successfully(self, sites, db_session):
         site = get_site_by_client_site_id(
-            session=db_session,
-            client_name="testclient_1",
-            client_site_id=1
+            session=db_session, client_name="testclient_1", client_site_id=1
         )
 
         assert site.client_site_id == 1
@@ -56,9 +54,7 @@ class TestGetSiteByClientSiteID:
     def test_raises_exception_when_no_such_site_exists(self, sites, db_session):
         with pytest.raises(KeyError):
             _ = get_site_by_client_site_id(
-                session=db_session,
-                client_name="testclient_100",
-                client_site_id=1
+                session=db_session, client_name="testclient_100", client_site_id=1
             )
 
 
@@ -75,8 +71,7 @@ class TestGetPVGenerationByClient:
         client: ClientSQL = query.first()
 
         generations = get_pv_generation_by_client(
-            session=db_session,
-            client_names=[client.client_name]
+            session=db_session, client_names=[client.client_name]
         )
 
         assert len(generations) == 10
@@ -91,7 +86,7 @@ class TestGetPVGenerationByClient:
             session=db_session,
             client_names=[client.client_name],
             start_utc=window_lower,
-            end_utc=window_upper
+            end_utc=window_upper,
         )
 
         assert len(generations) == 7
@@ -104,10 +99,7 @@ class TestGetPVGenerationBySites:
         query: Query = db_session.query(SiteSQL)
         site: SiteSQL = query.first()
 
-        generations = get_pv_generation_by_sites(
-            session=db_session,
-            site_uuids=[site.site_uuid]
-        )
+        generations = get_pv_generation_by_sites(session=db_session, site_uuids=[site.site_uuid])
 
         assert len(generations) == 10
         assert generations[0].start_utc is not None
@@ -118,17 +110,13 @@ class TestGetPVGenerationBySites:
         sites: List[SiteSQL] = query.all()
 
         generations = get_pv_generation_by_sites(
-            session=db_session,
-            site_uuids=[site.site_uuid for site in sites]
+            session=db_session, site_uuids=[site.site_uuid for site in sites]
         )
 
         assert len(generations) == 10 * len(sites)
 
     def test_returns_empty_list_for_no_input_sites(self, generations, db_session):
-        generations = get_pv_generation_by_sites(
-            session=db_session,
-            site_uuids=[]
-        )
+        generations = get_pv_generation_by_sites(session=db_session, site_uuids=[])
 
         assert len(generations) == 0
 

@@ -1,8 +1,6 @@
 from pvsite_datamodel import DatabaseConnection
+from pvsite_datamodel.sqlmodels import SiteSQL
 
-from pvsite_datamodel.sqlmodels import (
-    SiteSQL,
-)
 
 class TestDatabaseConnection:
     """Tests for the DatabaseConnection class."""
