@@ -6,32 +6,12 @@ import datetime as dt
 import logging
 
 import pandas as pd
-import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Session
 
 from pvsite_datamodel.sqlmodels import Base, GenerationSQL
 
 _log = logging.getLogger(__name__)
-
-
-def _upsert(session: Session, table: Base, rows: list[dict]):
-    """Upserts rows into table.
-
-    This functions checks the primary keys, and if present, updates the row.
-    :param session: sqlalchemy Session
-    :param table: the table
-    :param rows: the rows we are trying to inserted
-    """
-    stmt = postgresql.insert(table.__table__)
-    primary_key_names = [key.name for key in sa.inspect(table.__table__).primary_key]
-    update_dict = {c.name: c for c in stmt.excluded if not c.primary_key}
-
-    if not update_dict:
-        raise ValueError("insert_or_update resulted in an empty update_dict")
-
-    stmt = stmt.on_conflict_do_update(index_elements=primary_key_names, set_=update_dict)
-    session.execute(stmt, rows)
 
 
 def _insert_do_nothing_on_conflict(session: Session, table: Base, rows: list[dict]):
