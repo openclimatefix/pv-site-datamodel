@@ -74,6 +74,9 @@ class GenerationSQL(Base, CreatedMixin):
     """
 
     __tablename__ = "generation"
+    __table_args__ = (
+        UniqueConstraint("site_uuid", "start_utc", "end_utc", name="uniq_cons_site_start_end"),
+    )
 
     generation_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     site_uuid = sa.Column(

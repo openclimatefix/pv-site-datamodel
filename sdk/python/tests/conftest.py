@@ -139,12 +139,14 @@ def forecast_invalid_dataframe():
 def generation_valid_site(sites):
     site_uuid = sites[0].site_uuid
 
+    n_rows = 10
+
     return {
         "start_utc": [
-            dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)
+            dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(n_rows)
         ],
-        "power_kw": [float(x) for x in range(10)],
-        "site_uuid": [site_uuid for _ in range(10)],
+        "power_kw": [float(x) for x in range(n_rows)],
+        "site_uuid": [site_uuid for _ in range(n_rows)],
     }
 
 
