@@ -3,8 +3,8 @@ name: CI Pipeline for SDK - Python
 on: push
 
 jobs:
-  run_the_tests:
-    name: Run the tests
+  lint_and_test:
+    name: Lint the code and run the tests
     runs-on: ubuntu-latest
     steps:
       - name: Check out the repo
@@ -19,6 +19,9 @@ jobs:
           python-version: '3.10'
           cache: poetry
 
+      - name: Lint
+        run: cd ./sdk/python && make lint
+
       - name: Install python dependencies
         run: poetry install --directory ./sdk/python
 
@@ -29,7 +32,7 @@ jobs:
         uses: codecov/codecov-action@v3
 
   publish:
-    needs: ["run_the_tests"]
+    needs: ["lint_and_test"]
     if: github.ref_name == 'main'
     uses: openclimatefix/.github/.github/workflows/python-release.yml@main
     secrets:

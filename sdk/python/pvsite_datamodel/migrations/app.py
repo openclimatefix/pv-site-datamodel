@@ -1,4 +1,4 @@
-""" App for running database migrations """
+"""App for running database migrations."""
 import logging
 import os
 import time
@@ -31,8 +31,7 @@ logger.setLevel(os.getenv("LOGLEVEL", "INFO"))
     is_flag=True,
 )
 def app(make_migrations: bool, run_migrations: bool):
-    """
-    Make migrations and run them
+    """Make migrations and run them.
 
     :param make_migrations: option to make the database migrations
     :param run_migrations: option to run migrations
@@ -56,31 +55,31 @@ def make_all_migrations():
     nowcasting_datamodel/alembic/{database}/version
     """
 
-    logger.info(f"Making migrations")
+    logger.info("Making migrations")
 
-    alembic_cfg = Config(filename, ini_section='db')
+    alembic_cfg = Config(filename, ini_section="db")
     command.revision(alembic_cfg, autogenerate=True)
 
     logger.info("Making migrations:done")
 
 
 def run_all_migrations():
-    """Run migrations
+    """Run migrations.
 
     Looks at the migrations in
     nowcasting_datamodel/alembic/{database}/version
     and runs them
     """
 
-    logger.info(f"Running migrations")
+    logger.info("Running migrations")
 
     # see here - https://alembic.sqlalchemy.org/en/latest/api/config.html
     # for more help
-    alembic_cfg = Config(filename, ini_section='db')
+    alembic_cfg = Config(filename, ini_section="db")
 
     command.upgrade(alembic_cfg, "head")
 
-    logger.info(f"Running migrations: done")
+    logger.info("Running migrations: done")
 
 
 if __name__ == "__main__":

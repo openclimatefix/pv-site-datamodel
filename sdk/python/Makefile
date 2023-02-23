@@ -5,7 +5,7 @@ SRC = pvsite_datamodel tests
 
 .PHONY: lint
 lint:
-	poetry run ruff check $(SRC)
+	poetry run ruff $(SRC)
 	# Sadly `ruff` does not cover everything, we still need black
 	poetry run black --check $(SRC)
 	# As far as I can tell, `ruff` doesn't support isort's profile="black" setting.
