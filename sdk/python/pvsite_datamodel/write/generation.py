@@ -34,6 +34,19 @@ def _upsert(session: Session, table: Base, rows: list[dict]):
     session.execute(stmt, rows)
 
 
+def _upsert_do_nothing(session: Session, table: Base, rows: list[dict]):
+    """Upserts rows into table.
+
+    This functions checks the primary keys and constraints, and if present, does nothing
+    :param session: sqlalchemy Session
+    :param table: the table
+    :param rows: the rows we are going to update
+    """
+    stmt = postgresql.insert(table.__table__)
+    stmt = stmt.on_conflict_do_nothing()
+    session.execute(stmt, rows)
+
+
 def insert_generation_values(
     session: Session,
     df: pd.DataFrame,
@@ -70,4 +83,4 @@ def insert_generation_values(
 
         generation_sqls.append(generation)
 
-    _upsert(session, GenerationSQL, generation_sqls)
+    _upsert_do_nothing(session, GenerationSQL, generation_sqls)
