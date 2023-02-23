@@ -34,7 +34,7 @@ def _upsert(session: Session, table: Base, rows: list[dict]):
     session.execute(stmt, rows)
 
 
-def _upsert_do_nothing(session: Session, table: Base, rows: list[dict]):
+def _insert_do_nothing_on_conflict(session: Session, table: Base, rows: list[dict]):
     """Upserts rows into table.
 
     This functions checks the primary keys and constraints, and if present, does nothing
@@ -83,4 +83,4 @@ def insert_generation_values(
 
         generation_sqls.append(generation)
 
-    _upsert_do_nothing(session, GenerationSQL, generation_sqls)
+    _insert_do_nothing_on_conflict(session, GenerationSQL, generation_sqls)
