@@ -34,3 +34,16 @@ class TestInsertGenerationValues:
 
             # Make sure nothing was written
             assert session.query(GenerationSQL).count() == num_rows
+
+    def test_inserts_generation_duplicates(self, db_session, generation_valid_site):
+        """Tests no duplicates."""
+        df = pd.DataFrame(generation_valid_site)
+        insert_generation_values(db_session, df)
+        db_session.commit()
+        # Check data has been written and exists in table
+        assert db_session.query(GenerationSQL).count() == 10
+
+        # insert the same values
+        insert_generation_values(db_session, df)
+        db_session.commit()
+        assert db_session.query(GenerationSQL).count() == 10
