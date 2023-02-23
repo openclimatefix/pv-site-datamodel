@@ -17,3 +17,7 @@ format:
 	poetry run ruff --fix $(SRC)
 	poetry run black $(SRC)
 	poetry run isort $(SRC)
+
+.PHONY: test
+test:
+	poetry run pytest tests

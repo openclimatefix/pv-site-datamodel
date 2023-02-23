@@ -67,6 +67,6 @@ Format the library **in place**.
 
 ## Tests
 
-    poetry run pytest tests
+    make test
 
 [poetry]: https://python-poetry.org/
