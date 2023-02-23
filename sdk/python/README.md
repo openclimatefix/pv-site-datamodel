@@ -2,6 +2,10 @@
 
 Python library to interact with PV Site postgres database
 
+## Install the dependencies (requires [poetry][poetry])
+
+    poetry install
+
 
 ## Structure
 
@@ -23,9 +27,7 @@ Classes specifying table schemas:
 - GenerationSQL
 - ForecastSQL
 - ForecastValueSQL
-- LatestForecastValueSQL
 - ClientSQL
-- DatetimeIntervalSQL
 - StatusSQL
 
 Database connection objects:
@@ -38,7 +40,6 @@ Currently available functions accessible via `from pvsite_datamodel.read import 
 
 - get_pv_generation_by_client
 - get_pv_generation_by_sites
-- get_latest_forecast_values_by_site
 - get_site_by_uuid
 - get_site_by_client_site_id
 - get_site_by_client_site_name
@@ -49,10 +50,23 @@ Currently available functions accessible via `from pvsite_datamodel.read import 
 ## Write package functions
 
 Currently available write functions accessible via `from pvsite_datamodels.write import <func>`:
-- insert_forecast_values
 - insert_generation_values
 
 
- ## Tests
+## Formatting
 
-To run tests use `pytest`
+Format the library **in place**.
+
+    make format
+
+
+## Linting
+
+    make lint
+
+
+## Tests
+
+    poetry run pytest tests
+
+[poetry]: https://python-poetry.org/
