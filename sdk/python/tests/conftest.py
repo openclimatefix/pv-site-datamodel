@@ -24,7 +24,7 @@ def engine():
         yield engine
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture()
 def db_session(engine):
     """Return a sqlalchemy session, which tears down everything properly post-test."""
     connection = engine.connect()

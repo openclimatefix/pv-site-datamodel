@@ -58,7 +58,7 @@ class SiteSQL(Base, CreatedMixin):
 
     __table_args__ = (UniqueConstraint("client_site_id", client_uuid, name="idx_client"),)
 
-    forecasts: List["ForecastSQL"] = relationship("ForecastSQL")
+    forecasts: List["ForecastSQL"] = relationship("ForecastSQL", back_populates="site")
     generation: List["GenerationSQL"] = relationship("GenerationSQL")
     client: ClientSQL = relationship("ClientSQL", back_populates="sites")
 
@@ -97,7 +97,7 @@ class ForecastSQL(Base, CreatedMixin):
     """Class representing the forecasts table.
 
     Each forecast row refers to a sequence of predicted solar generation values
-    over a set of target times for a site.
+    over a set of target times for one site.
 
     *Approximate size: *
     One forecast per site every 5 minutes = ~1,125,000 rows per day
@@ -113,10 +113,17 @@ class ForecastSQL(Base, CreatedMixin):
         index=True,
     )
 
+    # The timestamp at which we are making the forecast. This is often referred as "now" in the
+    # modelling code.
+    # Note that this could be very different from the `created_utc` time, for instance if we
+    # run the model for a given "now" timestamp in the past.
+    timestamp_utc = sa.Column(sa.DateTime, nullable=False, index=True)
+
     forecast_version = sa.Column(sa.String(32), nullable=False)
 
     # one (forecasts) to many (forecast_values)
     forecast_values: List["ForecastValueSQL"] = relationship("ForecastValueSQL")
+    site = relationship("SiteSQL", back_populates="forecasts")
 
 
 class ForecastValueSQL(Base, CreatedMixin):
@@ -143,15 +150,6 @@ class ForecastValueSQL(Base, CreatedMixin):
     forecast_uuid = sa.Column(
         UUID(as_uuid=True),
         sa.ForeignKey("forecasts.forecast_uuid"),
-        nullable=False,
-        index=True,
-    )
-
-    # This is redundant from the Forecast table, but it means we can save a JOIN for a very frequent
-    # query, which is getting forecasts for given sites.
-    site_uuid = sa.Column(
-        UUID(as_uuid=True),
-        sa.ForeignKey("sites.site_uuid"),
         nullable=False,
         index=True,
     )
