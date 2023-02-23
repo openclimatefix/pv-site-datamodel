@@ -21,7 +21,7 @@ def _upsert(session: Session, table: Base, rows: list[dict]):
     This functions checks the primary keys, and if present, updates the row.
     :param session: sqlalchemy Session
     :param table: the table
-    :param rows: the rows we are going to update
+    :param rows: the rows we are trying to inserted
     """
     stmt = postgresql.insert(table.__table__)
     primary_key_names = [key.name for key in sa.inspect(table.__table__).primary_key]
