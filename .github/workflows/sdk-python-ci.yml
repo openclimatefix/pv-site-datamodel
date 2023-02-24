@@ -26,10 +26,12 @@ jobs:
         run: cd ./sdk/python && make lint
 
       - name: Run the tests
-        run: poetry run --directory ./sdk/python/tests pytest --cov=./sdk/python/pvsite_datamodel --cov-report=xml
+        run: cd ./sdk/python && poetry run pytest --cov=pvsite_datamodel --cov-report=xml
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
+        with:
+          directory: sdk/python
 
   publish:
     needs: ["lint_and_test"]
