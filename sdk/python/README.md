@@ -53,20 +53,26 @@ Currently available write functions accessible via `from pvsite_datamodels.write
 - insert_generation_values
 
 
-## Formatting
+## Coding style
 
-Format the library **in place**.
+Format the code **in place**.
 
     make format
 
-
-## Linting
+Lint the code
 
     make lint
 
 
-## Tests
+## Running the tests
 
     make test
+
+
+## Database migrations using alembic
+
+[./alembic](./alembic)
+
+
 
 [poetry]: https://python-poetry.org/
