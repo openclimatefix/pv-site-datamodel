@@ -28,7 +28,7 @@ def test_get_latest_forecasts(db_session, engine, sites, forecast_valid_site):
             forecast_uuid, site_uuid
         FROM forecasts
         where site_uuid IN ('04b3d67f-af48-42f7-ac0f-9d07d4dd84f6', ...)
-        ORDER BY site_uuid, created_utc  DESC
+        ORDER BY site_uuid, timestamp_utc DESC
     ) AS f
     JOIN forecast_values AS fv
       ON fv.forecast_uuid = f.forecast_uuid

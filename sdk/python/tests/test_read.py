@@ -7,9 +7,10 @@ from typing import List
 import pytest
 from sqlalchemy.orm import Query
 
-from pvsite_datamodel import ClientSQL, SiteSQL, StatusSQL
+from pvsite_datamodel import ClientSQL, ForecastSQL, ForecastValueSQL, SiteSQL, StatusSQL
 from pvsite_datamodel.read import (
     get_all_sites,
+    get_latest_forecast_values_by_site,
     get_latest_status,
     get_pv_generation_by_client,
     get_pv_generation_by_sites,
@@ -25,6 +26,7 @@ class TestGetAllSites:
         out = get_all_sites(db_session)
 
         assert len(out) == len(sites)
+
         assert out[0] == sites[0]
 
 
@@ -128,3 +130,78 @@ class TestGetLatestStatus:
         status: StatusSQL = get_latest_status(db_session)
 
         assert status.message == "Status 3"
+
+
+def _add_forecast_value(session, forecast, power: int, ts):
+    fv = ForecastValueSQL(
+        forecast_uuid=forecast.forecast_uuid,
+        forecast_power_kw=power,
+        start_utc=ts,
+        end_utc=ts + dt.timedelta(minutes=5),
+    )
+    session.add(fv)
+
+
+def test_get_latest_forecast_values(db_session, sites):
+    site_uuids = [site.site_uuid for site in db_session.query(SiteSQL.site_uuid).limit(2)]
+
+    s1, s2 = site_uuids
+
+    forecast_version = "123"
+
+    # Make sure we have some forecasts in the DB
+    s1_f1 = ForecastSQL(
+        site_uuid=s1,
+        forecast_version=forecast_version,
+        timestamp_utc=dt.datetime(2000, 1, 1),
+    )
+    s1_f2 = ForecastSQL(
+        site_uuid=s1,
+        forecast_version=forecast_version,
+        timestamp_utc=dt.datetime(2000, 1, 1, 0, 10),
+    )
+    s2_f1 = ForecastSQL(
+        site_uuid=s2,
+        forecast_version=forecast_version,
+        timestamp_utc=dt.datetime(2000, 1, 1),
+    )
+
+    db_session.add_all([s1_f1, s1_f2, s2_f1])
+    db_session.commit()
+
+    d0 = dt.datetime(2000, 1, 1, 0)
+    d1 = dt.datetime(2000, 1, 1, 1)
+    d2 = dt.datetime(2000, 1, 1, 2)
+    d3 = dt.datetime(2000, 1, 1, 3)
+    d4 = dt.datetime(2000, 1, 1, 4)
+
+    # site 1 forecast 1
+    _add_forecast_value(db_session, s1_f1, 1.0, d0)
+    _add_forecast_value(db_session, s1_f1, 2.0, d1)
+    _add_forecast_value(db_session, s1_f1, 3.0, d2)
+
+    # site 1 forecast 2
+    _add_forecast_value(db_session, s1_f2, 4.0, d2)
+    _add_forecast_value(db_session, s1_f2, 5.0, d3)
+    _add_forecast_value(db_session, s1_f2, 6.0, d4)
+
+    # Site 2 forecast 1
+    _add_forecast_value(db_session, s2_f1, 7.0, d0)
+    _add_forecast_value(db_session, s2_f1, 8.0, d1)
+    _add_forecast_value(db_session, s2_f1, 9.0, d2)
+    db_session.commit()
+
+    latest_forecast = get_latest_forecast_values_by_site(db_session, site_uuids, d1)
+
+    expected = {
+        s1: [(d1, 2), (d2, 4), (d3, 5), (d4, 6)],
+        s2: [(d1, 8), (d2, 9)],
+    }
+
+    assert list(sorted(latest_forecast.keys())) == list(sorted(expected.keys()))
+
+    for site_uuid, forecast_values in latest_forecast.items():
+        # Format the values in a way that we can compare them.
+        values_as_tuple = [(v.start_utc, v.forecast_power_kw) for v in forecast_values]
+
+        assert values_as_tuple == expected[site_uuid]
