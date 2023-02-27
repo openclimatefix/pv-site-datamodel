@@ -57,7 +57,7 @@ exclude = ["__init__.py"]
 "__init__.py" = ["E402"]
 "tests/*" = ["S101", "D", "PT004", "PT012"]
 "setup.py" = ["D100"]
-"pvsite_datamodel/migrations/db/versions/*" = ["D", "F"]
+"alembic/versions/*" = ["D"]
 
 [tool.pytest.ini_options]
 addopts = [
