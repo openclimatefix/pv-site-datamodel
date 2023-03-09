@@ -147,6 +147,11 @@ class ForecastValueSQL(Base, CreatedMixin):
     end_utc = sa.Column(sa.DateTime, nullable=False)
     forecast_power_kw = sa.Column(sa.Float, nullable=False)
 
+    # This is the different between `start_utc` and the `forecast`'s `timestamp_utc`, in minutes.
+    # It's useful to have it in its own column to efficiently query forecasts for a given horizon.
+    # TODO Set to nullable=False
+    horizon_minutes = sa.Column(sa.Integer, nullable=True, index=True)
+
     forecast_uuid = sa.Column(
         UUID(as_uuid=True),
         sa.ForeignKey("forecasts.forecast_uuid"),
