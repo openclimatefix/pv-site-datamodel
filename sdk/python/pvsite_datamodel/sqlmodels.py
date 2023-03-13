@@ -141,7 +141,6 @@ class ForecastSQL(Base, CreatedMixin):
         UUID(as_uuid=True),
         sa.ForeignKey("sites.site_uuid"),
         nullable=False,
-        index=True,
         comment="The site for which the forecast sequence was generated",
     )
 
@@ -152,7 +151,6 @@ class ForecastSQL(Base, CreatedMixin):
     timestamp_utc = sa.Column(
         sa.DateTime,
         nullable=False,
-        index=True,
         comment="The creation time of the forecast sequence",
     )
 
@@ -165,6 +163,12 @@ class ForecastSQL(Base, CreatedMixin):
     # one (forecasts) to many (forecast_values)
     forecast_values: List["ForecastValueSQL"] = relationship("ForecastValueSQL")
     site = relationship("SiteSQL", back_populates="forecasts")
+
+    __table_args__ = (
+        # With this index, we are assuming that it doesn't make sense to do a query solely on
+        # `timestamp_utc`: we always also filter by site_uuid.
+        sa.Index("ix_forecasts_site_uuid_timestamp_utc", "site_uuid", "timestamp_utc"),
+    )
 
 
 class ForecastValueSQL(Base, CreatedMixin):
@@ -207,7 +211,6 @@ class ForecastValueSQL(Base, CreatedMixin):
     horizon_minutes = sa.Column(
         sa.Integer,
         nullable=True,
-        index=True,
         comment="The time difference between the creation time of the forecast value "
         "and the start of the time interval it applies for",
     )
@@ -216,11 +219,17 @@ class ForecastValueSQL(Base, CreatedMixin):
         UUID(as_uuid=True),
         sa.ForeignKey("forecasts.forecast_uuid"),
         nullable=False,
-        index=True,
         comment="The forecast sequence this forcast value belongs to",
     )
 
     forecast: ForecastSQL = relationship("ForecastSQL", back_populates="forecast_values")
+
+    __table_args__ = (
+        # Here we assume that we always filter on `horizon_minutes` *for given forecasts*.
+        sa.Index(
+            "ix_forecast_values_forecast_uuid_horizon_minutes", "forecast_uuid", "horizon_minutes"
+        ),
+    )
 
 
 class ClientSQL(Base, CreatedMixin):
