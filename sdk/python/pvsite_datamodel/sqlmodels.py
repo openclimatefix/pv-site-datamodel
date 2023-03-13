@@ -39,22 +39,33 @@ class SiteSQL(Base, CreatedMixin):
         UUID(as_uuid=True),
         sa.ForeignKey("clients.client_uuid"),
         nullable=False,
+        comment='The internal ID of the client providing the site data'
     )
-    client_site_id = sa.Column(sa.Integer, index=True)
-    client_site_name = sa.Column(sa.String(255), index=True)
+    client_site_id = sa.Column(sa.Integer, index=True,
+                               comment='The ID of the site as given by the providing client')
+    client_site_name = sa.Column(sa.String(255), index=True,
+                                 comment='The ID of the site as given by the providing client')
 
-    region = sa.Column(sa.String(255))
-    dno = sa.Column(sa.String(255))
-    gsp = sa.Column(sa.String(255))
+    region = sa.Column(sa.String(255), comment='The region in the UK in which the site is located')
+    dno = sa.Column(sa.String(255), comment='The Distribution Node Operator that owns the site')
+    gsp = sa.Column(sa.String(255), 'The Grid Supply Point in which the site is located')
 
     # For metadata `NULL` means "we don't know".
-    orientation = sa.Column(sa.Float)
-    tilt = sa.Column(sa.Float)
+    orientation = sa.Column(
+        sa.Float,
+        comment='The rotation of the panel in degrees. 180° points south')
+    tilt = sa.Column(
+        sa.Float,
+        comment='The tile of the panel in degrees. 90° indicates the panel is vertical')
     latitude = sa.Column(sa.Float)
     longitude = sa.Column(sa.Float)
-    capacity_kw = sa.Column(sa.Float)
+    capacity_kw = sa.Column(sa.Float,
+                            comment='The physical limit on the production capacity of the site')
 
-    ml_id = sa.Column(sa.Integer, autoincrement=True, nullable=False, unique=True)
+    ml_id = sa.Column(
+        sa.Integer, autoincrement=True, nullable=False, unique=True,
+        comment='Auto-incrementing integer ID of the site for use in ML training'
+    )
 
     __table_args__ = (UniqueConstraint("client_site_id", client_uuid, name="idx_client"),)
 
@@ -84,11 +95,19 @@ class GenerationSQL(Base, CreatedMixin):
         sa.ForeignKey("sites.site_uuid"),
         nullable=False,
         index=True,
+        comment='The site for which this geenration yield belongs to'
     )
-    generation_power_kw = sa.Column(sa.Float, nullable=False)
+    generation_power_kw = sa.Column(
+        sa.Float, nullable=False,
+        comment='The actual generated power in kW at this site for this datetime interval'
+    )
 
-    start_utc = sa.Column(sa.DateTime, nullable=False, index=True)
-    end_utc = sa.Column(sa.DateTime, nullable=False)
+    start_utc = sa.Column(
+        sa.DateTime, nullable=False, index=True,
+        comment='The start of the time interval over which this generated power value applies')
+    end_utc = sa.Column(
+        sa.DateTime, nullable=False,
+        comment='The end of the time interval over which this generated power value applies')
 
     site: SiteSQL = relationship("SiteSQL", back_populates="generation")
 
@@ -111,15 +130,20 @@ class ForecastSQL(Base, CreatedMixin):
         sa.ForeignKey("sites.site_uuid"),
         nullable=False,
         index=True,
+        comment='The site for which the forecast sequence was generated'
     )
 
     # The timestamp at which we are making the forecast. This is often referred as "now" in the
     # modelling code.
     # Note that this could be very different from the `created_utc` time, for instance if we
     # run the model for a given "now" timestamp in the past.
-    timestamp_utc = sa.Column(sa.DateTime, nullable=False, index=True)
+    timestamp_utc = sa.Column(
+        sa.DateTime, nullable=False, index=True,
+        comment='The creation time of the forecast sequence')
 
-    forecast_version = sa.Column(sa.String(32), nullable=False)
+    forecast_version = sa.Column(
+        sa.String(32), nullable=False,
+        comment='The semantic version of the model used to generate the forecast')
 
     # one (forecasts) to many (forecast_values)
     forecast_values: List["ForecastValueSQL"] = relationship("ForecastValueSQL")
@@ -143,20 +167,30 @@ class ForecastValueSQL(Base, CreatedMixin):
 
     forecast_value_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
 
-    start_utc = sa.Column(sa.DateTime, nullable=False, index=True)
-    end_utc = sa.Column(sa.DateTime, nullable=False)
-    forecast_power_kw = sa.Column(sa.Float, nullable=False)
+    start_utc = sa.Column(
+        sa.DateTime, nullable=False, index=True,
+        comment='The start of the time interval over which this predicted power value applies')
+    end_utc = sa.Column(
+        sa.DateTime, nullable=False,
+        comment='The end of the time interval over which this predicted power value applies')
+    forecast_power_kw = sa.Column(
+        sa.Float, nullable=False,
+        comment='The predicted power generation of this site for the given time interval')
 
     # This is the different between `start_utc` and the `forecast`'s `timestamp_utc`, in minutes.
     # It's useful to have it in its own column to efficiently query forecasts for a given horizon.
     # TODO Set to nullable=False
-    horizon_minutes = sa.Column(sa.Integer, nullable=True, index=True)
+    horizon_minutes = sa.Column(
+        sa.Integer, nullable=True, index=True,
+        comment='The time difference between the creation time of the forecast value '
+                'and the start of the time interval it applies for')
 
     forecast_uuid = sa.Column(
         UUID(as_uuid=True),
         sa.ForeignKey("forecasts.forecast_uuid"),
         nullable=False,
         index=True,
+        comment='The forecast sequence this forcast value belongs to'
     )
 
     forecast: ForecastSQL = relationship("ForecastSQL", back_populates="forecast_values")
@@ -174,7 +208,7 @@ class ClientSQL(Base, CreatedMixin):
     __tablename__ = "clients"
 
     client_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    client_name = sa.Column(sa.String(255), nullable=False)
+    client_name = sa.Column(sa.String(255), nullable=False, comment='The name of the client')
 
     sites: List[SiteSQL] = relationship("SiteSQL")
 
