@@ -18,7 +18,6 @@ pvsite_datamodel:
   read: # Sub package containing modules for reading from the database
   write: # Sub package containing modules for writing to the database
   - connection.py # Class for connecting to the database
-  - schema.py # Pandera pandas dataframe validation schemas
   - sqlmodels.py # SQLAlchemy definitions of table schemas
 tests: # External tests package
 ```
