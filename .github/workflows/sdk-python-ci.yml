@@ -20,18 +20,16 @@ jobs:
           cache: poetry
 
       - name: Install python dependencies
-        run: poetry install --directory ./sdk/python
+        run: poetry install
 
       - name: Lint
-        run: cd ./sdk/python && make lint
+        run: make lint
 
       - name: Run the tests
-        run: cd ./sdk/python && poetry run pytest --cov=pvsite_datamodel --cov-report=xml
+        run: poetry run pytest --cov=pvsite_datamodel --cov-report=xml
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
-        with:
-          directory: sdk/python
 
   publish:
     needs: ["lint_and_test"]
@@ -39,5 +37,3 @@ jobs:
     uses: openclimatefix/.github/.github/workflows/python-release.yml@main
     secrets:
       token: ${{ secrets.PYPI_API_TOKEN }}
-    with:
-      workdir: sdk/python

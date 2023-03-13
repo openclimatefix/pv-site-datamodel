@@ -2,3 +2,5 @@
 
 from .connection import DatabaseConnection
 from .sqlmodels import ClientSQL, ForecastSQL, ForecastValueSQL, GenerationSQL, SiteSQL, StatusSQL
+
+__version__ = "0.1.31"
