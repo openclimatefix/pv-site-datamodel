@@ -13,20 +13,75 @@ Database schema specification for PV Site data.
 
 ## Repository structure
 
-```yml
-pvsite-datamodel:
-  sdk: # Folder containing language specific ORM packages specific to this datamodel
-    python:
-      pvsite_datamodel: # Python ORM code for reading/writing data from this model
-        - sqlmodels.py # Ground truth source for database definition
+```yaml
+pvsite_datamodel:
+  read: # Sub package containing modules for reading from the database
+  write: # Sub package containing modules for writing to the database
+  - connection.py # Class for connecting to the database
+  - schema.py # Pandera pandas dataframe validation schemas
+  - sqlmodels.py # SQLAlchemy definitions of table schemas
+tests: # External tests package
 ```
 
+### Top-level functions
 
-## Editing the datamodel
+Classes specifying table schemas:
+- SiteSQL
+- GenerationSQL
+- ForecastSQL
+- ForecastValueSQL
+- ClientSQL
+- StatusSQL
 
-Make changes to the datamodel via modifications to the `sqlmodels.py` file.
+Database connection objects:
+- DatabaseConnection
 
 
-## Pre-Commit
+### Read package functions
 
-This repository implements a [pre-commit](https://pre-commit.com/#install) config that enables automatic fixes to code when you create a commit. This helps to maintin consistency in the main repo. To enable this, follow the [installation instructions on the precommit website](https://pre-commit.com/#install).
+Currently available functions accessible via `from pvsite_datamodel.read import <func>`:
+
+- get_pv_generation_by_client
+- get_pv_generation_by_sites
+- get_site_by_uuid
+- get_site_by_client_site_id
+- get_site_by_client_site_name
+- get_all_sites
+- get_latest_status
+- get_latest_forecast_values_by_site
+
+
+### Write package functions
+
+Currently available write functions accessible via `from pvsite_datamodels.write import <func>`:
+- insert_generation_values
+
+
+## Install the dependencies (requires [poetry][poetry])
+
+    poetry install
+
+
+## Coding style
+
+Format the code **in place**.
+
+    make format
+
+Lint the code
+
+    make lint
+
+
+## Running the tests
+
+    make test
+
+
+## Database migrations using alembic
+
+[./alembic](./alembic)
+
+
+
+[poetry]: https://python-poetry.org/
