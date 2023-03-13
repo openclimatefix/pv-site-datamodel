@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pvsite-datamodel"
-version = "0.1.30"
+version = "0.1.31"
 description = "SDK for interacting with the PVSite database"
 authors = ["Open Climate Fix"]
 readme = "README.md"
