@@ -61,12 +61,8 @@ class SiteSQL(Base, CreatedMixin):
     )
     latitude = sa.Column(sa.Float)
     longitude = sa.Column(sa.Float)
-    inverter_capacity_kw = sa.Column(
-        sa.Float, comment="The inverter capacity, or the physical limit on the production capacity of the site"
-    )
-    module_capacity_kw = sa.Column(
-        sa.Float, comment="The PV module nameplate capacity of the site"
-    )
+    inverter_capacity_kw = sa.Column(sa.Float, comment="The inverter capacity of the site")
+    module_capacity_kw = sa.Column(sa.Float, comment="The PV module nameplate capacity of the site")
 
     ml_id = sa.Column(
         sa.Integer,
