@@ -80,6 +80,9 @@ class SiteSQL(Base, CreatedMixin):
     forecasts: List["ForecastSQL"] = relationship("ForecastSQL", back_populates="site")
     generation: List["GenerationSQL"] = relationship("GenerationSQL")
     client: ClientSQL = relationship("ClientSQL", back_populates="sites")
+    inverters: List["InverterSQL"] = relationship(
+        "InverterSQL", back_populates="site", cascade="all, delete-orphan"
+    )
 
 
 class GenerationSQL(Base, CreatedMixin):
@@ -266,3 +269,30 @@ class StatusSQL(Base, CreatedMixin):
     status_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     status = sa.Column(sa.String(255))
     message = sa.Column(sa.String(255))
+
+
+class InverterSQL(Base, CreatedMixin):
+    """Class representing the inverters table.
+
+    Each InverterSQL row represents an inverter tied to a SiteSQL row.
+
+    *Approximate size: *
+    4 clients * ~1000 sites each * ~1 inverter each = ~4000 rows
+    """
+
+    __tablename__ = "inverters"
+
+    inverter_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
+    site_uuid = sa.Column(
+        UUID(as_uuid=True),
+        sa.ForeignKey("sites.site_uuid"),
+        nullable=False,
+        index=True,
+        comment="The UUID for the site that has this inverter",
+    )
+    client_id = sa.Column(
+        sa.String(255),
+        comment="The ID of the inverter as given by the providing client",
+    )
+
+    site: SiteSQL = relationship("SiteSQL", back_populates="inverters")
