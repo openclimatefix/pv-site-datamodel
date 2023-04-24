@@ -1,7 +1,7 @@
 """Add support for differing inverter and module capacities
 
 Revision ID: 8384de6b7c50
-Revises: aeea08bcfc42
+Revises: 35f53a88b8c3
 Create Date: 2023-04-08 12:26:23.042938
 
 """
@@ -11,7 +11,7 @@ from sqlalchemy.sql import table, column
 
 # revision identifiers, used by Alembic.
 revision = '8384de6b7c50'
-down_revision = 'aeea08bcfc42'
+down_revision = '35f53a88b8c3'
 branch_labels = None
 depends_on = None
 
