@@ -64,6 +64,8 @@ def sites(db_session):
             latitude=51,
             longitude=3,
             capacity_kw=4,
+            inverter_capacity_kw=4,
+            module_capacity_kw=4.3,
             created_utc=dt.datetime.now(dt.timezone.utc),
             ml_id=i,
         )

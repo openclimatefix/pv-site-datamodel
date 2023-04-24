@@ -64,6 +64,8 @@ class SiteSQL(Base, CreatedMixin):
     capacity_kw = sa.Column(
         sa.Float, comment="The physical limit on the production capacity of the site"
     )
+    inverter_capacity_kw = sa.Column(sa.Float, comment="The inverter capacity of the site")
+    module_capacity_kw = sa.Column(sa.Float, comment="The PV module nameplate capacity of the site")
 
     ml_id = sa.Column(
         sa.Integer,
