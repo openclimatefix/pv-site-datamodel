@@ -20,6 +20,64 @@ class CreatedMixin:
 
     created_utc = sa.Column(sa.DateTime, default=lambda: datetime.utcnow())
 
+class UserSQL(Base, CreatedMixin):
+    """Class representing the users table.
+
+    Each user row specifies a single user.
+    """
+
+    __tablename__ = "users"
+    __tables_args__ = (UniqueConstraint("email", name="idx_email"),)
+
+    user_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
+    email = sa.Column(sa.String(255), index=True, unique=True)
+    site_group_uuid = sa.Column(
+        UUID(as_uuid=True),
+        sa.ForeignKey("site_groups.site_group_uuid"),
+        nullable=False,
+        comment="The foreign key to the site_groups table",
+    )
+
+    # Relationships
+    site_group: "SiteGroupSQL" = relationship("SiteGroupSQL", back_populates="user")
+
+class SiteGroupSQL(Base, CreatedMixin):
+    """Class representing the site_groups table.
+
+    Each site_group row specifies a single group of sites.
+    """
+
+    __tablename__ = "site_groups"
+
+    site_group_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
+    site_group_name = sa.Column(sa.String(255), index=True, unique=True)
+
+    # Relationships
+    sites: List["SiteSQL"] = relationship("SiteSQL", secondary="site_group_sites", back_populates="site_group")
+    users: List[UserSQL] = relationship("UserSQL", back_populates="site_group")
+
+class SiteGroupSiteSQL(Base, CreatedMixin):
+    """Class representing the site_group_sites table.
+
+    Each site_group_site row specifies a single site in a site group.
+    """
+
+    __tablename__ = "site_group_sites"
+    __table_args__ = (UniqueConstraint("site_group_uuid", "site_uuid", name="idx_site_group_site"),)
+
+    site_group_site_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
+    site_group_uuid = sa.Column(
+        UUID(as_uuid=True),
+        sa.ForeignKey("site_groups.site_group_uuid"),
+        nullable=False,
+        comment="The foreign key to the site_groups table",
+    )
+    site_uuid = sa.Column(
+        UUID(as_uuid=True),
+        sa.ForeignKey("sites.site_uuid"),
+        nullable=False,
+        comment="The foreign key to the sites table",
+    )
 
 class SiteSQL(Base, CreatedMixin):
     """Class representing the sites table.
@@ -83,6 +141,7 @@ class SiteSQL(Base, CreatedMixin):
     inverters: List["InverterSQL"] = relationship(
         "InverterSQL", back_populates="site", cascade="all, delete-orphan"
     )
+    site_groups: List["SiteGroupSQL"] = relationship("SiteGroupSQL", secondary="site_group_sites", back_populates="sites")
 
 
 class GenerationSQL(Base, CreatedMixin):
