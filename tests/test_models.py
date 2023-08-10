@@ -1,12 +1,11 @@
 from datetime import datetime, timezone
 from pvsite_datamodel.sqlmodels import SiteSQL, SiteGroupSQL, UserSQL, ClientSQL
-from pytest import fixture
 
 
 def make_site(db_session, ml_id=1):
     # create a site
     client = ClientSQL(
-        client_name=f"testclient_1",
+        client_name="testclient_1",
         created_utc=datetime.now(timezone.utc),
     )
 

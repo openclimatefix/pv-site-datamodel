@@ -20,6 +20,7 @@ class CreatedMixin:
 
     created_utc = sa.Column(sa.DateTime, default=lambda: datetime.utcnow())
 
+
 class UserSQL(Base, CreatedMixin):
     """Class representing the users table.
 
@@ -41,6 +42,7 @@ class UserSQL(Base, CreatedMixin):
     # Relationships
     site_group: "SiteGroupSQL" = relationship("SiteGroupSQL", back_populates="users")
 
+
 class SiteGroupSQL(Base, CreatedMixin):
     """Class representing the site_groups table.
 
@@ -54,9 +56,12 @@ class SiteGroupSQL(Base, CreatedMixin):
 
     # Relationships
     # N-N
-    sites: List["SiteSQL"] = relationship("SiteSQL", secondary="site_group_sites", back_populates="site_groups")
+    sites: List["SiteSQL"] = relationship(
+        "SiteSQL", secondary="site_group_sites", back_populates="site_groups"
+    )
     # 1-N, one site group can have many users
     users: List[UserSQL] = relationship("UserSQL", back_populates="site_group")
+
 
 class SiteGroupSiteSQL(Base, CreatedMixin):
     """Class representing the site_group_sites table.
@@ -80,6 +85,7 @@ class SiteGroupSiteSQL(Base, CreatedMixin):
         nullable=False,
         comment="The foreign key to the sites table",
     )
+
 
 class SiteSQL(Base, CreatedMixin):
     """Class representing the sites table.
@@ -143,7 +149,9 @@ class SiteSQL(Base, CreatedMixin):
     inverters: List["InverterSQL"] = relationship(
         "InverterSQL", back_populates="site", cascade="all, delete-orphan"
     )
-    site_groups: List["SiteGroupSQL"] = relationship("SiteGroupSQL", secondary="site_group_sites", back_populates="sites")
+    site_groups: List["SiteGroupSQL"] = relationship(
+        "SiteGroupSQL", secondary="site_group_sites", back_populates="sites"
+    )
 
 
 class GenerationSQL(Base, CreatedMixin):
