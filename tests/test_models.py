@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
-from pvsite_datamodel.sqlmodels import SiteSQL, SiteGroupSQL, UserSQL, ClientSQL
+
+from pvsite_datamodel.sqlmodels import ClientSQL, SiteGroupSQL, SiteSQL, UserSQL
 
 
 def make_site(db_session, ml_id=1):
