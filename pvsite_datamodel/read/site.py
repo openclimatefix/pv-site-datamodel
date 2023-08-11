@@ -5,7 +5,7 @@ from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
-from pvsite_datamodel.sqlmodels import ClientSQL, SiteSQL
+from pvsite_datamodel.sqlmodels import SiteSQL
 
 logger = logging.getLogger(__name__)
 
@@ -39,13 +39,9 @@ def get_site_by_client_site_id(session: Session, client_name: str, client_site_i
 
     # start main query
     query = session.query(SiteSQL)
-    query = query.join(ClientSQL)
 
     # select the correct client site id
     query = query.filter(SiteSQL.client_site_id == client_site_id)
-
-    # filter on client_name
-    query = query.filter(ClientSQL.client_name == client_name)
 
     # get first result (should only be one site)
     site: Optional[SiteSQL] = query.first()
@@ -70,13 +66,9 @@ def get_site_by_client_site_name(
 
     # start main query
     query = session.query(SiteSQL)
-    query = query.join(ClientSQL)
 
     # select the correct client site name
     query = query.filter(SiteSQL.client_site_name == client_site_name)
-
-    # filter on client_name
-    query = query.filter(ClientSQL.client_name == client_name)
 
     # get first result (should only be one site)
     site: Optional[SiteSQL] = query.first()

@@ -101,12 +101,6 @@ class SiteSQL(Base, CreatedMixin):
     __tablename__ = "sites"
 
     site_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    client_uuid = sa.Column(
-        UUID(as_uuid=True),
-        sa.ForeignKey("clients.client_uuid"),
-        nullable=False,
-        comment="The internal ID of the client providing the site data",
-    )
     client_site_id = sa.Column(
         sa.Integer, index=True, comment="The ID of the site as given by the providing client"
     )
@@ -141,11 +135,8 @@ class SiteSQL(Base, CreatedMixin):
         comment="Auto-incrementing integer ID of the site for use in ML training",
     )
 
-    __table_args__ = (UniqueConstraint("client_site_id", client_uuid, name="idx_client"),)
-
     forecasts: List["ForecastSQL"] = relationship("ForecastSQL", back_populates="site")
     generation: List["GenerationSQL"] = relationship("GenerationSQL")
-    client: ClientSQL = relationship("ClientSQL", back_populates="sites")
     inverters: List["InverterSQL"] = relationship(
         "InverterSQL", back_populates="site", cascade="all, delete-orphan"
     )
@@ -306,23 +297,6 @@ class ForecastValueSQL(Base, CreatedMixin):
     )
 
 
-class ClientSQL(Base, CreatedMixin):
-    """Class representing the clients table.
-
-    Each client row defines a provider of site data
-
-    *Approximate size: *
-    One row per client = ~4 rows
-    """
-
-    __tablename__ = "clients"
-
-    client_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    client_name = sa.Column(sa.String(255), nullable=False, comment="The name of the client")
-
-    sites: List[SiteSQL] = relationship("SiteSQL")
-
-
 class StatusSQL(Base, CreatedMixin):
     """Class representing the status table.
 
@@ -358,10 +332,6 @@ class InverterSQL(Base, CreatedMixin):
         nullable=False,
         index=True,
         comment="The UUID for the site that has this inverter",
-    )
-    client_id = sa.Column(
-        sa.String(255),
-        comment="The ID of the inverter as given by the providing client",
     )
 
     site: SiteSQL = relationship("SiteSQL", back_populates="inverters")

@@ -7,16 +7,16 @@ from typing import List
 import pytest
 from sqlalchemy.orm import Query
 
-from pvsite_datamodel import ClientSQL, ForecastSQL, ForecastValueSQL, SiteSQL, StatusSQL
+from pvsite_datamodel import ForecastSQL, ForecastValueSQL, SiteSQL, StatusSQL
 from pvsite_datamodel.read import (
     get_all_sites,
     get_latest_forecast_values_by_site,
     get_latest_status,
-    get_pv_generation_by_client,
+    get_pv_generation_by_user_uuids,
     get_pv_generation_by_sites,
-    get_site_by_client_site_id,
     get_site_by_uuid,
 )
+from pvsite_datamodel.write.user_and_site import make_site_group, make_user
 
 
 class TestGetAllSites:
@@ -43,50 +43,42 @@ class TestGetSiteByUUID:
             _ = get_site_by_uuid(session=db_session, site_uuid=uuid.uuid4())
 
 
-class TestGetSiteByClientSiteID:
-    """Tests for the get_site_by_client_site_id function."""
-
-    def test_gets_site_successfully(self, sites, db_session):
-        site = get_site_by_client_site_id(
-            session=db_session, client_name="testclient_1", client_site_id=1
-        )
-
-        assert site.client_site_id == 1
-
-    def test_raises_exception_when_no_such_site_exists(self, sites, db_session):
-        with pytest.raises(KeyError):
-            _ = get_site_by_client_site_id(
-                session=db_session, client_name="testclient_100", client_site_id=1
-            )
-
-
-class TestGetPVGenerationByClient:
+class TestGetPVGenerationByUser:
     """Tests for the get_pv_generation_by_client function."""
 
-    def test_returns_all_generations_without_input_client(self, generations, db_session):
-        generations = get_pv_generation_by_client(session=db_session)
+    def test_returns_all_generations_without_input_user(self, generations, db_session):
+        generations = get_pv_generation_by_user_uuids(session=db_session)
 
         assert len(generations) == 40
 
-    def test_returns_all_generations_for_input_client(self, generations, db_session):
-        query: Query = db_session.query(ClientSQL)
-        client: ClientSQL = query.first()
+    def test_returns_all_generations_for_input_user(self, generations, db_session):
 
-        generations = get_pv_generation_by_client(
-            session=db_session, client_names=[client.client_name]
+        # associate site to one user
+        site: SiteSQL = db_session.query(SiteSQL).first()
+        site_group = make_site_group(db_session=db_session)
+        user = make_user(db_session=db_session, site_group=site_group, email="test@test.com")
+        site_group.sites.append(site)
+
+        generations = get_pv_generation_by_user_uuids(
+            session=db_session, user_uuids=[user.user_uuid]
         )
 
         assert len(generations) == 10
 
     def test_returns_all_generations_in_datetime_window(self, generations, db_session):
-        query: Query = db_session.query(ClientSQL)
-        client: ClientSQL = query.first()
+
+        # associate site to one user
+        site: SiteSQL = db_session.query(SiteSQL).first()
+        site_group = make_site_group(db_session=db_session)
+        user = make_user(db_session=db_session, site_group=site_group, email="test@test.com")
+        site_group.sites.append(site)
+
         window_lower: dt.datetime = dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=7)
         window_upper: dt.datetime = dt.datetime.now(dt.timezone.utc) + dt.timedelta(minutes=8)
 
-        generations = get_pv_generation_by_client(
+        generations = get_pv_generation_by_user_uuids(
             session=db_session,
-            client_names=[client.client_name],
+            user_uuids=[user.user_uuid],
             start_utc=window_lower,
             end_utc=window_upper,
         )
