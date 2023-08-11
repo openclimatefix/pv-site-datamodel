@@ -15,6 +15,8 @@ from pvsite_datamodel.read import (
     get_pv_generation_by_sites,
     get_pv_generation_by_user_uuids,
     get_site_by_uuid,
+    get_site_by_client_site_id,
+    get_site_by_client_site_name,
 )
 from pvsite_datamodel.write.user_and_site import make_site_group, make_user
 
@@ -41,6 +43,20 @@ class TestGetSiteByUUID:
     def test_raises_error_for_nonexistant_site(self, sites, db_session):
         with pytest.raises(KeyError):
             _ = get_site_by_uuid(session=db_session, site_uuid=uuid.uuid4())
+
+    def test_get_site_by_client_site_id(self, sites, db_session):
+        site = get_site_by_client_site_id(
+            session=db_session, client_name="test_client", client_site_id=1
+        )
+
+        assert site == sites[0]
+
+    def test_get_site_by_client_site_name(self, sites, db_session):
+        site = get_site_by_client_site_name(
+            session=db_session, client_name="test_client", client_site_name="test_site_0"
+        )
+
+        assert site == sites[0]
 
 
 class TestGetPVGenerationByUser:
