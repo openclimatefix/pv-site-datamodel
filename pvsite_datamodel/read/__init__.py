@@ -2,7 +2,7 @@
 Functions for reading from the PVSite database
 """
 
-from .generation import get_pv_generation_by_user_uuids, get_pv_generation_by_sites
+from .generation import get_pv_generation_by_sites, get_pv_generation_by_user_uuids
 from .latest_forecast_values import get_latest_forecast_values_by_site
 from .site import (
     get_all_sites,

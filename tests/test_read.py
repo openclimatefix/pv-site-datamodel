@@ -12,8 +12,8 @@ from pvsite_datamodel.read import (
     get_all_sites,
     get_latest_forecast_values_by_site,
     get_latest_status,
-    get_pv_generation_by_user_uuids,
     get_pv_generation_by_sites,
+    get_pv_generation_by_user_uuids,
     get_site_by_uuid,
 )
 from pvsite_datamodel.write.user_and_site import make_site_group, make_user

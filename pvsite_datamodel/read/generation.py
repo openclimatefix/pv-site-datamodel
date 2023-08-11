@@ -8,9 +8,9 @@ from sqlalchemy.orm import Session, contains_eager
 
 from pvsite_datamodel.sqlmodels import (
     GenerationSQL,
-    SiteSQL,
-    SiteGroupSQL,
     SiteGroupSiteSQL,
+    SiteGroupSQL,
+    SiteSQL,
     UserSQL,
 )
 
