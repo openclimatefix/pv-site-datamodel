@@ -1,5 +1,5 @@
+""" Functions for reading user data from the database. """
 import logging
-from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
@@ -9,6 +9,13 @@ logger = logging.getLogger(__name__)
 
 
 def get_user_by_email(session: Session, email: str):
+    """
+    Get user by email. If user does not exist, make one.
+
+    :param session: database session
+    :param email: email of user
+    :return: user object
+    """
 
     user = session.query(UserSQL).filter(UserSQL.email == email).first()
 
