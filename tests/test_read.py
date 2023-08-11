@@ -63,7 +63,6 @@ class TestGetUserByEmail:
     """Test for get_user_by_email function"""
 
     def test_get_user_by_email_no_users(self, db_session):
-
         user = get_user_by_email(session=db_session, email="test@test.com")
         assert user.email == "test@test.com"
         assert len(db_session.query(UserSQL).all()) == 1
