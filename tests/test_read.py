@@ -52,7 +52,6 @@ class TestGetPVGenerationByUser:
         assert len(generations) == 40
 
     def test_returns_all_generations_for_input_user(self, generations, db_session):
-
         # associate site to one user
         site: SiteSQL = db_session.query(SiteSQL).first()
         site_group = make_site_group(db_session=db_session)
@@ -66,7 +65,6 @@ class TestGetPVGenerationByUser:
         assert len(generations) == 10
 
     def test_returns_all_generations_in_datetime_window(self, generations, db_session):
-
         # associate site to one user
         site: SiteSQL = db_session.query(SiteSQL).first()
         site_group = make_site_group(db_session=db_session)
