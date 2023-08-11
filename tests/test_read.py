@@ -5,9 +5,7 @@ import uuid
 from typing import List
 
 import pytest
-from sqlalchemy.orm import Query
-
-from pvsite_datamodel import ForecastSQL, ForecastValueSQL, SiteSQL, StatusSQL
+from pvsite_datamodel import ForecastSQL, ForecastValueSQL, SiteSQL, StatusSQL, UserSQL
 from pvsite_datamodel.read import (
     get_all_sites,
     get_latest_forecast_values_by_site,
@@ -17,8 +15,10 @@ from pvsite_datamodel.read import (
     get_site_by_client_site_id,
     get_site_by_client_site_name,
     get_site_by_uuid,
+    get_user_by_email,
 )
 from pvsite_datamodel.write.user_and_site import make_site_group, make_user
+from sqlalchemy.orm import Query
 
 
 class TestGetAllSites:
@@ -57,6 +57,25 @@ class TestGetSiteByUUID:
         )
 
         assert site == sites[0]
+
+
+class TestGetUserByEmail:
+    """Test for get_user_by_email function"""
+
+    def test_get_user_by_email_no_users(self, db_session):
+
+        user = get_user_by_email(session=db_session, email="test@test.com")
+        assert user.email == "test@test.com"
+        assert len(db_session.query(UserSQL).all()) == 1
+
+    def test_get_user_by_email_with_users(self, db_session):
+        site_group = make_site_group(db_session=db_session)
+        user = make_user(db_session=db_session, site_group=site_group, email="test_1@test.com")
+        user = make_user(db_session=db_session, site_group=site_group, email="test_2@test.com")
+
+        user = get_user_by_email(session=db_session, email="test_1@test.com")
+        assert user.email == "test_1@test.com"
+        assert len(db_session.query(UserSQL).all()) == 2
 
 
 class TestGetPVGenerationByUser:

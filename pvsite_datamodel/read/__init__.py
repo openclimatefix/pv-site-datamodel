@@ -11,3 +11,4 @@ from .site import (
     get_site_by_uuid,
 )
 from .status import get_latest_status
+from .user import get_user_by_email
