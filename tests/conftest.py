@@ -52,6 +52,7 @@ def sites(db_session):
     for i in range(0, 4):
         site = SiteSQL(
             client_site_id=1,
+            client_site_name=f"test_site_{i}",
             latitude=51,
             longitude=3,
             capacity_kw=4,
