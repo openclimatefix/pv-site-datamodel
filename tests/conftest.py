@@ -50,7 +50,6 @@ def sites(db_session):
     """Create some fake sites."""
     sites = []
     for i in range(0, 4):
-
         site = SiteSQL(
             client_site_id=1,
             latitude=51,
