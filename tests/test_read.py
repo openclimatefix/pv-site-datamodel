@@ -5,6 +5,8 @@ import uuid
 from typing import List
 
 import pytest
+from sqlalchemy.orm import Query
+
 from pvsite_datamodel import ForecastSQL, ForecastValueSQL, SiteSQL, StatusSQL, UserSQL
 from pvsite_datamodel.read import (
     get_all_sites,
@@ -18,7 +20,6 @@ from pvsite_datamodel.read import (
     get_user_by_email,
 )
 from pvsite_datamodel.write.user_and_site import make_site_group, make_user
-from sqlalchemy.orm import Query
 
 
 class TestGetAllSites:

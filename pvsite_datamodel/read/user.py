@@ -3,7 +3,7 @@ import logging
 
 from sqlalchemy.orm import Session
 
-from pvsite_datamodel.sqlmodels import UserSQL, SiteGroupSQL
+from pvsite_datamodel.sqlmodels import SiteGroupSQL, UserSQL
 
 logger = logging.getLogger(__name__)
 
