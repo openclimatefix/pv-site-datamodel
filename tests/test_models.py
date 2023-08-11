@@ -35,7 +35,7 @@ def test_two_site_one_user(db_session):
 
 def test_one_site_two_user(db_session):
     """
-    3. Test that one site with one user works
+    3. Test that one site with two users works
     """
 
     site_group = make_site_group(db_session=db_session)
@@ -52,7 +52,7 @@ def test_one_site_two_user(db_session):
 
 def test_two_site_two_user(db_session):
     """
-    4. Test that one site with one user works
+    4. Test that has two site with two users
     """
 
     site_group = make_site_group(db_session=db_session)
@@ -69,9 +69,9 @@ def test_two_site_two_user(db_session):
     assert len(user_2.site_group.sites) == 2
 
 
-def test_two_site_two_user_and_ocf_see_everything(db_session):
+def test_three_site_two_user_and_ocf_see_everything(db_session):
     """
-    4. Test that one site with one user works
+    5. Test that three site with two user works
     """
 
     site_group = make_site_group(db_session=db_session)

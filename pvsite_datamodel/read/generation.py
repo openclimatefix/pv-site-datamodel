@@ -28,7 +28,7 @@ def get_pv_generation_by_user_uuids(
     :param session: database session
     :param start_utc: search filters >= on 'datetime_utc'. Can be None
     :param end_utc: search filters < on 'datetime_utc'. Can be None
-    :param user_uuids: optional list of provider names
+    :param user_uuids: optional list of user uuids
     :return:list of pv yields.
     """
     # start main query
