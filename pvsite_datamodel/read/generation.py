@@ -6,29 +6,34 @@ from typing import List, Optional
 
 from sqlalchemy.orm import Session, contains_eager
 
-from pvsite_datamodel.sqlmodels import ClientSQL, GenerationSQL, SiteSQL
+from pvsite_datamodel.sqlmodels import (
+    GenerationSQL,
+    SiteGroupSiteSQL,
+    SiteGroupSQL,
+    SiteSQL,
+    UserSQL,
+)
 
 logger = logging.getLogger(__name__)
 
 
-def get_pv_generation_by_client(
+def get_pv_generation_by_user_uuids(
     session: Session,
     start_utc: Optional[datetime] = None,
     end_utc: Optional[datetime] = None,
-    client_names: Optional[List[str]] = None,
+    user_uuids: Optional[List[str]] = None,
 ) -> List[GenerationSQL]:
-    """Get the generation data by client.
+    """Get the generation data by user uuids.
 
     :param session: database session
     :param start_utc: search filters >= on 'datetime_utc'. Can be None
     :param end_utc: search filters < on 'datetime_utc'. Can be None
-    :param client_names: optional list of provider names
+    :param user_uuids: optional list of user uuids
     :return:list of pv yields.
     """
     # start main query
     query = session.query(GenerationSQL)
     query = query.join(SiteSQL)
-    query = query.join(ClientSQL)
 
     # Filter by time interval
     if start_utc is not None:
@@ -41,8 +46,11 @@ def get_pv_generation_by_client(
             GenerationSQL.end_utc < end_utc,
         )
 
-    if client_names is not None:
-        query = query.filter(ClientSQL.client_name.in_(client_names))
+    if user_uuids is not None:
+        query = query.join(SiteGroupSiteSQL)
+        query = query.join(SiteGroupSQL)
+        query = query.join(UserSQL)
+        query = query.filter(UserSQL.user_uuid.in_(user_uuids))
 
     query = query.order_by(
         SiteSQL.site_uuid,

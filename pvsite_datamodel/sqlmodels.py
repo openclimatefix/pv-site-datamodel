@@ -21,6 +21,72 @@ class CreatedMixin:
     created_utc = sa.Column(sa.DateTime, default=lambda: datetime.utcnow())
 
 
+class UserSQL(Base, CreatedMixin):
+    """Class representing the users table.
+
+    Each user row specifies a single user.
+    """
+
+    __tablename__ = "users"
+    __tables_args__ = (UniqueConstraint("email", name="idx_email"),)
+
+    user_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
+    email = sa.Column(sa.String(255), index=True, unique=True)
+    site_group_uuid = sa.Column(
+        UUID(as_uuid=True),
+        sa.ForeignKey("site_groups.site_group_uuid"),
+        nullable=False,
+        comment="The foreign key to the site_groups table",
+    )
+
+    # Relationships
+    site_group: "SiteGroupSQL" = relationship("SiteGroupSQL", back_populates="users")
+
+
+class SiteGroupSQL(Base, CreatedMixin):
+    """Class representing the site_groups table.
+
+    Each site_group row specifies a single group of sites.
+    """
+
+    __tablename__ = "site_groups"
+
+    site_group_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
+    site_group_name = sa.Column(sa.String(255), index=True, unique=True)
+
+    # Relationships
+    # N-N
+    sites: List["SiteSQL"] = relationship(
+        "SiteSQL", secondary="site_group_sites", back_populates="site_groups"
+    )
+    # 1-N, one site group can have many users
+    users: List[UserSQL] = relationship("UserSQL", back_populates="site_group")
+
+
+class SiteGroupSiteSQL(Base, CreatedMixin):
+    """Class representing the site_group_sites table.
+
+    Each site_group_site row specifies a single site in a site group.
+    """
+
+    __tablename__ = "site_group_sites"
+    __table_args__ = (UniqueConstraint("site_group_uuid", "site_uuid", name="idx_site_group_site"),)
+
+    site_group_site_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
+    site_group_uuid = sa.Column(
+        UUID(as_uuid=True),
+        sa.ForeignKey("site_groups.site_group_uuid"),
+        nullable=False,
+        comment="The foreign key to the site_groups table",
+    )
+    site_uuid = sa.Column(
+        UUID(as_uuid=True),
+        sa.ForeignKey("sites.site_uuid"),
+        nullable=False,
+        comment="The foreign key to the sites table",
+    )
+
+
 class SiteSQL(Base, CreatedMixin):
     """Class representing the sites table.
 
@@ -35,12 +101,6 @@ class SiteSQL(Base, CreatedMixin):
     __tablename__ = "sites"
 
     site_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    client_uuid = sa.Column(
-        UUID(as_uuid=True),
-        sa.ForeignKey("clients.client_uuid"),
-        nullable=False,
-        comment="The internal ID of the client providing the site data",
-    )
     client_site_id = sa.Column(
         sa.Integer, index=True, comment="The ID of the site as given by the providing client"
     )
@@ -75,13 +135,13 @@ class SiteSQL(Base, CreatedMixin):
         comment="Auto-incrementing integer ID of the site for use in ML training",
     )
 
-    __table_args__ = (UniqueConstraint("client_site_id", client_uuid, name="idx_client"),)
-
     forecasts: List["ForecastSQL"] = relationship("ForecastSQL", back_populates="site")
     generation: List["GenerationSQL"] = relationship("GenerationSQL")
-    client: ClientSQL = relationship("ClientSQL", back_populates="sites")
     inverters: List["InverterSQL"] = relationship(
         "InverterSQL", back_populates="site", cascade="all, delete-orphan"
+    )
+    site_groups: List["SiteGroupSQL"] = relationship(
+        "SiteGroupSQL", secondary="site_group_sites", back_populates="sites"
     )
 
 
@@ -237,23 +297,6 @@ class ForecastValueSQL(Base, CreatedMixin):
     )
 
 
-class ClientSQL(Base, CreatedMixin):
-    """Class representing the clients table.
-
-    Each client row defines a provider of site data
-
-    *Approximate size: *
-    One row per client = ~4 rows
-    """
-
-    __tablename__ = "clients"
-
-    client_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    client_name = sa.Column(sa.String(255), nullable=False, comment="The name of the client")
-
-    sites: List[SiteSQL] = relationship("SiteSQL")
-
-
 class StatusSQL(Base, CreatedMixin):
     """Class representing the status table.
 
@@ -289,10 +332,6 @@ class InverterSQL(Base, CreatedMixin):
         nullable=False,
         index=True,
         comment="The UUID for the site that has this inverter",
-    )
-    client_id = sa.Column(
-        sa.String(255),
-        comment="The ID of the inverter as given by the providing client",
     )
 
     site: SiteSQL = relationship("SiteSQL", back_populates="inverters")

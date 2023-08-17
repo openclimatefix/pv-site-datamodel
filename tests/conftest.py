@@ -8,7 +8,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from testcontainers.postgres import PostgresContainer
 
-from pvsite_datamodel import ClientSQL, GenerationSQL, SiteSQL, StatusSQL
+from pvsite_datamodel import GenerationSQL, SiteSQL, StatusSQL
 from pvsite_datamodel.sqlmodels import Base
 
 
@@ -50,17 +50,9 @@ def sites(db_session):
     """Create some fake sites."""
     sites = []
     for i in range(0, 4):
-        client = ClientSQL(
-            client_name=f"testclient_{i}",
-            created_utc=dt.datetime.now(dt.timezone.utc),
-        )
-
-        db_session.add(client)
-        db_session.commit()
-
         site = SiteSQL(
-            client_uuid=client.client_uuid,
             client_site_id=1,
+            client_site_name=f"test_site_{i}",
             latitude=51,
             longitude=3,
             capacity_kw=4,
