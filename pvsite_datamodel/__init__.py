@@ -6,6 +6,7 @@ from .sqlmodels import (
     ForecastValueSQL,
     GenerationSQL,
     InverterSQL,
+    SiteGroupSQL,
     SiteSQL,
     StatusSQL,
     UserSQL,

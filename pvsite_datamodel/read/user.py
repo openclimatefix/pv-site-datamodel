@@ -33,3 +33,27 @@ def get_user_by_email(session: Session, email: str):
         session.commit()
 
     return user
+
+
+def get_site_group_by_name(session: Session, site_group_name:str):
+    """
+    Get site group by name. If site group does not exist, make one.
+
+    :param session: database session
+    :param site_group_name: name of site group
+    :return: site group object
+    """
+
+    site_group = (
+        session.query(SiteGroupSQL).filter(SiteGroupSQL.site_group_name == site_group_name).first()
+    )
+
+    if site_group is None:
+        logger.info(f"Site group with name {site_group_name} not found, so making one")
+
+        # make a new site group
+        site_group = SiteGroupSQL(site_group_name=site_group_name)
+        session.add(site_group)
+        session.commit()
+
+    return site_group

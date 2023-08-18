@@ -7,7 +7,14 @@ from typing import List
 import pytest
 from sqlalchemy.orm import Query
 
-from pvsite_datamodel import ForecastSQL, ForecastValueSQL, SiteSQL, StatusSQL, UserSQL
+from pvsite_datamodel import (
+    ForecastSQL,
+    ForecastValueSQL,
+    SiteSQL,
+    StatusSQL,
+    UserSQL,
+    SiteGroupSQL,
+)
 from pvsite_datamodel.read import (
     get_all_sites,
     get_latest_forecast_values_by_site,
@@ -18,6 +25,7 @@ from pvsite_datamodel.read import (
     get_site_by_client_site_name,
     get_site_by_uuid,
     get_user_by_email,
+    get_site_group_by_name,
 )
 from pvsite_datamodel.write.user_and_site import make_site_group, make_user
 
@@ -230,3 +238,19 @@ def test_get_latest_forecast_values(db_session, sites):
         values_as_tuple = [(v.start_utc, v.forecast_power_kw) for v in forecast_values]
 
         assert values_as_tuple == expected[site_uuid]
+
+
+def test_get_site_group_by_name(db_session):
+    site_group = SiteGroupSQL(site_group_name="test")
+    db_session.add(site_group)
+    db_session.commit()
+
+    result = get_site_group_by_name(db_session, "test")
+
+    assert result == site_group
+
+
+def test_get_site_group_by_name_new_group(db_session):
+    _ = get_site_group_by_name(db_session, "test")
+
+    assert len(db_session.query(SiteGroupSQL).all()) == 1
