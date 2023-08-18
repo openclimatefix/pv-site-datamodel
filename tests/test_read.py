@@ -10,10 +10,10 @@ from sqlalchemy.orm import Query
 from pvsite_datamodel import (
     ForecastSQL,
     ForecastValueSQL,
+    SiteGroupSQL,
     SiteSQL,
     StatusSQL,
     UserSQL,
-    SiteGroupSQL,
 )
 from pvsite_datamodel.read import (
     get_all_sites,
@@ -24,8 +24,8 @@ from pvsite_datamodel.read import (
     get_site_by_client_site_id,
     get_site_by_client_site_name,
     get_site_by_uuid,
-    get_user_by_email,
     get_site_group_by_name,
+    get_user_by_email,
 )
 from pvsite_datamodel.write.user_and_site import make_site_group, make_user
 
