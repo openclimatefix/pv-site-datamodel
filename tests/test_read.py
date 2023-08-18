@@ -39,6 +39,8 @@ class TestGetAllSites:
         assert len(out) == len(sites)
 
         assert out[0] == sites[0]
+        assert out[0].ml_id == 1
+        assert out[1].ml_id == 2
 
 
 class TestGetSiteByUUID:

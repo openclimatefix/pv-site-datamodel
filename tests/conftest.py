@@ -59,7 +59,6 @@ def sites(db_session):
             inverter_capacity_kw=4,
             module_capacity_kw=4.3,
             created_utc=dt.datetime.now(dt.timezone.utc),
-            ml_id=i,
         )
         db_session.add(site)
         db_session.commit()

@@ -129,11 +129,7 @@ class SiteSQL(Base, CreatedMixin):
 
     ml_id = sa.Column(
         sa.Integer,
-        autoincrement=True,
-        nullable=False,
-        unique=True,
-        comment="Auto-incrementing integer ID of the site for use in ML training",
-    )
+        sa.Sequence("seq_ml_id"))
 
     forecasts: List["ForecastSQL"] = relationship("ForecastSQL", back_populates="site")
     generation: List["GenerationSQL"] = relationship("GenerationSQL")
