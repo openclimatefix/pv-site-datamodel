@@ -35,7 +35,7 @@ def get_user_by_email(session: Session, email: str):
     return user
 
 
-def get_site_group_by_name(session: Session, site_group_name:str):
+def get_site_group_by_name(session: Session, site_group_name: str):
     """
     Get site group by name. If site group does not exist, make one.
 
