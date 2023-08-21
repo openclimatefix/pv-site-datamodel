@@ -90,6 +90,9 @@ def get_all_sites(session: Session) -> List[SiteSQL]:
     # start main query
     query = session.query(SiteSQL)
 
+    # order by uuuid
+    query = query.order_by(SiteSQL.site_uuid)
+
     # get all results
     sites = query.all()
 
