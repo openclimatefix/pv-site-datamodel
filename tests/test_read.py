@@ -38,7 +38,13 @@ class TestGetAllSites:
 
         assert len(out) == len(sites)
 
-        assert out[0] == sites[0]
+        site = [s for s in sites if s.site_uuid == out[0].site_uuid][0]
+        assert out[0] == site
+
+        # check uuid is in order
+        assert out[1].site_uuid > out[0].site_uuid
+        assert out[2].site_uuid > out[1].site_uuid
+        assert out[3].site_uuid > out[2].site_uuid
 
         # check uuid is in order
         assert out[1].site_uuid > out[0].site_uuid
