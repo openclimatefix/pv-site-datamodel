@@ -46,6 +46,11 @@ class TestGetAllSites:
         assert out[2].site_uuid > out[1].site_uuid
         assert out[3].site_uuid > out[2].site_uuid
 
+        # check uuid is in order
+        assert out[1].site_uuid > out[0].site_uuid
+        assert out[2].site_uuid > out[1].site_uuid
+        assert out[3].site_uuid > out[2].site_uuid
+
 
 class TestGetSiteByUUID:
     """Tests for the get_site_by_uuid function."""
