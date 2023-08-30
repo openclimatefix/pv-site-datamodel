@@ -132,7 +132,7 @@ def get_pv_generation_by_sites(
         for generation_raw in generations_raw:
             if len(generation_raw) == 2:
                 generation = GenerationSum(
-                    start_utc=generation_raw[0], power_kw=generation_raw[1], name='total'
+                    start_utc=generation_raw[0], power_kw=generation_raw[1], name="total"
                 )
             else:
                 generation = GenerationSum(

@@ -86,7 +86,7 @@ def generations(db_session, sites):
         for i in range(0, 10):
             generation = GenerationSQL(
                 site_uuid=site.site_uuid,
-                generation_power_kw=10-i,
+                generation_power_kw=10 - i,
                 start_utc=start_times[i],
                 end_utc=start_times[i] + dt.timedelta(minutes=5),
             )
