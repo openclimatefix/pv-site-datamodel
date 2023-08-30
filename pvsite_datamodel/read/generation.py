@@ -2,9 +2,10 @@
 import logging
 import uuid
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from sqlalchemy.orm import Session, contains_eager
+from sqlalchemy import func
 
 from pvsite_datamodel.sqlmodels import (
     GenerationSQL,
@@ -13,8 +14,18 @@ from pvsite_datamodel.sqlmodels import (
     SiteSQL,
     UserSQL,
 )
+from pydantic import BaseModel
+from pydantic import Field
 
 logger = logging.getLogger(__name__)
+
+
+class GenerationSum(BaseModel):
+    """Sum of generation."""
+
+    power_kw: float = Field(..., description="Summed power in kW")
+    start_utc: datetime = Field(..., description="Start datetime of this power")
+    name: str = Field(..., description="Name of item sums. ")
 
 
 def get_pv_generation_by_user_uuids(
@@ -68,7 +79,8 @@ def get_pv_generation_by_sites(
     start_utc: Optional[datetime] = None,
     end_utc: Optional[datetime] = None,
     site_uuids: Optional[List[uuid.UUID]] = None,
-) -> List[GenerationSQL]:
+    sum_by: Optional[str] = None,
+) -> Union[List[GenerationSQL], List[GenerationSum]]:
     """Get the generation data by site.
 
     :param session: database session
@@ -77,7 +89,10 @@ def get_pv_generation_by_sites(
     :param site_uuids: optional list of site uuids
     :return: list of pv yields
     """
-    # start main query
+
+    if sum_by not in ["total", "dno", "gsp", None]:
+        raise ValueError(f"sum_by must be one of ['total', 'dno', 'gsp'], not {sum_by}")
+
     query = session.query(GenerationSQL)
     query = query.join(SiteSQL)
 
@@ -100,7 +115,37 @@ def get_pv_generation_by_sites(
     # make sure this is all loaded
     query = query.options(contains_eager(GenerationSQL.site)).populate_existing()
 
-    # get all results
-    generations: List[GenerationSQL] = query.all()
+    if sum_by is None:
+        # get all results
+        generations: List[GenerationSQL] = query.all()
+    else:
+
+        subquery = query.subquery()
+
+        group_by_variables = [subquery.c.start_utc]
+        if sum_by == "dno":
+            group_by_variables.append(SiteSQL.dno)
+        if sum_by == "gsp":
+            group_by_variables.append(SiteSQL.gsp)
+        query_variables = group_by_variables.copy()
+        query_variables.append(func.sum(subquery.c.generation_power_kw))
+
+        query = session.query(*query_variables)
+        query = query.join(SiteSQL)
+        query = query.group_by(*group_by_variables)
+        query = query.order_by(*group_by_variables)
+        generations_raw = query.all()
+
+        generations: List[GenerationSum] = []
+        for generation_raw in generations_raw:
+            if len(generation_raw) == 2:
+                generation = GenerationSum(
+                    start_utc=generation_raw[0], power_kw=generation_raw[1], name='total'
+                )
+            else:
+                generation = GenerationSum(
+                    start_utc=generation_raw[0], power_kw=generation_raw[2], name=generation_raw[1]
+                )
+            generations.append(generation)
 
     return generations

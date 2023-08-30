@@ -66,14 +66,18 @@ class TestGetSiteByUUID:
 
     def test_get_site_by_client_site_id(self, sites, db_session):
         site = get_site_by_client_site_id(
-            session=db_session, client_name="test_client", client_site_id=1
+            session=db_session,
+            client_name=sites[0].client_site_name,
+            client_site_id=sites[0].client_site_id,
         )
 
         assert site == sites[0]
 
     def test_get_site_by_client_site_name(self, sites, db_session):
         site = get_site_by_client_site_name(
-            session=db_session, client_name="test_client", client_site_name="test_site_0"
+            session=db_session,
+            client_name="test_client",
+            client_site_name=sites[0].client_site_name,
         )
 
         assert site == sites[0]
@@ -165,6 +169,37 @@ class TestGetPVGenerationBySites:
         generations = get_pv_generation_by_sites(session=db_session, site_uuids=[])
 
         assert len(generations) == 0
+
+    def test_gets_generation_for_multiple_sum_total(self, generations, db_session):
+        query: Query = db_session.query(SiteSQL)
+        sites: List[SiteSQL] = query.all()
+
+        generations = get_pv_generation_by_sites(
+            session=db_session, site_uuids=[site.site_uuid for site in sites], sum_by="total"
+        )
+
+        assert len(generations) == 10
+        assert generations[0].power_kw == 4
+        assert generations[1].power_kw == 8
+        assert (generations[2].start_utc - generations[1].start_utc).seconds == 60
+
+    def test_gets_generation_for_multiple_sum_gsp(self, generations, db_session):
+        query: Query = db_session.query(SiteSQL)
+        sites: List[SiteSQL] = query.all()
+
+        generations = get_pv_generation_by_sites(
+            session=db_session, site_uuids=[site.site_uuid for site in sites], sum_by="gsp"
+        )
+        assert len(generations) == 10 * len(sites)
+
+    def test_gets_generation_for_multiple_sum_dno(self, generations, db_session):
+        query: Query = db_session.query(SiteSQL)
+        sites: List[SiteSQL] = query.all()
+
+        generations = get_pv_generation_by_sites(
+            session=db_session, site_uuids=[site.site_uuid for site in sites], sum_by="dno"
+        )
+        assert len(generations) == 10 * len(sites)
 
 
 class TestGetLatestStatus:

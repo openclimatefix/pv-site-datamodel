@@ -40,6 +40,9 @@ def get_site_by_client_site_id(session: Session, client_name: str, client_site_i
     # start main query
     query = session.query(SiteSQL)
 
+    # start main query
+    query = query.filter(SiteSQL.client_site_name == client_name)
+
     # select the correct client site id
     query = query.filter(SiteSQL.client_site_id == client_site_id)
 
