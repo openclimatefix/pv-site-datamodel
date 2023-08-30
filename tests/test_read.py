@@ -205,7 +205,7 @@ class TestGetPVGenerationBySites:
         query: Query = db_session.query(SiteSQL)
         sites: List[SiteSQL] = query.all()
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError):  # noqa
             _ = get_pv_generation_by_sites(
                 session=db_session, site_uuids=[site.site_uuid for site in sites], sum_by="blah"
             )
@@ -309,7 +309,7 @@ def test_get_latest_forecast_values(db_session, sites):
     )
     assert len(latest_forecast) == 3 + 1  # 3 from site 1, 1 from site 2
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError):  # noqa
         _ = get_latest_forecast_values_by_site(
             session=db_session, site_uuids=site_uuids, start_utc=d2, sum_by="bla"
         )
