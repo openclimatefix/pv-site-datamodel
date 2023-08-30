@@ -201,6 +201,15 @@ class TestGetPVGenerationBySites:
         )
         assert len(generations) == 10 * len(sites)
 
+    def test_gets_generation_for_multiple_sum_error(self, generations, db_session):
+        query: Query = db_session.query(SiteSQL)
+        sites: List[SiteSQL] = query.all()
+
+        with pytest.raises(ValueError):
+            _ = get_pv_generation_by_sites(
+                session=db_session, site_uuids=[site.site_uuid for site in sites], sum_by="blah"
+            )
+
 
 class TestGetLatestStatus:
     """Tests for the get_latest_status function."""
@@ -299,6 +308,11 @@ def test_get_latest_forecast_values(db_session, sites):
         session=db_session, site_uuids=site_uuids, start_utc=d2, sum_by="gsp"
     )
     assert len(latest_forecast) == 3 + 1  # 3 from site 1, 1 from site 2
+
+    with pytest.raises(ValueError):
+        _ = get_latest_forecast_values_by_site(
+            session=db_session, site_uuids=site_uuids, start_utc=d2, sum_by="bla"
+        )
 
 
 def test_get_site_group_by_name(db_session):
