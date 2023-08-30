@@ -2,13 +2,13 @@
 
 import datetime as dt
 import uuid
-from typing import Optional, List, Union
+from typing import List, Optional, Union
 
-from sqlalchemy.orm import Session
 from sqlalchemy import func
+from sqlalchemy.orm import Session
 
-from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, SiteSQL
 from pvsite_datamodel.pydantic_models import ForecastValueSum
+from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, SiteSQL
 
 
 def get_latest_forecast_values_by_site(

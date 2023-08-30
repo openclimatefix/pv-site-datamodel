@@ -4,8 +4,8 @@ import uuid
 from datetime import datetime
 from typing import List, Optional, Union
 
-from sqlalchemy.orm import Session, contains_eager
 from sqlalchemy import func
+from sqlalchemy.orm import Session, contains_eager
 
 from pvsite_datamodel.pydantic_models import GenerationSum
 from pvsite_datamodel.sqlmodels import (
@@ -111,7 +111,6 @@ def get_pv_generation_by_sites(
         # get all results
         generations: List[GenerationSQL] = query.all()
     else:
-
         subquery = query.subquery()
 
         group_by_variables = [subquery.c.start_utc]

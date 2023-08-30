@@ -1,7 +1,7 @@
 """Pytest fixtures for tests."""
 import datetime as dt
-import uuid
 import json
+import uuid
 from typing import List
 
 import pytest
