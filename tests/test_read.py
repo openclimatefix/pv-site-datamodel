@@ -285,6 +285,21 @@ def test_get_latest_forecast_values(db_session, sites):
 
         assert values_as_tuple == expected[site_uuid]
 
+    latest_forecast = get_latest_forecast_values_by_site(
+        session=db_session, site_uuids=site_uuids, start_utc=d1, sum_by="total"
+    )
+    assert len(latest_forecast) == 4
+
+    latest_forecast = get_latest_forecast_values_by_site(
+        session=db_session, site_uuids=site_uuids, start_utc=d1, sum_by="dno"
+    )
+    assert len(latest_forecast) == 4 + 2  # 4 from site 1, 2 from site 2
+
+    latest_forecast = get_latest_forecast_values_by_site(
+        session=db_session, site_uuids=site_uuids, start_utc=d2, sum_by="gsp"
+    )
+    assert len(latest_forecast) == 3 + 1  # 3 from site 1, 1 from site 2
+
 
 def test_get_site_group_by_name(db_session):
     site_group = SiteGroupSQL(site_group_name="test")

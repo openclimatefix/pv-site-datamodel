@@ -7,6 +7,7 @@ from typing import List, Optional, Union
 from sqlalchemy.orm import Session, contains_eager
 from sqlalchemy import func
 
+from pvsite_datamodel.pydantic_models import GenerationSum
 from pvsite_datamodel.sqlmodels import (
     GenerationSQL,
     SiteGroupSiteSQL,
@@ -14,18 +15,8 @@ from pvsite_datamodel.sqlmodels import (
     SiteSQL,
     UserSQL,
 )
-from pydantic import BaseModel
-from pydantic import Field
 
 logger = logging.getLogger(__name__)
-
-
-class GenerationSum(BaseModel):
-    """Sum of generation."""
-
-    power_kw: float = Field(..., description="Summed power in kW")
-    start_utc: datetime = Field(..., description="Start datetime of this power")
-    name: str = Field(..., description="Name of item sums. ")
 
 
 def get_pv_generation_by_user_uuids(
@@ -87,6 +78,7 @@ def get_pv_generation_by_sites(
     :param start_utc: search filters >= on 'datetime_utc'
     :param end_utc: search fileters < on 'datetime_utc'
     :param site_uuids: optional list of site uuids
+    :param sum_by: optional string to sum by. Must be one of ['total', 'dno', 'gsp']
     :return: list of pv yields
     """
 
