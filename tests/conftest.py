@@ -1,5 +1,6 @@
 """Pytest fixtures for tests."""
 import datetime as dt
+import json
 import uuid
 from typing import List
 
@@ -60,11 +61,16 @@ def sites(db_session):
             module_capacity_kw=4.3,
             created_utc=dt.datetime.now(dt.timezone.utc),
             ml_id=i,
+            dno=json.dumps({"dno_id": str(i), "name": "unknown", "long_name": "unknown"}),
+            gsp=json.dumps({"gsp_id": str(i), "name": "unknown"}),
         )
         db_session.add(site)
         db_session.commit()
 
         sites.append(site)
+
+    # make sure they are in order
+    sites = db_session.query(SiteSQL).order_by(SiteSQL.site_uuid).all()
 
     return sites
 
@@ -72,14 +78,15 @@ def sites(db_session):
 @pytest.fixture()
 def generations(db_session, sites):
     """Create some fake generations."""
-    start_times = [dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)]
+    now = dt.datetime.now(dt.timezone.utc)
+    start_times = [now - dt.timedelta(minutes=x) for x in range(10)]
 
     all_generations = []
     for site in sites:
         for i in range(0, 10):
             generation = GenerationSQL(
                 site_uuid=site.site_uuid,
-                generation_power_kw=i,
+                generation_power_kw=10 - i,
                 start_utc=start_times[i],
                 end_utc=start_times[i] + dt.timedelta(minutes=5),
             )
