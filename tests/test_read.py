@@ -333,6 +333,11 @@ def test_get_site_group_by_name_new_group(db_session):
     assert len(db_session.query(SiteGroupSQL).all()) == 1
 
 
+def test_get_site_from_user(db_session, user_with_sites):
+    sites = get_sites_from_user(session=db_session, user=user_with_sites)
+    assert len(sites) > 0
+
+
 def test_get_site_list_max(db_session, user_with_sites):
     # examples sites are at 51,3
     lat_lon = LatitudeLongitudeLimits(latitude_max=50, longitude_max=4)
