@@ -15,6 +15,7 @@ from pvsite_datamodel import (
     StatusSQL,
     UserSQL,
 )
+from pvsite_datamodel.pydantic_models import LatitudeLongitudeLimits
 from pvsite_datamodel.read import (
     get_all_sites,
     get_latest_forecast_values_by_site,
@@ -25,6 +26,7 @@ from pvsite_datamodel.read import (
     get_site_by_client_site_name,
     get_site_by_uuid,
     get_site_group_by_name,
+    get_sites_from_user,
     get_user_by_email,
 )
 from pvsite_datamodel.write.user_and_site import make_site_group, make_user
@@ -329,3 +331,33 @@ def test_get_site_group_by_name_new_group(db_session):
     _ = get_site_group_by_name(db_session, "test")
 
     assert len(db_session.query(SiteGroupSQL).all()) == 1
+
+
+def test_get_site_list_max(db_session, user_with_sites):
+    # examples sites are at 51,3
+    lat_lon = LatitudeLongitudeLimits(latitude_max=50, longitude_max=4)
+    sites = get_sites_from_user(session=db_session, user=user_with_sites, lat_lon_limits=lat_lon)
+    assert len(sites) == 0
+
+    lat_lon = LatitudeLongitudeLimits(latitude_max=52, longitude_max=2)
+    sites = get_sites_from_user(session=db_session, user=user_with_sites, lat_lon_limits=lat_lon)
+    assert len(sites) == 0
+
+    lat_lon = LatitudeLongitudeLimits(latitude_max=52, longitude_max=4)
+    sites = get_sites_from_user(session=db_session, user=user_with_sites, lat_lon_limits=lat_lon)
+    assert len(sites) > 0
+
+
+def test_get_site_list_min(db_session, user_with_sites):
+    # examples sites are at 51,3
+    lat_lon = LatitudeLongitudeLimits(latitude_min=52, longitude_min=2)
+    sites = get_sites_from_user(session=db_session, user=user_with_sites, lat_lon_limits=lat_lon)
+    assert len(sites) == 0
+
+    lat_lon = LatitudeLongitudeLimits(latitude_min=50, longitude_min=4)
+    sites = get_sites_from_user(session=db_session, user=user_with_sites, lat_lon_limits=lat_lon)
+    assert len(sites) == 0
+
+    lat_lon = LatitudeLongitudeLimits(latitude_min=50, longitude_min=2)
+    sites = get_sites_from_user(session=db_session, user=user_with_sites, lat_lon_limits=lat_lon)
+    assert len(sites) > 0
