@@ -25,11 +25,12 @@ tests: # External tests package
 ### Top-level functions
 
 Classes specifying table schemas:
-- SiteSQL
+- APIRequestSQL
 - GenerationSQL
 - ForecastSQL
 - ForecastValueSQL
 - UserSQL
+- SiteSQL
 - SiteGroupSQL
 - StatusSQL
 
