@@ -41,6 +41,7 @@ class UserSQL(Base, CreatedMixin):
 
     # Relationships
     site_group: "SiteGroupSQL" = relationship("SiteGroupSQL", back_populates="users")
+    api_request = relationship("APIRequestSQL", back_populates="user")
 
 
 class SiteGroupSQL(Base, CreatedMixin):
