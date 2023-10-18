@@ -3,6 +3,8 @@ import logging
 
 from sqlalchemy.orm import Session
 
+from typing import List
+
 from pvsite_datamodel.sqlmodels import SiteGroupSQL, UserSQL
 
 logger = logging.getLogger(__name__)
@@ -34,6 +36,19 @@ def get_user_by_email(session: Session, email: str):
 
     return user
 
+# get all users
+def get_all_users(session: Session) -> List[UserSQL]:
+    """Get all users from the database.
+    :param session: database session
+    """
+    query = session.query(UserSQL)
+
+    query = query.order_by(UserSQL.email.asc())
+
+    users = query.all()
+
+    return users
+
 
 def get_site_group_by_name(session: Session, site_group_name: str):
     """
@@ -57,3 +72,17 @@ def get_site_group_by_name(session: Session, site_group_name: str):
         session.commit()
 
     return site_group
+
+
+# get all site groups
+def get_all_site_groups(session: Session) -> List[SiteGroupSQL]:
+    """Get all users from the database.
+    :param session: database session
+    """
+    query = session.query(SiteGroupSQL)
+
+    query = query.order_by(SiteGroupSQL.site_group_name.asc())
+
+    site_groups = query.all()
+
+    return site_groups
