@@ -36,6 +36,7 @@ def get_user_by_email(session: Session, email: str):
 
     return user
 
+
 # get all users
 def get_all_users(session: Session) -> List[UserSQL]:
     """Get all users from the database.
@@ -76,7 +77,7 @@ def get_site_group_by_name(session: Session, site_group_name: str):
 
 # get all site groups
 def get_all_site_groups(session: Session) -> List[SiteGroupSQL]:
-    """Get all users from the database.
+    """Get all site groups from the database.
     :param session: database session
     """
     query = session.query(SiteGroupSQL)
