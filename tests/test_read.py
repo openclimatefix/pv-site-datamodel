@@ -26,6 +26,8 @@ from pvsite_datamodel.read import (
     get_site_by_uuid,
     get_site_group_by_name,
     get_user_by_email,
+    get_all_users,
+    get_all_site_groups,
 )
 from pvsite_datamodel.write.user_and_site import make_site_group, make_user
 
@@ -265,3 +267,15 @@ def test_get_site_group_by_name_new_group(db_session):
     _ = get_site_group_by_name(db_session, "test")
 
     assert len(db_session.query(SiteGroupSQL).all()) == 1
+
+
+def test_get_all_users(db_session):
+    users = get_all_users(session=db_session)
+    # assert
+    assert len(users) == 0
+
+
+def test_get_all_site_groups(db_session):
+    site_groups = get_all_site_groups(session=db_session)
+    # assert
+    assert len(site_groups) == 0
