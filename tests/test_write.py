@@ -7,11 +7,14 @@ from sqlalchemy.orm import Session
 
 from pvsite_datamodel.sqlmodels import GenerationSQL
 from pvsite_datamodel.write.generation import insert_generation_values
+from pvsite_datamodel.read.user import get_user_by_email
 from pvsite_datamodel.write.user_and_site import (
     add_site_to_site_group,
     create_user,
     make_site_group,
+    change_user_site_group,
     make_site,
+    make_user,
 )
 
 
@@ -133,3 +136,24 @@ def test_add_site_to_site_group(db_session):
     )
 
     assert len(site_group.sites) == 3
+
+
+# test change user site group
+def test_change_user_site_group(db_session):
+    """Test the change user site group function
+    :param db_session: the database session"""
+    site_group = make_site_group(db_session=db_session)
+    user = make_user(
+        db_session=db_session, email="test_user@gmail.com", site_group=site_group
+    )
+    site_group2 = make_site_group(
+        db_session=db_session, site_group_name="test_site_group2"
+    )
+    user, user_site_group = change_user_site_group(
+        session=db_session,
+        email="test_user@gmail.com",
+        site_group_name=site_group2.site_group_name,
+    )
+
+    assert user_site_group == site_group2.site_group_name
+    assert user == "test_user@gmail.com"
