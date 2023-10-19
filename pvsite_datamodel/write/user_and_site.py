@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 import sqlalchemy as sa
 from sqlalchemy.sql import func
 from pvsite_datamodel.sqlmodels import SiteGroupSQL, SiteSQL, UserSQL, ForecastValueSQL, ForecastSQL
+from pvsite_datamodel.read import get_user_by_email
 from sqlalchemy.orm.session import Session
 from typing import Optional
 
@@ -53,91 +54,7 @@ def make_user(db_session, email, site_group):
 
     return user
 
-# # create functions for site and user
-# def create_new_site(
-#     session: Session,
-#     client_site_id: int,
-#     client_site_name: str,
-#     latitude: float,
-#     longitude: float,
-#     capacity_kw: float,
-#     dno: Optional[str] = None,
-#     gsp: Optional[str] = None,
-#     region: Optional[str] = None,
-#     orientation: Optional[float] = None,
-#     tilt: Optional[float] = None,
-#     inverter_capacity_kw: Optional[float] = None,
-#     module_capacity_kw: Optional[float] = None,
-# ) -> SiteSQL:
-#     """Creates a site and adds it to the database.
-#     This is used in the OCF Dashboard.
-#     :param session: database session
-#     :param client_site_id: id the client uses for the site
-#     :param client_site_name: name the client uses for the site
-#     :param latitude: latitude of site as an integer
-#     :param longitude: longitude of site as an integer
-#     :param capacity_kw: capacity of site in kw
-#     :param dno: dno of site
-#     :param gsp: gsp of site
-#     :param region: region of site, deafut is uk
-#     :param orientation: orientation of site, default is 180
-#     :param tilt: tilt of site, default is 35
-#     :param inverter_capacity_kw: inverter capacity of site in kw
-#     :param module_capacity_kw: module capacity of site in kw
-
-#     """
-#     max_ml_id = session.query(func.max(SiteSQL.ml_id)).scalar()
-
-#     if max_ml_id is None:
-#         max_ml_id = 0
-
-#     if region in [None, ""]:
-#         region = "uk"
-
-#     if orientation in [None, ""]:
-#         orientation = 180
-
-#     if tilt in [None, ""]:
-#         tilt = 35
-
-#     if inverter_capacity_kw in [None, ""]:
-#         inverter_capacity_kw = capacity_kw
-
-#     if module_capacity_kw in [None, ""]:
-#         module_capacity_kw = capacity_kw
-
-#     if gsp is None:
-#         gsp = get_gsp(latitude=latitude, longitude=longitude)
-#         gsp = json.dumps(gsp)
-
-#     if dno is None:
-#         dno = get_dno(latitude=latitude, longitude=longitude)
-#         dno = json.dumps(dno)
-
-#     site = SiteSQL(
-#         ml_id=max_ml_id + 1,
-#         client_site_id=client_site_id,
-#         client_site_name=client_site_name,
-#         latitude=latitude,
-#         longitude=longitude,
-#         capacity_kw=capacity_kw,
-#         dno=dno,
-#         gsp=gsp,
-#         region=region,
-#         orientation=orientation,
-#         tilt=tilt,
-#         inverter_capacity_kw=inverter_capacity_kw,
-#         module_capacity_kw=module_capacity_kw,
-#     )
-
-#     session.add(site)
-
-#     session.commit()
-
-#     message = f"Site with client site id {site.client_site_id} and site uuid {site.site_uuid} created successfully"
-
-#     return site, message
-
+#TODO move create_new site_function here. For the moment, data folder in ocf-dashboard has code this function depends on and this should probably be done in an new issue 
 
 def create_user(
     session: Session,
@@ -163,6 +80,67 @@ def create_user(
     session.commit()
 
     return user
+
+#update functions for site and site group
+def add_site_to_site_group(
+    session: Session, site_uuid: str, site_group_name: str
+) -> SiteGroupSQL:
+    """Add a site to a site group. 
+    NB: Sites can belong to many site groups.
+    :param session: database session
+    :param site_uuid: uuid of site
+    :param site_group_name: name of site group
+    """
+    site_group = (
+        session.query(SiteGroupSQL)
+        .filter(SiteGroupSQL.site_group_name == site_group_name)
+        .first()
+    )
+
+    site = session.query(SiteSQL).filter(SiteSQL.site_uuid == site_uuid).one()
+
+    if site not in site_group.sites:
+        site_group.sites.append(site)
+
+    session.commit()
+
+    return site_group.sites
+
+# change site group for user
+def change_user_site_group(session, email: str, site_group_name: str):
+    """
+    Change user to a specific site group name
+    :param session: the database session
+    :param email: the email of the user"""
+    update_user_site_group(
+        session=session, email=email, site_group_name=site_group_name
+    )
+    user = get_user_by_email(session=session, email=email)
+    user_site_group = user.site_group.site_group_name
+    user = user.email
+    return user, user_site_group
+
+
+def update_user_site_group(
+    session: Session, email: str, site_group_name: str
+) -> UserSQL:
+    """Change site group for user.
+    :param session: database session
+    :param email: email of user
+    :param site_group_name: name of site group
+    """
+    site_group = (
+        session.query(SiteGroupSQL)
+        .filter(SiteGroupSQL.site_group_name == site_group_name)
+        .first()
+    )
+
+    user = session.query(UserSQL).filter(UserSQL.email == email)
+
+    user = user.update({"site_group_uuid": site_group.site_group_uuid})
+
+    session.commit()
+
 
 # delete functions for site, user, and site group
 def delete_site(session: Session, site_uuid: str) -> SiteGroupSQL:
