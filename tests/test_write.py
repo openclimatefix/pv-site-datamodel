@@ -7,7 +7,13 @@ from sqlalchemy.orm import Session
 
 from pvsite_datamodel.sqlmodels import GenerationSQL
 from pvsite_datamodel.write.generation import insert_generation_values
-from pvsite_datamodel.write.user_and_site import (create_user, make_site_group)
+from pvsite_datamodel.write.user_and_site import (
+    add_site_to_site_group,
+    create_user,
+    make_site_group,
+    make_site,
+)
+
 
 class TestInsertGenerationValues:
     """Tests for the insert_generation_values function."""
@@ -109,3 +115,21 @@ def test_create_user(db_session):
     assert user_1.email == "test_user@test.org"
     assert user_1.site_group.site_group_name == "test_site_group"
     assert user_1.site_group_uuid == site_group_1.site_group_uuid
+
+
+# add site to site group
+def test_add_site_to_site_group(db_session):
+    site_group = make_site_group(db_session=db_session)
+    site_1 = make_site(db_session=db_session, ml_id=1)
+    site_2 = make_site(db_session=db_session, ml_id=2)
+    site_3 = make_site(db_session=db_session, ml_id=3)
+    site_group.sites.append(site_1)
+    site_group.sites.append(site_2)
+
+    add_site_to_site_group(
+        session=db_session,
+        site_uuid=str(site_3.site_uuid),
+        site_group_name=site_group.site_group_name,
+    )
+
+    assert len(site_group.sites) == 3
