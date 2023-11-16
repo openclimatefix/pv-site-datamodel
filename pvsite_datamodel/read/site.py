@@ -5,7 +5,8 @@ from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
-from pvsite_datamodel.sqlmodels import SiteSQL
+from pvsite_datamodel.pydantic_models import LatitudeLongitudeLimits
+from pvsite_datamodel.sqlmodels import SiteGroupSiteSQL, SiteGroupSQL, SiteSQL, UserSQL
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +40,9 @@ def get_site_by_client_site_id(session: Session, client_name: str, client_site_i
 
     # start main query
     query = session.query(SiteSQL)
+
+    # start main query
+    query = query.filter(SiteSQL.client_site_name == client_name)
 
     # select the correct client site id
     query = query.filter(SiteSQL.client_site_id == client_site_id)
@@ -98,4 +102,35 @@ def get_all_sites(session: Session) -> List[SiteSQL]:
 
     logger.debug(f"Found {len(sites)} sites")
 
+    return sites
+
+
+def get_sites_from_user(session, user, lat_lon_limits: Optional[LatitudeLongitudeLimits] = None):
+    """
+    Get the sites for a user.
+
+    Option to filter on latitude longitude max and min
+    """
+
+    # get sites and filter if required
+    if lat_lon_limits is not None:
+        # make query
+        query = session.query(SiteSQL)
+
+        # join to Usersql through site groups
+        query = query.join(SiteGroupSiteSQL)
+        query = query.join(SiteGroupSQL)
+        query = query.join(UserSQL)
+
+        # filter on user on lat lon limits
+        query = query.filter(SiteSQL.latitude <= lat_lon_limits.latitude_max)
+        query = query.filter(SiteSQL.latitude >= lat_lon_limits.latitude_min)
+        query = query.filter(SiteSQL.longitude <= lat_lon_limits.longitude_max)
+        query = query.filter(SiteSQL.longitude >= lat_lon_limits.longitude_min)
+
+        # query db
+        sites = query.all()
+
+    else:
+        sites = user.site_group.sites
     return sites

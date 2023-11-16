@@ -2,17 +2,21 @@
 
 import datetime as dt
 import uuid
+from typing import List, Optional, Union
 
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL
+from pvsite_datamodel.pydantic_models import ForecastValueSum
+from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, SiteSQL
 
 
 def get_latest_forecast_values_by_site(
     session: Session,
     site_uuids: list[uuid.UUID],
     start_utc: dt.datetime,
-) -> dict[uuid.UUID, list[ForecastValueSQL]]:
+    sum_by: Optional[str] = None,
+) -> Union[dict[uuid.UUID, list[ForecastValueSQL]], List[ForecastValueSum]]:
     """Get the forecast values by input sites, get the latest value.
 
     Return the forecasts after a given date, but keeping only the latest for a given timestamp.
@@ -36,7 +40,12 @@ def get_latest_forecast_values_by_site(
     :param session: The sqlalchemy database session
     :param site_uuids: list of site_uuids for which to fetch latest forecast values
     :param start_utc: filters on forecast values target_time >= start_utc
+    :param sum_by: optional, sum the forecast values by this column
     """
+
+    if sum_by not in ["total", "dno", "gsp", None]:
+        raise ValueError(f"sum_by must be one of ['total', 'dno', 'gsp'], not {sum_by}")
+
     query = (
         session.query(ForecastValueSQL)
         .distinct(
@@ -55,16 +64,48 @@ def get_latest_forecast_values_by_site(
         )
     )
 
-    # query results
-    forecast_values = query.all()
+    if sum_by is None:
+        # query results
+        forecast_values = query.all()
 
-    output_dict: dict[uuid.UUID, list[ForecastValueSQL]] = {}
+        output_dict: dict[uuid.UUID, list[ForecastValueSQL]] = {}
 
-    for site_uuid in site_uuids:
-        site_latest_forecast_values: list[ForecastValueSQL] = [
-            fv for fv in forecast_values if fv.forecast.site_uuid == site_uuid
-        ]
+        for site_uuid in site_uuids:
+            site_latest_forecast_values: list[ForecastValueSQL] = [
+                fv for fv in forecast_values if fv.forecast.site_uuid == site_uuid
+            ]
 
-        output_dict[site_uuid] = site_latest_forecast_values
+            output_dict[site_uuid] = site_latest_forecast_values
 
-    return output_dict
+        return output_dict
+    else:
+        subquery = query.subquery()
+
+        group_by_variables = [subquery.c.start_utc]
+        if sum_by == "dno":
+            group_by_variables.append(SiteSQL.dno)
+        if sum_by == "gsp":
+            group_by_variables.append(SiteSQL.gsp)
+        query_variables = group_by_variables.copy()
+        query_variables.append(func.sum(subquery.c.forecast_power_kw))
+
+        query = session.query(*query_variables)
+        query = query.join(ForecastSQL, ForecastSQL.forecast_uuid == subquery.c.forecast_uuid)
+        query = query.join(SiteSQL)
+        query = query.group_by(*group_by_variables)
+        query = query.order_by(*group_by_variables)
+        forecasts_raw = query.all()
+
+        forecasts: List[ForecastValueSum] = []
+        for forecast_raw in forecasts_raw:
+            if len(forecast_raw) == 2:
+                generation = ForecastValueSum(
+                    start_utc=forecast_raw[0], power_kw=forecast_raw[1], name="total"
+                )
+            else:
+                generation = ForecastValueSum(
+                    start_utc=forecast_raw[0], power_kw=forecast_raw[2], name=forecast_raw[1]
+                )
+            forecasts.append(generation)
+
+    return forecasts

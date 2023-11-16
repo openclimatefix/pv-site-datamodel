@@ -15,6 +15,7 @@ from pvsite_datamodel import (
     StatusSQL,
     UserSQL,
 )
+from pvsite_datamodel.pydantic_models import LatitudeLongitudeLimits
 from pvsite_datamodel.read import (
     get_all_sites,
     get_latest_forecast_values_by_site,
@@ -25,6 +26,7 @@ from pvsite_datamodel.read import (
     get_site_by_client_site_name,
     get_site_by_uuid,
     get_site_group_by_name,
+    get_sites_from_user,
     get_user_by_email,
     get_all_users,
     get_all_site_groups,
@@ -68,14 +70,18 @@ class TestGetSiteByUUID:
 
     def test_get_site_by_client_site_id(self, sites, db_session):
         site = get_site_by_client_site_id(
-            session=db_session, client_name="test_client", client_site_id=1
+            session=db_session,
+            client_name=sites[0].client_site_name,
+            client_site_id=sites[0].client_site_id,
         )
 
         assert site == sites[0]
 
     def test_get_site_by_client_site_name(self, sites, db_session):
         site = get_site_by_client_site_name(
-            session=db_session, client_name="test_client", client_site_name="test_site_0"
+            session=db_session,
+            client_name="test_client",
+            client_site_name=sites[0].client_site_name,
         )
 
         assert site == sites[0]
@@ -168,6 +174,46 @@ class TestGetPVGenerationBySites:
 
         assert len(generations) == 0
 
+    def test_gets_generation_for_multiple_sum_total(self, generations, db_session):
+        query: Query = db_session.query(SiteSQL)
+        sites: List[SiteSQL] = query.all()
+
+        generations = get_pv_generation_by_sites(
+            session=db_session, site_uuids=[site.site_uuid for site in sites], sum_by="total"
+        )
+
+        assert len(generations) == 10
+        assert generations[0].power_kw == 4
+        assert generations[1].power_kw == 8
+        assert (generations[2].start_utc - generations[1].start_utc).seconds == 60
+
+    def test_gets_generation_for_multiple_sum_gsp(self, generations, db_session):
+        query: Query = db_session.query(SiteSQL)
+        sites: List[SiteSQL] = query.all()
+
+        generations = get_pv_generation_by_sites(
+            session=db_session, site_uuids=[site.site_uuid for site in sites], sum_by="gsp"
+        )
+        assert len(generations) == 10 * len(sites)
+
+    def test_gets_generation_for_multiple_sum_dno(self, generations, db_session):
+        query: Query = db_session.query(SiteSQL)
+        sites: List[SiteSQL] = query.all()
+
+        generations = get_pv_generation_by_sites(
+            session=db_session, site_uuids=[site.site_uuid for site in sites], sum_by="dno"
+        )
+        assert len(generations) == 10 * len(sites)
+
+    def test_gets_generation_for_multiple_sum_error(self, generations, db_session):
+        query: Query = db_session.query(SiteSQL)
+        sites: List[SiteSQL] = query.all()
+
+        with pytest.raises(ValueError):  # noqa
+            _ = get_pv_generation_by_sites(
+                session=db_session, site_uuids=[site.site_uuid for site in sites], sum_by="blah"
+            )
+
 
 class TestGetLatestStatus:
     """Tests for the get_latest_status function."""
@@ -252,6 +298,26 @@ def test_get_latest_forecast_values(db_session, sites):
 
         assert values_as_tuple == expected[site_uuid]
 
+    latest_forecast = get_latest_forecast_values_by_site(
+        session=db_session, site_uuids=site_uuids, start_utc=d1, sum_by="total"
+    )
+    assert len(latest_forecast) == 4
+
+    latest_forecast = get_latest_forecast_values_by_site(
+        session=db_session, site_uuids=site_uuids, start_utc=d1, sum_by="dno"
+    )
+    assert len(latest_forecast) == 4 + 2  # 4 from site 1, 2 from site 2
+
+    latest_forecast = get_latest_forecast_values_by_site(
+        session=db_session, site_uuids=site_uuids, start_utc=d2, sum_by="gsp"
+    )
+    assert len(latest_forecast) == 3 + 1  # 3 from site 1, 1 from site 2
+
+    with pytest.raises(ValueError):  # noqa
+        _ = get_latest_forecast_values_by_site(
+            session=db_session, site_uuids=site_uuids, start_utc=d2, sum_by="bla"
+        )
+
 
 def test_get_site_group_by_name(db_session):
     site_group = SiteGroupSQL(site_group_name="test")
@@ -279,3 +345,39 @@ def test_get_all_site_groups(db_session):
     site_groups = get_all_site_groups(session=db_session)
     # assert
     assert len(site_groups) == 0
+
+    
+def test_get_site_from_user(db_session, user_with_sites):
+    sites = get_sites_from_user(session=db_session, user=user_with_sites)
+    assert len(sites) > 0
+
+
+def test_get_site_list_max(db_session, user_with_sites):
+    # examples sites are at 51,3
+    lat_lon = LatitudeLongitudeLimits(latitude_max=50, longitude_max=4)
+    sites = get_sites_from_user(session=db_session, user=user_with_sites, lat_lon_limits=lat_lon)
+    assert len(sites) == 0
+
+    lat_lon = LatitudeLongitudeLimits(latitude_max=52, longitude_max=2)
+    sites = get_sites_from_user(session=db_session, user=user_with_sites, lat_lon_limits=lat_lon)
+    assert len(sites) == 0
+
+    lat_lon = LatitudeLongitudeLimits(latitude_max=52, longitude_max=4)
+    sites = get_sites_from_user(session=db_session, user=user_with_sites, lat_lon_limits=lat_lon)
+    assert len(sites) > 0
+
+
+def test_get_site_list_min(db_session, user_with_sites):
+    # examples sites are at 51,3
+    lat_lon = LatitudeLongitudeLimits(latitude_min=52, longitude_min=2)
+    sites = get_sites_from_user(session=db_session, user=user_with_sites, lat_lon_limits=lat_lon)
+    assert len(sites) == 0
+
+    lat_lon = LatitudeLongitudeLimits(latitude_min=50, longitude_min=4)
+    sites = get_sites_from_user(session=db_session, user=user_with_sites, lat_lon_limits=lat_lon)
+    assert len(sites) == 0
+
+    lat_lon = LatitudeLongitudeLimits(latitude_min=50, longitude_min=2)
+    sites = get_sites_from_user(session=db_session, user=user_with_sites, lat_lon_limits=lat_lon)
+    assert len(sites) > 0
+

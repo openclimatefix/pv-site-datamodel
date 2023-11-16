@@ -41,6 +41,7 @@ class UserSQL(Base, CreatedMixin):
 
     # Relationships
     site_group: "SiteGroupSQL" = relationship("SiteGroupSQL", back_populates="users")
+    api_request = relationship("APIRequestSQL", back_populates="user")
 
 
 class SiteGroupSQL(Base, CreatedMixin):
@@ -335,3 +336,15 @@ class InverterSQL(Base, CreatedMixin):
     )
 
     site: SiteSQL = relationship("SiteSQL", back_populates="inverters")
+
+
+class APIRequestSQL(Base, CreatedMixin):
+    """Information about what API route was called."""
+
+    __tablename__ = "api_request"
+
+    uuid = sa.Column(UUID, primary_key=True, server_default=sa.func.gen_random_uuid())
+    url = sa.Column(sa.String)
+
+    user_uuid = sa.Column(UUID, sa.ForeignKey("users.user_uuid"), index=True)
+    user = relationship("UserSQL", back_populates="api_request")

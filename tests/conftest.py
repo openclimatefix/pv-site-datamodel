@@ -1,5 +1,6 @@
 """Pytest fixtures for tests."""
 import datetime as dt
+import json
 import uuid
 from typing import List
 
@@ -10,6 +11,7 @@ from testcontainers.postgres import PostgresContainer
 
 from pvsite_datamodel import GenerationSQL, SiteSQL, StatusSQL
 from pvsite_datamodel.sqlmodels import Base
+from pvsite_datamodel.write.user_and_site import make_site_group, make_user
 
 
 @pytest.fixture(scope="session")
@@ -60,26 +62,43 @@ def sites(db_session):
             module_capacity_kw=4.3,
             created_utc=dt.datetime.now(dt.timezone.utc),
             ml_id=i,
+            dno=json.dumps({"dno_id": str(i), "name": "unknown", "long_name": "unknown"}),
+            gsp=json.dumps({"gsp_id": str(i), "name": "unknown"}),
         )
         db_session.add(site)
         db_session.commit()
 
         sites.append(site)
 
+    # make sure they are in order
+    sites = db_session.query(SiteSQL).order_by(SiteSQL.site_uuid).all()
+
     return sites
+
+
+@pytest.fixture()
+def user_with_sites(db_session, sites):
+    """Create a user with sites"""
+
+    site_group = make_site_group(db_session=db_session)
+    user = make_user(db_session=db_session, email="test_user@gmail.com", site_group=site_group)
+
+    site_group.sites = sites
+    return user
 
 
 @pytest.fixture()
 def generations(db_session, sites):
     """Create some fake generations."""
-    start_times = [dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)]
+    now = dt.datetime.now(dt.timezone.utc)
+    start_times = [now - dt.timedelta(minutes=x) for x in range(10)]
 
     all_generations = []
     for site in sites:
         for i in range(0, 10):
             generation = GenerationSQL(
                 site_uuid=site.site_uuid,
-                generation_power_kw=i,
+                generation_power_kw=10 - i,
                 start_utc=start_times[i],
                 end_utc=start_times[i] + dt.timedelta(minutes=5),
             )
