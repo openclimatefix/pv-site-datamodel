@@ -82,6 +82,78 @@ Lint the code
 
     make test
 
+## Multiple Clients
+
+We have the ability to have these different scenarios
+1. one user - can add or view one site
+2. one user, can add or view multiple sites
+3. Two users (for example from the sample company), want to look at one site
+4. Two users, wanting to look at multiple sites (could be added by another user). Any user from site group can add a site. 
+5. OCF user want to see everything (admin)
+
+### Solution
+```mermaid
+  graph TD;
+      User-- N:1 -->SiteGroup;
+      SiteGroup-- N:N -->Site;
+```
+- One `user` is in one `sitegroup`. Each site group can have multiple users. 
+- Each `sitegroup` contains multiple `sites`. One `site` can be in multiple `sitegroups`
+
+
+### 1. one user - one site
+
+```mermaid
+  graph TD;
+      A(User=Alice)-->B(SiteGroup=Alice1);
+      B --> C(Site);
+```
+
+### 2. one user - two sites
+
+```mermaid
+  graph TD;
+      A(User=Alice)-->B(SiteGroup=Alice1);
+      B --> C1(Site1);
+B --> C2(Site2);
+```
+
+### 3. Two users - one site
+
+```mermaid
+  graph TD;
+      A1(User=Alice)-->B(SiteGroup);
+A2(User=Bob)-->B(SiteGroup);
+      B --> C1(Site1);
+```
+
+### 4. Two users - two site
+
+```mermaid
+  graph TD;
+      A1(User=Alice)-->B(SiteGroup);
+A2(User=Bob)-->B(SiteGroup);
+      B --> C1(Site1);
+B --> C2(Site2);
+```
+
+### 5. OCF can see everything
+
+```mermaid
+  graph TD;
+      A1(User=Alice)-->B(SiteGroup1);
+A2(User=Bob)-->B(SiteGroup1);
+A3(User=OCF)-->B2(SiteGroup2);
+      B --> C1(Site1);
+B --> C2(Site2);
+      B2 --> C1(Site1);
+B2 --> C2(Site2);
+B2 --> C3(Site3);
+```
+
+
+
+
 
 ## Database migrations using alembic
 
