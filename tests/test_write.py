@@ -66,7 +66,7 @@ def test_create_new_site(db_session):
         client_site_id=6932,
         client_site_name="test_site_name",
         latitude=51.0,
-        longitude=1.0,
+        longitude=0.0,
         capacity_kw=1.0,
     )
 

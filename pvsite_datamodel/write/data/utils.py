@@ -49,23 +49,12 @@ class Transformers:
 
          Nice to only make these once, as it makes calling the functions below quicker
         """
-        self._osgb_to_lat_lon = pyproj.Transformer.from_crs(crs_from=OSGB, crs_to=WGS84)
         self._lat_lon_to_osgb = pyproj.Transformer.from_crs(crs_from=WGS84, crs_to=OSGB)
-
-    @property
-    def osgb_to_lat_lon(self):
-        """OSGB to lat-lon property."""
-        return self._osgb_to_lat_lon
 
     @property
     def lat_lon_to_osgb(self):
         """lat-lon to OSGB property."""
         return self._lat_lon_to_osgb
-
-    @property
-    def osgb_to_geostationary(self):
-        """Convert from OSGB to geostationary coordinates."""
-        return self._osgb_to_geostationary
 
 
 transformers = Transformers()
