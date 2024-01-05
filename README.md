@@ -57,6 +57,7 @@ Currently available functions accessible via `from pvsite_datamodel.read import 
 
 Currently available write functions accessible via `from pvsite_datamodels.write import <func>`:
 - insert_generation_values
+- create_site
 - create_site_group
 - create_user
 - add_site_to_site_group
