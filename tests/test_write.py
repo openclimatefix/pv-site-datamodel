@@ -18,6 +18,9 @@ from pvsite_datamodel.write.user_and_site import (
     make_fake_site,
 )
 
+from pvsite_datamodel.write.data.gsp import download_gsp
+from pvsite_datamodel.write.data.dno import download_dno
+
 
 class TestInsertGenerationValues:
     """Tests for the insert_generation_values function."""
@@ -65,7 +68,7 @@ def test_create_new_site(db_session):
         session=db_session,
         client_site_id=6932,
         client_site_name="test_site_name",
-        latitude=1.0,
+        latitude=51.0,
         longitude=1.0,
         capacity_kw=1.0,
     )
@@ -77,6 +80,14 @@ def test_create_new_site(db_session):
         message == f"Site with client site id {site.client_site_id} "
         f"and site uuid {site.site_uuid} created successfully"
     )
+
+
+def test_download_gsp():
+    download_gsp()
+
+
+def test_download_dno():
+    download_dno()
 
 
 # test for create_new_site to check ml_id increments

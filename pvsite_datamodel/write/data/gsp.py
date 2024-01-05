@@ -1,6 +1,7 @@
 """ GSP functions for UK regions. """
 import logging
 import os
+import ssl
 
 import geopandas as gpd
 import pandas as pd
@@ -24,6 +25,7 @@ def download_gsp():
         "https://data.nationalgrideso.com/backend/dataset/2810092e-d4b2-472f-b955-d8bea01f9ec0/"
         "resource/08534dae-5408-4e31-8639-b579c8f1c50b/download/gsp_regions_20220314.geojson"
     )
+    ssl._create_default_https_context = ssl._create_unverified_context
     gsp_shapes = gpd.read_file(url)
 
     logger.debug("Saving gsp file")
