@@ -6,6 +6,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from pvsite_datamodel.sqlmodels import GenerationSQL
+from pvsite_datamodel.write.data.dno import download_dno
+from pvsite_datamodel.write.data.gsp import download_gsp
 from pvsite_datamodel.write.generation import insert_generation_values
 
 # from pvsite_datamodel.read.user import get_user_by_email
@@ -17,9 +19,6 @@ from pvsite_datamodel.write.user_and_site import (
     create_user,
     make_fake_site,
 )
-
-from pvsite_datamodel.write.data.gsp import download_gsp
-from pvsite_datamodel.write.data.dno import download_dno
 
 
 class TestInsertGenerationValues:
