@@ -8,7 +8,7 @@ from pvsite_datamodel.read import get_user_by_email
 from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, SiteGroupSQL, SiteSQL, UserSQL
 
 
-def make_site(db_session, ml_id=1):
+def make_fake_site(db_session, ml_id=1):
     """Make a site.
 
     This is mainly used for testing purposes.
@@ -30,7 +30,7 @@ def make_site(db_session, ml_id=1):
     return site
 
 
-def make_site_group(db_session, site_group_name="test_site_group"):
+def create_site_group(db_session, site_group_name="test_site_group"):
     """Make a site group.
 
     This is mainly used for testing purposes.
@@ -43,17 +43,17 @@ def make_site_group(db_session, site_group_name="test_site_group"):
     return site_group
 
 
-def make_user(db_session, email, site_group):
-    """Make a user.
-
-    This is mainly used for testing purposes.
-    """
-    # create a user
-    user = UserSQL(email=email, site_group_uuid=site_group.site_group_uuid)
-    db_session.add(user)
-    db_session.commit()
-
-    return user
+# def make_user(db_session, email, site_group):
+#     """Make a user.
+#
+#     This is mainly used for testing purposes.
+#     """
+#     # create a user
+#     user = UserSQL(email=email, site_group_uuid=site_group.site_group_uuid)
+#     db_session.add(user)
+#     db_session.commit()
+#
+#     return user
 
 
 # TODO move create_new site_function here.
@@ -70,7 +70,7 @@ def create_user(
 
     :param session: database session
     :param email: email of user being created
-    :param site_group: name of the site group this user will be part of
+    :param site_group_name: name of the site group this user will be part of
     """
 
     site_group = (
@@ -116,6 +116,7 @@ def change_user_site_group(session, email: str, site_group_name: str):
 
     :param session: the database session
     :param email: the email of the user
+    :param site_group_name: the name of the site group
     """
     update_user_site_group(session=session, email=email, site_group_name=site_group_name)
     user = get_user_by_email(session=session, email=email)
@@ -140,6 +141,8 @@ def update_user_site_group(session: Session, email: str, site_group_name: str) -
     user = user.update({"site_group_uuid": site_group.site_group_uuid})
 
     session.commit()
+
+    return user
 
 
 # delete functions for site, user, and site group
@@ -177,7 +180,7 @@ def delete_site(session: Session, site_uuid: str) -> SiteGroupSQL:
 
 
 # delete user
-def delete_user(session: Session, email: str) -> UserSQL:
+def delete_user(session: Session, email: str) -> str:
     """Delete a user.
 
     :param session: database session
@@ -198,7 +201,7 @@ def delete_user(session: Session, email: str) -> UserSQL:
 
 
 # delete site group
-def delete_site_group(session: Session, site_group_name: str) -> SiteGroupSQL:
+def delete_site_group(session: Session, site_group_name: str) -> str:
     """Delete a site group.
 
     :param session: database session

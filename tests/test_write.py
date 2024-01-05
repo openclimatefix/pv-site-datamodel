@@ -12,10 +12,9 @@ from pvsite_datamodel.write.generation import insert_generation_values
 from pvsite_datamodel.write.user_and_site import (
     add_site_to_site_group,
     change_user_site_group,
+    create_site_group,
     create_user,
-    make_site,
-    make_site_group,
-    make_user,
+    make_fake_site,
 )
 
 
@@ -109,7 +108,7 @@ class TestInsertGenerationValues:
 def test_create_user(db_session):
     "Test to create a new user."
 
-    site_group_1 = make_site_group(db_session=db_session)
+    site_group_1 = create_site_group(db_session=db_session)
 
     user_1 = create_user(
         session=db_session,
@@ -124,10 +123,10 @@ def test_create_user(db_session):
 
 # add site to site group
 def test_add_site_to_site_group(db_session):
-    site_group = make_site_group(db_session=db_session)
-    site_1 = make_site(db_session=db_session, ml_id=1)
-    site_2 = make_site(db_session=db_session, ml_id=2)
-    site_3 = make_site(db_session=db_session, ml_id=3)
+    site_group = create_site_group(db_session=db_session)
+    site_1 = make_fake_site(db_session=db_session, ml_id=1)
+    site_2 = make_fake_site(db_session=db_session, ml_id=2)
+    site_3 = make_fake_site(db_session=db_session, ml_id=3)
     site_group.sites.append(site_1)
     site_group.sites.append(site_2)
 
@@ -144,9 +143,11 @@ def test_add_site_to_site_group(db_session):
 def test_change_user_site_group(db_session):
     """Test the change user site group function
     :param db_session: the database session"""
-    site_group = make_site_group(db_session=db_session)
-    user = make_user(db_session=db_session, email="test_user@gmail.com", site_group=site_group)
-    site_group2 = make_site_group(db_session=db_session, site_group_name="test_site_group2")
+    site_group = create_site_group(db_session=db_session)
+    user = create_user(
+        session=db_session, email="test_user@gmail.com", site_group_name=site_group.site_group_name
+    )
+    site_group2 = create_site_group(db_session=db_session, site_group_name="test_site_group2")
     user, user_site_group = change_user_site_group(
         session=db_session,
         email="test_user@gmail.com",

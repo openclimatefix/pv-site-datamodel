@@ -31,7 +31,7 @@ from pvsite_datamodel.read import (
     get_sites_from_user,
     get_user_by_email,
 )
-from pvsite_datamodel.write.user_and_site import make_site_group, make_user
+from pvsite_datamodel.write.user_and_site import create_site_group, create_user
 
 
 class TestGetAllSites:
@@ -96,9 +96,13 @@ class TestGetUserByEmail:
         assert len(db_session.query(UserSQL).all()) == 1
 
     def test_get_user_by_email_with_users(self, db_session):
-        site_group = make_site_group(db_session=db_session)
-        user = make_user(db_session=db_session, site_group=site_group, email="test_1@test.com")
-        user = make_user(db_session=db_session, site_group=site_group, email="test_2@test.com")
+        site_group = create_site_group(db_session=db_session)
+        user = create_user(
+            session=db_session, site_group_name=site_group.site_group_name, email="test_1@test.com"
+        )
+        user = create_user(
+            session=db_session, site_group_name=site_group.site_group_name, email="test_2@test.com"
+        )
 
         user = get_user_by_email(session=db_session, email="test_1@test.com")
         assert user.email == "test_1@test.com"
@@ -116,8 +120,10 @@ class TestGetPVGenerationByUser:
     def test_returns_all_generations_for_input_user(self, generations, db_session):
         # associate site to one user
         site: SiteSQL = db_session.query(SiteSQL).first()
-        site_group = make_site_group(db_session=db_session)
-        user = make_user(db_session=db_session, site_group=site_group, email="test@test.com")
+        site_group = create_site_group(db_session=db_session)
+        user = create_user(
+            session=db_session, site_group_name=site_group.site_group_name, email="test@test.com"
+        )
         site_group.sites.append(site)
 
         generations = get_pv_generation_by_user_uuids(
@@ -129,8 +135,10 @@ class TestGetPVGenerationByUser:
     def test_returns_all_generations_in_datetime_window(self, generations, db_session):
         # associate site to one user
         site: SiteSQL = db_session.query(SiteSQL).first()
-        site_group = make_site_group(db_session=db_session)
-        user = make_user(db_session=db_session, site_group=site_group, email="test@test.com")
+        site_group = create_site_group(db_session=db_session)
+        user = create_user(
+            session=db_session, site_group_name=site_group.site_group_name, email="test@test.com"
+        )
         site_group.sites.append(site)
 
         window_lower: dt.datetime = dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=7)
