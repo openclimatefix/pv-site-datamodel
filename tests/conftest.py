@@ -11,7 +11,7 @@ from testcontainers.postgres import PostgresContainer
 
 from pvsite_datamodel import GenerationSQL, SiteSQL, StatusSQL
 from pvsite_datamodel.sqlmodels import Base
-from pvsite_datamodel.write.user_and_site import make_site_group, make_user
+from pvsite_datamodel.write.user_and_site import create_site_group, create_user
 
 
 @pytest.fixture(scope="session")
@@ -80,8 +80,10 @@ def sites(db_session):
 def user_with_sites(db_session, sites):
     """Create a user with sites"""
 
-    site_group = make_site_group(db_session=db_session)
-    user = make_user(db_session=db_session, email="test_user@gmail.com", site_group=site_group)
+    site_group = create_site_group(db_session=db_session)
+    user = create_user(
+        session=db_session, email="test_user@gmail.com", site_group_name=site_group.site_group_name
+    )
 
     site_group.sites = sites
     return user

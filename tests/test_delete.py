@@ -2,12 +2,12 @@
 
 from pvsite_datamodel.sqlmodels import SiteSQL, UserSQL
 from pvsite_datamodel.write.user_and_site import (
+    create_site_group,
+    create_user,
     delete_site,
     delete_site_group,
     delete_user,
-    make_site,
-    make_site_group,
-    make_user,
+    make_fake_site,
 )
 
 
@@ -15,11 +15,11 @@ from pvsite_datamodel.write.user_and_site import (
 def test_delete_site(db_session):
     """Test to delete a site."""
 
-    site_1 = make_site(db_session=db_session, ml_id=1)
+    site_1 = make_fake_site(db_session=db_session, ml_id=1)
 
     # todo add site to site group
 
-    site_group = make_site_group(db_session=db_session, site_group_name="test_site_group")
+    site_group = create_site_group(db_session=db_session, site_group_name="test_site_group")
     site_group.sites.append(site_1)
 
     site_uuid = site_1.site_uuid
@@ -35,12 +35,12 @@ def test_delete_site(db_session):
 def test_delete_user(db_session):
     """Test to delete a user."""
 
-    site_group_1 = make_site_group(db_session=db_session)
+    site_group_1 = create_site_group(db_session=db_session)
 
-    user_1 = make_user(
-        db_session=db_session,
+    user_1 = create_user(
+        session=db_session,
         email="test_user@ocf.org",
-        site_group=site_group_1,
+        site_group_name=site_group_1.site_group_name,
     )
 
     message = delete_user(session=db_session, email=user_1.email)
@@ -55,7 +55,7 @@ def test_delete_user(db_session):
 
 
 def test_delete_site_group(db_session):
-    site_group = make_site_group(db_session=db_session, site_group_name="test_site_group")
+    site_group = create_site_group(db_session=db_session, site_group_name="test_site_group")
 
     message = delete_site_group(session=db_session, site_group_name=site_group.site_group_name)
 
@@ -68,12 +68,12 @@ def test_delete_site_group(db_session):
 def test_delete_site_group_with_users(db_session):
     """Test to delete a site group with users."""
 
-    site_group_1 = make_site_group(db_session=db_session)
+    site_group_1 = create_site_group(db_session=db_session)
 
-    _ = make_user(
-        db_session=db_session,
+    _ = create_user(
+        session=db_session,
         email="test_user@gmail.com",
-        site_group=site_group_1,
+        site_group_name=site_group_1.site_group_name,
     )
 
     message = delete_site_group(session=db_session, site_group_name=site_group_1.site_group_name)
