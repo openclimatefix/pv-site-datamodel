@@ -6,8 +6,6 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from pvsite_datamodel.sqlmodels import GenerationSQL
-from pvsite_datamodel.write.data.dno import download_dno
-from pvsite_datamodel.write.data.gsp import download_gsp
 from pvsite_datamodel.write.generation import insert_generation_values
 
 # from pvsite_datamodel.read.user import get_user_by_email
@@ -79,14 +77,6 @@ def test_create_new_site(db_session):
         message == f"Site with client site id {site.client_site_id} "
         f"and site uuid {site.site_uuid} created successfully"
     )
-
-
-def test_download_gsp():
-    download_gsp()
-
-
-def test_download_dno():
-    download_dno()
 
 
 # test for create_new_site to check ml_id increments
