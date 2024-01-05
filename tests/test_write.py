@@ -7,13 +7,14 @@ from sqlalchemy.orm import Session
 
 from pvsite_datamodel.sqlmodels import GenerationSQL
 from pvsite_datamodel.write.generation import insert_generation_values
-from pvsite_datamodel.read.user import get_user_by_email
+
+# from pvsite_datamodel.read.user import get_user_by_email
 from pvsite_datamodel.write.user_and_site import (
     add_site_to_site_group,
-    create_user,
-    make_site_group,
     change_user_site_group,
+    create_user,
     make_site,
+    make_site_group,
     make_user,
 )
 
@@ -58,7 +59,7 @@ class TestInsertGenerationValues:
         assert db_session.query(GenerationSQL).count() == 10
 
 
-# # create new site
+# # create new site, this will be one in a different issue
 # def test_create_new_site(db_session):
 #     site, message = create_new_site(
 #         session=db_session,
@@ -74,7 +75,8 @@ class TestInsertGenerationValues:
 #     assert site.client_site_id == 6932
 #     assert (
 #         message
-#         == f"Site with client site id {site.client_site_id} and site uuid {site.site_uuid} created successfully"
+#         == f"Site with client site id {site.client_site_id}
+#         and site uuid {site.site_uuid} created successfully"
 #     )
 
 
@@ -143,12 +145,8 @@ def test_change_user_site_group(db_session):
     """Test the change user site group function
     :param db_session: the database session"""
     site_group = make_site_group(db_session=db_session)
-    user = make_user(
-        db_session=db_session, email="test_user@gmail.com", site_group=site_group
-    )
-    site_group2 = make_site_group(
-        db_session=db_session, site_group_name="test_site_group2"
-    )
+    user = make_user(db_session=db_session, email="test_user@gmail.com", site_group=site_group)
+    site_group2 = make_site_group(db_session=db_session, site_group_name="test_site_group2")
     user, user_site_group = change_user_site_group(
         session=db_session,
         email="test_user@gmail.com",

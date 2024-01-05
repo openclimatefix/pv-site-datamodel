@@ -17,7 +17,9 @@ from pvsite_datamodel import (
 )
 from pvsite_datamodel.pydantic_models import LatitudeLongitudeLimits
 from pvsite_datamodel.read import (
+    get_all_site_groups,
     get_all_sites,
+    get_all_users,
     get_latest_forecast_values_by_site,
     get_latest_status,
     get_pv_generation_by_sites,
@@ -28,8 +30,6 @@ from pvsite_datamodel.read import (
     get_site_group_by_name,
     get_sites_from_user,
     get_user_by_email,
-    get_all_users,
-    get_all_site_groups,
 )
 from pvsite_datamodel.write.user_and_site import make_site_group, make_user
 
@@ -346,7 +346,7 @@ def test_get_all_site_groups(db_session):
     # assert
     assert len(site_groups) == 0
 
-    
+
 def test_get_site_from_user(db_session, user_with_sites):
     sites = get_sites_from_user(session=db_session, user=user_with_sites)
     assert len(sites) > 0
@@ -380,4 +380,3 @@ def test_get_site_list_min(db_session, user_with_sites):
     lat_lon = LatitudeLongitudeLimits(latitude_min=50, longitude_min=2)
     sites = get_sites_from_user(session=db_session, user=user_with_sites, lat_lon_limits=lat_lon)
     assert len(sites) > 0
-

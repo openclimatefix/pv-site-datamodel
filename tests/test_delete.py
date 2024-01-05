@@ -1,13 +1,13 @@
 """Test Delete Functions"""
 
-from pvsite_datamodel.sqlmodels import UserSQL, SiteSQL
+from pvsite_datamodel.sqlmodels import SiteSQL, UserSQL
 from pvsite_datamodel.write.user_and_site import (
-    make_site_group,
-    make_site,
-    make_user,
     delete_site,
-    delete_user,
     delete_site_group,
+    delete_user,
+    make_site,
+    make_site_group,
+    make_user,
 )
 
 
@@ -48,8 +48,8 @@ def test_delete_user(db_session):
     user = db_session.query(UserSQL).filter(UserSQL.email == user_1.email).first()
 
     assert (
-        message
-        == f"User with email {user_1.email} and site_group_uuid {user_1.site_group_uuid} deleted successfully"
+        message == f"User with email {user_1.email} and "
+        f"site_group_uuid {user_1.site_group_uuid} deleted successfully"
     )
     assert user is None
 
@@ -60,8 +60,8 @@ def test_delete_site_group(db_session):
     message = delete_site_group(session=db_session, site_group_name=site_group.site_group_name)
 
     assert (
-        message
-        == f"Site group with name {site_group.site_group_name} and site group uuid {site_group.site_group_uuid} deleted successfully."
+        message == f"Site group with name {site_group.site_group_name} and "
+        f"site group uuid {site_group.site_group_uuid} deleted successfully."
     )
 
 
@@ -79,6 +79,6 @@ def test_delete_site_group_with_users(db_session):
     message = delete_site_group(session=db_session, site_group_name=site_group_1.site_group_name)
 
     assert (
-        message
-        == f"Site group with name {site_group_1.site_group_name} and site group uuid {site_group_1.site_group_uuid} has users and cannot be deleted."
+        message == f"Site group with name {site_group_1.site_group_name} and "
+        f"site group uuid {site_group_1.site_group_uuid} has users and cannot be deleted."
     )
