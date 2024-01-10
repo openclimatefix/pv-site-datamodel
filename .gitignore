@@ -129,6 +129,10 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# OS stuff
+.DS_Store
+
 # IDE stuff
 .idea
 .vscode
+.nova
