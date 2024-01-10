@@ -84,7 +84,7 @@ def create_site(
     :param dno: dno of site
     :param gsp: gsp of site
     :param region: region of site, deafut is uk
-    :param asset_type: type of asset (e.g. pv, wind)
+    :param asset_type: type of asset (accepts "pv" or "wind")
     :param orientation: orientation of site, default is 180
     :param tilt: tilt of site, default is 35
     :param inverter_capacity_kw: inverter capacity of site in kw
@@ -100,7 +100,10 @@ def create_site(
         region = "uk"
 
     if asset_type not in SiteAssetType.__members__:
-        asset_type = SiteAssetType.pv.name
+        raise ValueError(
+            f"""Invalid asset_type. Received: {asset_type},
+            but must one of ({', '.join(map(lambda type: type.name, SiteAssetType))})"""
+        )
 
     if orientation in [None, ""]:
         orientation = 180
