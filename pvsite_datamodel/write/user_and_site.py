@@ -8,7 +8,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.functions import func
 
 from pvsite_datamodel.read import get_user_by_email
-from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, SiteGroupSQL, SiteSQL, UserSQL
+from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, SiteGroupSQL, SiteAssetType, SiteSQL, UserSQL
 from pvsite_datamodel.write.data.dno import get_dno
 from pvsite_datamodel.write.data.gsp import get_gsp
 
@@ -59,6 +59,7 @@ def create_site(
     dno: Optional[str] = None,
     gsp: Optional[str] = None,
     region: Optional[str] = None,
+    asset_type: Optional[str] = SiteAssetType.pv.name,
     orientation: Optional[float] = None,
     tilt: Optional[float] = None,
     inverter_capacity_kw: Optional[float] = None,
@@ -76,6 +77,7 @@ def create_site(
     :param dno: dno of site
     :param gsp: gsp of site
     :param region: region of site, deafut is uk
+    :param asset_type: type of asset (e.g. pv, wind)
     :param orientation: orientation of site, default is 180
     :param tilt: tilt of site, default is 35
     :param inverter_capacity_kw: inverter capacity of site in kw
@@ -89,6 +91,10 @@ def create_site(
 
     if region in [None, ""]:
         region = "uk"
+    
+    if asset_type not in SiteAssetType.__members__:
+        print("moose", asset_type)
+        asset_type = SiteAssetType.pv.name
 
     if orientation in [None, ""]:
         orientation = 180
@@ -120,6 +126,7 @@ def create_site(
         dno=dno,
         gsp=gsp,
         region=region,
+        asset_type=asset_type,
         orientation=orientation,
         tilt=tilt,
         inverter_capacity_kw=inverter_capacity_kw,
