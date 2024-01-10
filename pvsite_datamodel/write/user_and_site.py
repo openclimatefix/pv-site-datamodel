@@ -8,7 +8,14 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.functions import func
 
 from pvsite_datamodel.read import get_user_by_email
-from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, SiteGroupSQL, SiteAssetType, SiteSQL, UserSQL
+from pvsite_datamodel.sqlmodels import (
+    ForecastSQL,
+    ForecastValueSQL,
+    SiteAssetType,
+    SiteGroupSQL,
+    SiteSQL,
+    UserSQL,
+)
 from pvsite_datamodel.write.data.dno import get_dno
 from pvsite_datamodel.write.data.gsp import get_gsp
 
@@ -91,9 +98,8 @@ def create_site(
 
     if region in [None, ""]:
         region = "uk"
-    
+
     if asset_type not in SiteAssetType.__members__:
-        print("moose", asset_type)
         asset_type = SiteAssetType.pv.name
 
     if orientation in [None, ""]:
