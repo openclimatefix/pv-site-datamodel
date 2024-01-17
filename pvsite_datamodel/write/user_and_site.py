@@ -65,6 +65,7 @@ def create_site(
     capacity_kw: float,
     dno: Optional[str] = None,
     gsp: Optional[str] = None,
+    country: Optional[str] = "uk",
     region: Optional[str] = None,
     asset_type: Optional[str] = SiteAssetType.pv.name,
     orientation: Optional[float] = None,
@@ -83,7 +84,8 @@ def create_site(
     :param capacity_kw: capacity of site in kw
     :param dno: dno of site
     :param gsp: gsp of site
-    :param region: region of site, deafut is uk
+    :param country: country of site, default is uk
+    :param region: region of site
     :param asset_type: type of asset (accepts "pv" or "wind")
     :param orientation: orientation of site, default is 180
     :param tilt: tilt of site, default is 35
@@ -96,8 +98,11 @@ def create_site(
     if max_ml_id is None:
         max_ml_id = 0
 
-    if region in [None, ""]:
-        region = "uk"
+    if country in [None, ""]:
+        country = "uk"
+
+    # if region in [None, ""]:
+    #     region = "uk"
 
     if asset_type not in SiteAssetType.__members__:
         raise ValueError(
@@ -134,6 +139,7 @@ def create_site(
         capacity_kw=capacity_kw,
         dno=dno,
         gsp=gsp,
+        country=country,
         region=region,
         asset_type=asset_type,
         orientation=orientation,

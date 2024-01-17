@@ -77,6 +77,40 @@ def sites(db_session):
 
 
 @pytest.fixture()
+def make_sites_for_country(db_session):
+    """Create some fake sites for specfic country"""
+
+    def _make_sites_for_country(country="uk"):
+        sites = []
+        for i in range(0, 4):
+            site = SiteSQL(
+                client_site_id=1,
+                client_site_name=f"test_site_{i}",
+                latitude=51,
+                longitude=3,
+                capacity_kw=4,
+                inverter_capacity_kw=4,
+                module_capacity_kw=4.3,
+                created_utc=dt.datetime.now(dt.timezone.utc),
+                ml_id=i,
+                dno=json.dumps({"dno_id": str(i), "name": "unknown", "long_name": "unknown"}),
+                gsp=json.dumps({"gsp_id": str(i), "name": "unknown"}),
+                country=country,
+            )
+            db_session.add(site)
+            db_session.commit()
+
+            sites.append(site)
+
+        # make sure they are in order
+        sites = db_session.query(SiteSQL).order_by(SiteSQL.site_uuid).all()
+
+        return sites
+
+    return _make_sites_for_country
+
+
+@pytest.fixture()
 def user_with_sites(db_session, sites):
     """Create a user with sites"""
 
