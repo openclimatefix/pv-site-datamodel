@@ -151,6 +151,11 @@ def forecast_invalid_dataframe():
 
 
 @pytest.fixture()
+def forecast_invalid_meta():
+    return {}
+
+
+@pytest.fixture()
 def generation_valid_site(sites):
     site_uuid = sites[0].site_uuid
 

@@ -6,6 +6,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from pvsite_datamodel.sqlmodels import GenerationSQL
+
+# from pvsite_datamodel.write.forecast import insert_forecast_values
 from pvsite_datamodel.write.generation import insert_generation_values
 
 # from pvsite_datamodel.read.user import get_user_by_email
@@ -17,6 +19,19 @@ from pvsite_datamodel.write.user_and_site import (
     create_user,
     make_fake_site,
 )
+
+
+class TestInsertForecastValues:
+    """Tests for the insert_forecast_values function."""
+
+    def test_insert_forecast_for_existing_site(self, db_session, forecast_valid_site):
+        pass
+
+    def test_invalid_forecast_meta(self, db_session, forecast_invalid_meta):
+        pass
+
+    def test_invalid_forecast_values_dataframe(self, engine, forecast_invalid_dataframe):
+        pass
 
 
 class TestInsertGenerationValues:
