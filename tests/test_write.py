@@ -73,6 +73,25 @@ def test_create_new_site(db_session):
     assert site.client_site_name == "test_site_name"
     assert site.ml_id == 1
     assert site.client_site_id == 6932
+    assert site.country == "uk"
+    assert (
+        message == f"Site with client site id {site.client_site_id} "
+        f"and site uuid {site.site_uuid} created successfully"
+    )
+
+
+def test_create_new_site_in_specified_country(db_session):
+    site, message = create_site(
+        session=db_session,
+        client_site_id=6932,
+        client_site_name="test_site_name",
+        latitude=51.0,
+        longitude=0.0,
+        capacity_kw=1.0,
+        country="india",
+    )
+
+    assert site.country == "india"
     assert (
         message == f"Site with client site id {site.client_site_id} "
         f"and site uuid {site.site_uuid} created successfully"

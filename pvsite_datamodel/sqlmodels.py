@@ -117,7 +117,12 @@ class SiteSQL(Base, CreatedMixin):
         sa.String(255), index=True, comment="The ID of the site as given by the providing client"
     )
 
-    region = sa.Column(sa.String(255), comment="The region in the UK in which the site is located")
+    country = sa.Column(
+        sa.String(255), server_default="uk", comment="The country in which the site is located"
+    )
+    region = sa.Column(
+        sa.String(255), comment="The region within the country in which the site is located"
+    )
     dno = sa.Column(sa.String(255), comment="The Distribution Node Operator that owns the site")
     gsp = sa.Column(sa.String(255), comment="The Grid Supply Point in which the site is located")
 
