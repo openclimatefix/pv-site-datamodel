@@ -79,6 +79,19 @@ def test_create_new_site(db_session):
     )
 
 
+def test_create_new_site_with_invalid_asset_type(db_session):
+    with pytest.raises(ValueError, match=r"^Invalid asset_type.*"):
+        site, message = create_site(
+            session=db_session,
+            client_site_id=6932,
+            client_site_name="test_site_name",
+            latitude=51.0,
+            longitude=0.0,
+            capacity_kw=1.0,
+            asset_type="invalid-asset",
+        )
+
+
 # test for create_new_site to check ml_id increments
 def test_create_new_site_twice(db_session):
     """Test create new site function for ml_id"""

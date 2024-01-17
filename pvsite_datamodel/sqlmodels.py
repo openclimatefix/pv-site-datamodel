@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 # This means we can use Typing of objects that have jet to be defined
+import enum
 import uuid
 from datetime import datetime
 from typing import List
@@ -88,6 +89,13 @@ class SiteGroupSiteSQL(Base, CreatedMixin):
     )
 
 
+class SiteAssetType(enum.Enum):
+    """Enum type representing a site's asset type."""
+
+    pv = 1
+    wind = 2
+
+
 class SiteSQL(Base, CreatedMixin):
     """Class representing the sites table.
 
@@ -112,6 +120,12 @@ class SiteSQL(Base, CreatedMixin):
     region = sa.Column(sa.String(255), comment="The region in the UK in which the site is located")
     dno = sa.Column(sa.String(255), comment="The Distribution Node Operator that owns the site")
     gsp = sa.Column(sa.String(255), comment="The Grid Supply Point in which the site is located")
+
+    asset_type = sa.Column(
+        sa.Enum(SiteAssetType, name="site_asset_type"),
+        nullable=False,
+        server_default=SiteAssetType.pv.name,
+    )
 
     # For metadata `NULL` means "we don't know".
     orientation = sa.Column(
