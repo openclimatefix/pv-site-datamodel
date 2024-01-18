@@ -150,6 +150,57 @@ def test_time():
 
 
 @pytest.fixture()
+def forecast_valid_meta_input(sites):
+    forecast_meta = {
+        "site_uuid": sites[0].site_uuid,
+        "timestamp_utc": dt.datetime.now(tz=dt.UTC),
+        "forecast_version": "0.0.0",
+    }
+
+    return forecast_meta
+
+
+@pytest.fixture()
+def forecast_valid_values_input():
+    n = 10  # number of forecast values
+    step = 15  # in minutes
+    init_utc = dt.datetime.now(dt.timezone.utc)
+    start_utc = [init_utc + dt.timedelta(minutes=i * step) for i in range(n)]
+    end_utc = [d + dt.timedelta(minutes=step) for d in start_utc]
+    forecast_power_kw = [i * 10 for i in range(n)]
+    horizon_mins = [int((d - init_utc).seconds / 60) for d in start_utc]
+    forecast_values = {
+        "start_utc": start_utc,
+        "end_utc": end_utc,
+        "forecast_power_kw": forecast_power_kw,
+        "horizon_minutes": horizon_mins,
+    }
+
+    return forecast_values
+
+
+@pytest.fixture()
+def forecast_valid_input(forecast_valid_meta_input, forecast_valid_values_input):
+    return (forecast_valid_meta_input, forecast_valid_values_input)
+
+
+@pytest.fixture()
+def forecast_with_invalid_meta_input(forecast_valid_meta_input, forecast_valid_values_input):
+    forecast_meta = forecast_valid_meta_input
+    forecast_meta["site_uuid"] = "not-a-uuid"
+    return (forecast_meta, forecast_valid_values_input)
+
+
+@pytest.fixture()
+def forecast_with_invalid_values_input(forecast_valid_meta_input, forecast_valid_values_input):
+    forecast_values = forecast_valid_values_input
+    forecast_power_kw = forecast_values["forecast_power_kw"]
+    del forecast_values["forecast_power_kw"]
+    forecast_values["forecast_power_MW"] = forecast_power_kw
+    return (forecast_valid_meta_input, forecast_values)
+
+
+@pytest.fixture()
 def forecast_valid_site(sites):
     site_uuid = sites[0].site_uuid
 

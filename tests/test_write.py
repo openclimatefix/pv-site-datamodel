@@ -5,12 +5,9 @@ import pytest
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from pvsite_datamodel.sqlmodels import GenerationSQL
-
-# from pvsite_datamodel.write.forecast import insert_forecast_values
+from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, GenerationSQL
+from pvsite_datamodel.write.forecast import insert_forecast_values
 from pvsite_datamodel.write.generation import insert_generation_values
-
-# from pvsite_datamodel.read.user import get_user_by_email
 from pvsite_datamodel.write.user_and_site import (
     add_site_to_site_group,
     change_user_site_group,
@@ -24,14 +21,36 @@ from pvsite_datamodel.write.user_and_site import (
 class TestInsertForecastValues:
     """Tests for the insert_forecast_values function."""
 
-    def test_insert_forecast_for_existing_site(self, db_session, forecast_valid_site):
-        pass
+    def test_insert_forecast_for_existing_site(self, db_session, forecast_valid_input):
+        """Test if forecast and forecast values inserted successfully"""
+        forecast_meta, forecast_values = forecast_valid_input
+        forecast_values_df = pd.DataFrame(forecast_values)
 
-    def test_invalid_forecast_meta(self, db_session, forecast_invalid_meta):
-        pass
+        insert_forecast_values(db_session, forecast_meta, forecast_values_df)
 
-    def test_invalid_forecast_values_dataframe(self, engine, forecast_invalid_dataframe):
-        pass
+        assert db_session.query(ForecastSQL).count() == 1
+        assert db_session.query(ForecastValueSQL).count() == 10
+
+    def test_invalid_forecast_meta(self, db_session, forecast_with_invalid_meta_input):
+        """Test function errors on invalid forecast metadata"""
+        forecast_meta, forecast_values = forecast_with_invalid_meta_input
+        forecast_values_df = pd.DataFrame(forecast_values)
+
+        with pytest.raises(SQLAlchemyError):
+            insert_forecast_values(db_session, forecast_meta, forecast_values_df)
+
+    def test_invalid_forecast_values_dataframe(
+        self, db_session, forecast_with_invalid_values_input
+    ):
+        """test function errors on invalid forecast values dataframe"""
+        forecast_meta, forecast_values = forecast_with_invalid_values_input
+        forecast_values_df = pd.DataFrame(forecast_values)
+
+        with pytest.raises(
+            TypeError,
+            match=r"^'forecast_power_MW' is an invalid keyword argument for ForecastValueSQL.*",
+        ):
+            insert_forecast_values(db_session, forecast_meta, forecast_values_df)
 
 
 class TestInsertGenerationValues:
