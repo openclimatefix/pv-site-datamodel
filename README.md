@@ -48,6 +48,7 @@ Currently available functions accessible via `from pvsite_datamodel.read import 
 - get_site_by_client_site_id
 - get_site_by_client_site_name
 - get_all_sites
+- get_sites_by_country
 - get_site_group_by_name
 - get_latest_status
 - get_latest_forecast_values_by_site

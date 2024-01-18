@@ -86,13 +86,39 @@ def get_site_by_client_site_name(
 def get_all_sites(session: Session) -> List[SiteSQL]:
     """Get all sites from the sites table.
 
-    :param session: database sessions
+    :param session: database session
     :return: site object
     """
     logger.debug("Getting all sites")
 
     # start main query
     query = session.query(SiteSQL)
+
+    # order by uuuid
+    query = query.order_by(SiteSQL.site_uuid)
+
+    # get all results
+    sites = query.all()
+
+    logger.debug(f"Found {len(sites)} sites")
+
+    return sites
+
+
+def get_sites_by_country(session: Session, country: str) -> List[SiteSQL]:
+    """Get sites for specific country from the sites table.
+
+    :param session: database session
+    :param country: country name
+    :return: site object
+    """
+    logger.debug(f"Getting sites by country={country}")
+
+    # start main query
+    query = session.query(SiteSQL)
+
+    # filter by country
+    query = query.filter(SiteSQL.country == country)
 
     # order by uuuid
     query = query.order_by(SiteSQL.site_uuid)

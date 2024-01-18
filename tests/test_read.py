@@ -28,6 +28,7 @@ from pvsite_datamodel.read import (
     get_site_by_client_site_name,
     get_site_by_uuid,
     get_site_group_by_name,
+    get_sites_by_country,
     get_sites_from_user,
     get_user_by_email,
 )
@@ -54,6 +55,32 @@ class TestGetAllSites:
         assert out[1].site_uuid > out[0].site_uuid
         assert out[2].site_uuid > out[1].site_uuid
         assert out[3].site_uuid > out[2].site_uuid
+
+
+class TestGetSitesByCountry:
+    """Tests for the get_sites_by_country function."""
+
+    def test_returns_correct_uk_sites(self, make_sites_for_country, db_session):
+        country = "uk"
+        sites = make_sites_for_country(country)
+        out = get_sites_by_country(db_session, country)
+
+        assert len(out) == len(sites)
+        assert all([o.country == country for o in out])
+
+    def test_returns_correct_india_sites(self, make_sites_for_country, db_session):
+        country = "india"
+        sites = make_sites_for_country(country)
+        out = get_sites_by_country(db_session, country)
+
+        assert len(out) == len(sites)
+        assert all([o.country == country for o in out])
+
+    def test_returns_no_sites_for_unknown_country(self, make_sites_for_country, db_session):
+        _ = make_sites_for_country("uk")
+        out = get_sites_by_country(db_session, "nocountry")
+
+        assert len(out) == 0
 
 
 class TestGetSiteByUUID:
