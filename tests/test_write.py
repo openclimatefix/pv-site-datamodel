@@ -1,6 +1,10 @@
 """Test write functions."""
 
+import datetime
+import uuid
+
 import pandas as pd
+import pandas.api.types as ptypes
 import pytest
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
@@ -25,6 +29,24 @@ class TestInsertForecastValues:
         """Test if forecast and forecast values inserted successfully"""
         forecast_meta, forecast_values = forecast_valid_input
         forecast_values_df = pd.DataFrame(forecast_values)
+
+        assert "site_uuid" in forecast_meta
+        assert "timestamp_utc" in forecast_meta
+        assert "forecast_version" in forecast_meta
+
+        assert isinstance(forecast_meta["site_uuid"], uuid.UUID)
+        assert isinstance(forecast_meta["timestamp_utc"], datetime.datetime)
+        assert isinstance(forecast_meta["forecast_version"], str)
+
+        assert "start_utc" in forecast_values_df.columns
+        assert "end_utc" in forecast_values_df.columns
+        assert "forecast_power_kw" in forecast_values_df.columns
+        assert "horizon_minutes" in forecast_values_df.columns
+
+        assert ptypes.is_datetime64_any_dtype(forecast_values_df["start_utc"])
+        assert ptypes.is_datetime64_any_dtype(forecast_values_df["end_utc"])
+        assert ptypes.is_numeric_dtype(forecast_values_df["forecast_power_kw"])
+        assert ptypes.is_numeric_dtype(forecast_values_df["horizon_minutes"])
 
         insert_forecast_values(db_session, forecast_meta, forecast_values_df)
 
