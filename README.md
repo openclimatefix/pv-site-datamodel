@@ -57,6 +57,7 @@ Currently available functions accessible via `from pvsite_datamodel.read import 
 ### Write package functions
 
 Currently available write functions accessible via `from pvsite_datamodels.write import <func>`:
+- insert_forecast_values
 - insert_generation_values
 - create_site
 - create_site_group
