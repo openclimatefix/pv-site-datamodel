@@ -57,7 +57,7 @@ exclude = ["__init__.py"]
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["E402"]
-"tests/*" = ["S101", "S603", "S607", "D", "PT004", "PT012"]
+"tests/*" = ["S101", "D", "PT004", "PT012"]
 "setup.py" = ["D100"]
 "alembic/versions/*" = ["D"]
 
