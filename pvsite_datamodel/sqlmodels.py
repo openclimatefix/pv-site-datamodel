@@ -240,9 +240,9 @@ class ForecastSQL(Base, CreatedMixin):
     )
 
     forecast_version = sa.Column(
-        sa.String(32),
+        sa.String(40),
         nullable=False,
-        comment="The semantic version of the model used to generate the forecast",
+        comment="The version of the model used to generate the forecast (semantic or commit hash)",
     )
 
     # one (forecasts) to many (forecast_values)
