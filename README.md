@@ -91,7 +91,7 @@ Lint the code
 
     make test
 
-## SQLAlchemy Schema
+## PVSite Database Schema
 
 ```mermaid
 ---
