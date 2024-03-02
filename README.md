@@ -100,7 +100,7 @@ title: SQLAlchemy relationships
 classDiagram
 
     class UserSQL{
-        + user_uuid : UUID << PK >>
+        + user_uuid : UUID &lt; PK &gt;
         + email : String(255) << U >>
         + site_group_uuid : UUID << FK >>
     }
