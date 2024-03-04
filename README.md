@@ -91,6 +91,107 @@ Lint the code
 
     make test
 
+## PVSite Database Schema
+
+```mermaid
+---
+title: SQLAlchemy relationships
+---
+classDiagram
+
+    class UserSQL{
+        + user_uuid : UUID ≪ PK ≫
+        + email : String(255) ≪ U ≫
+        + site_group_uuid : UUID ≪ FK ≫
+    }
+        class SiteGroupSQL{
+        + site_group_uuid : UUID ≪ PK ≫
+        + site_group_name : String(255) ≪ U ≫
+    }
+
+    class SiteGroupSiteSQL{
+        + site_group_site_uuid : UUID ≪ PK ≫
+        + site_group_uuid : UUID ≪ FK ≫
+        + site_uuid : UUID ≪ FK ≫
+    }
+
+    class SiteSQL{
+        + site_uuid : UUID ≪ PK ≫
+        + client_site_id : Integer
+        + client_site_name : String(255)
+        + country : String(255) ≪ D ≫
+        + region : String(255)
+        + dno : String(255)
+        + gsp : String(255)
+        + asset_type : Enum ≪ D ≫
+        + orientation : Float
+        + tilt : Float
+        + latitude : Float
+        + longitude : Float
+        + capacity_kw : Float
+        + inverter_capacity_kw : Float
+        + module_capacity_kw : Float
+        + ml_id : Integer ≪ U ≫
+    }
+    class GenerationSQL{
+        + generation_uuid : UUID ≪ PK ≫
+        + site_uuid : UUID ≪ FK ≫
+        + generation_power_kw : Float
+        + start_utc : DateTime
+        + end_utc : DateTime
+    }
+
+    class ForecastSQL{
+        + forecast_uuid : UUID ≪ PK ≫
+        + site_uuid : UUID ≪ FK ≫
+        + timestamp_utc : DateTime
+        + forecast_version : String(32)
+    }
+
+    class ForecastValueSQL{
+        + forecast_value_uuid : UUID ≪ PK ≫
+        + start_utc : DateTime
+        + end_utc : DateTime
+        + forecast_power_kw : Float
+        + horizon_minutes : Integer
+        + forecast_uuid : UUID ≪ FK ≫
+    }
+
+    class StatusSQL{
+        + status_uuid : UUID ≪ PK ≫
+        + status : String(255)
+        + message : String(255)
+    }
+
+    class InverterSQL{
+        + inverter_uuid : UUID ≪ PK ≫
+        + site_uuid : UUID ≪ FK ≫
+    }
+
+    class APIRequestSQL{
+        + uuid : UUID ≪ PK ≫
+        + url : String
+        + user_uuid : UUID ≪ FK ≫
+    }
+
+    UserSQL "1" -- "N" SiteGroupSQL : belongs_to
+    SiteGroupSQL "N" -- "N" SiteSQL : contains
+    SiteGroupSQL "1" -- "N" SiteGroupSiteSQL : contains
+    SiteSQL "1" -- "N" GenerationSQL : generates
+    SiteSQL "1" -- "N" ForecastSQL : forecasts
+    ForecastSQL "1" -- "N" ForecastValueSQL : contains
+    SiteSQL "1" -- "N" InverterSQL : contains
+    UserSQL "1" -- "N" APIRequestSQL : performs_request
+    class Legend{
+    UUID: Universally Unique Identifier
+    PK: Primary Key
+    FK: Foreign Key
+    U: Unique Constraint
+    D: Default Value
+    }
+
+```
+
 ## Multiple Clients
 
 We have the ability to have these different scenarios
