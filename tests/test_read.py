@@ -334,6 +334,15 @@ def test_get_latest_forecast_values(db_session, sites):
         assert values_as_tuple == expected[site_uuid]
 
     latest_forecast = get_latest_forecast_values_by_site(
+        session=db_session,
+        site_uuids=site_uuids,
+        start_utc=d1,
+        sum_by="total",
+        created_by=dt.datetime.now() - dt.timedelta(hours=3),
+    )
+    assert len(latest_forecast) == 0
+
+    latest_forecast = get_latest_forecast_values_by_site(
         session=db_session, site_uuids=site_uuids, start_utc=d1, sum_by="total"
     )
     assert len(latest_forecast) == 4
