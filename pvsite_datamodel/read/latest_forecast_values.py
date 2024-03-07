@@ -16,6 +16,7 @@ def get_latest_forecast_values_by_site(
     site_uuids: list[uuid.UUID],
     start_utc: dt.datetime,
     sum_by: Optional[str] = None,
+    created_by: Optional[dt.datetime] = None,
 ) -> Union[dict[uuid.UUID, list[ForecastValueSQL]], List[ForecastValueSum]]:
     """Get the forecast values by input sites, get the latest value.
 
@@ -40,6 +41,7 @@ def get_latest_forecast_values_by_site(
     :param session: The sqlalchemy database session
     :param site_uuids: list of site_uuids for which to fetch latest forecast values
     :param start_utc: filters on forecast values target_time >= start_utc
+    :param created_by: filter on forecast values created time <= created_by
     :param sum_by: optional, sum the forecast values by this column
     """
 
@@ -57,11 +59,15 @@ def get_latest_forecast_values_by_site(
             ForecastValueSQL.start_utc >= start_utc,
             ForecastSQL.site_uuid.in_(site_uuids),
         )
-        .order_by(
-            ForecastSQL.site_uuid,
-            ForecastValueSQL.start_utc,
-            ForecastSQL.timestamp_utc.desc(),
-        )
+    )
+
+    if created_by is not None:
+        query = query.filter(ForecastValueSQL.created_utc <= created_by)
+
+    query = query.order_by(
+        ForecastSQL.site_uuid,
+        ForecastValueSQL.start_utc,
+        ForecastSQL.timestamp_utc.desc(),
     )
 
     if sum_by is None:
