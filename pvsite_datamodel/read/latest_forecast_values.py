@@ -17,6 +17,7 @@ def get_latest_forecast_values_by_site(
     start_utc: dt.datetime,
     sum_by: Optional[str] = None,
     created_by: Optional[dt.datetime] = None,
+    forecast_horizon_minutes: Optional[int] = None,
 ) -> Union[dict[uuid.UUID, list[ForecastValueSQL]], List[ForecastValueSum]]:
     """Get the forecast values by input sites, get the latest value.
 
@@ -43,6 +44,7 @@ def get_latest_forecast_values_by_site(
     :param start_utc: filters on forecast values target_time >= start_utc
     :param created_by: filter on forecast values created time <= created_by
     :param sum_by: optional, sum the forecast values by this column
+    :param forecast_horizon_minutes, optional, filter on forecast horizon minutes
     """
 
     if sum_by not in ["total", "dno", "gsp", None]:
@@ -63,6 +65,9 @@ def get_latest_forecast_values_by_site(
 
     if created_by is not None:
         query = query.filter(ForecastValueSQL.created_utc <= created_by)
+
+    if forecast_horizon_minutes is not None:
+        query = query.filter(ForecastSQL.forecast_horizon_minutes == forecast_horizon_minutes)
 
     query = query.order_by(
         ForecastSQL.site_uuid,
