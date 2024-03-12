@@ -305,19 +305,19 @@ def test_get_latest_forecast_values(db_session, sites):
     d4 = dt.datetime(2000, 1, 1, 4)
 
     # site 1 forecast 1
-    _add_forecast_value(db_session, s1_f1, 1.0, d0,horizon_minutes=0)
-    _add_forecast_value(db_session, s1_f1, 2.0, d1,horizon_minutes=60)
-    _add_forecast_value(db_session, s1_f1, 3.0, d2,horizon_minutes=120)
+    _add_forecast_value(db_session, s1_f1, 1.0, d0, horizon_minutes=0)
+    _add_forecast_value(db_session, s1_f1, 2.0, d1, horizon_minutes=60)
+    _add_forecast_value(db_session, s1_f1, 3.0, d2, horizon_minutes=120)
 
     # site 1 forecast 2
-    _add_forecast_value(db_session, s1_f2, 4.0, d2,horizon_minutes=60)
-    _add_forecast_value(db_session, s1_f2, 5.0, d3,horizon_minutes=120)
-    _add_forecast_value(db_session, s1_f2, 6.0, d4,horizon_minutes=180)
+    _add_forecast_value(db_session, s1_f2, 4.0, d2, horizon_minutes=60)
+    _add_forecast_value(db_session, s1_f2, 5.0, d3, horizon_minutes=120)
+    _add_forecast_value(db_session, s1_f2, 6.0, d4, horizon_minutes=180)
 
     # Site 2 forecast 1
-    _add_forecast_value(db_session, s2_f1, 7.0, d0,horizon_minutes=0)
-    _add_forecast_value(db_session, s2_f1, 8.0, d1,horizon_minutes=60)
-    _add_forecast_value(db_session, s2_f1, 9.0, d2,horizon_minutes=120)
+    _add_forecast_value(db_session, s2_f1, 7.0, d0, horizon_minutes=0)
+    _add_forecast_value(db_session, s2_f1, 8.0, d1, horizon_minutes=60)
+    _add_forecast_value(db_session, s2_f1, 9.0, d2, horizon_minutes=120)
     db_session.commit()
 
     latest_forecast = get_latest_forecast_values_by_site(db_session, site_uuids, d1)
