@@ -5,7 +5,7 @@ import uuid
 from typing import List, Optional, Union
 
 from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, contains_eager
 
 from pvsite_datamodel.pydantic_models import ForecastValueSum
 from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, SiteSQL
@@ -68,6 +68,9 @@ def get_latest_forecast_values_by_site(
 
     if forecast_horizon_minutes is not None:
         query = query.filter(ForecastValueSQL.horizon_minutes == forecast_horizon_minutes)
+
+    # speed up query, so all information is gather in one query, rather than lots of little ones
+    query = query.options(contains_eager(ForecastValueSQL.forecast)).populate_existing()
 
     query = query.order_by(
         ForecastSQL.site_uuid,
