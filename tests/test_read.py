@@ -2,7 +2,7 @@
 
 import datetime as dt
 import uuid
-from typing import List
+from typing import List, Optional
 
 import pytest
 from sqlalchemy.orm import Query
@@ -259,13 +259,15 @@ class TestGetLatestStatus:
         assert status.message == "Status 3"
 
 
-def _add_forecast_value(session, forecast, power: int, ts):
+def _add_forecast_value(session, forecast, power: int, ts, horizon_minutes: Optional[int] = None):
     fv = ForecastValueSQL(
         forecast_uuid=forecast.forecast_uuid,
         forecast_power_kw=power,
         start_utc=ts,
         end_utc=ts + dt.timedelta(minutes=5),
     )
+    if horizon_minutes:
+        fv.forecast_horizon_minutes = horizon_minutes
     session.add(fv)
 
 
@@ -303,19 +305,19 @@ def test_get_latest_forecast_values(db_session, sites):
     d4 = dt.datetime(2000, 1, 1, 4)
 
     # site 1 forecast 1
-    _add_forecast_value(db_session, s1_f1, 1.0, d0)
-    _add_forecast_value(db_session, s1_f1, 2.0, d1)
-    _add_forecast_value(db_session, s1_f1, 3.0, d2)
+    _add_forecast_value(db_session, s1_f1, 1.0, d0, horizon_minutes=0)
+    _add_forecast_value(db_session, s1_f1, 2.0, d1, horizon_minutes=60)
+    _add_forecast_value(db_session, s1_f1, 3.0, d2, horizon_minutes=120)
 
     # site 1 forecast 2
-    _add_forecast_value(db_session, s1_f2, 4.0, d2)
-    _add_forecast_value(db_session, s1_f2, 5.0, d3)
-    _add_forecast_value(db_session, s1_f2, 6.0, d4)
+    _add_forecast_value(db_session, s1_f2, 4.0, d2, horizon_minutes=60)
+    _add_forecast_value(db_session, s1_f2, 5.0, d3, horizon_minutes=120)
+    _add_forecast_value(db_session, s1_f2, 6.0, d4, horizon_minutes=180)
 
     # Site 2 forecast 1
-    _add_forecast_value(db_session, s2_f1, 7.0, d0)
-    _add_forecast_value(db_session, s2_f1, 8.0, d1)
-    _add_forecast_value(db_session, s2_f1, 9.0, d2)
+    _add_forecast_value(db_session, s2_f1, 7.0, d0, horizon_minutes=0)
+    _add_forecast_value(db_session, s2_f1, 8.0, d1, horizon_minutes=60)
+    _add_forecast_value(db_session, s2_f1, 9.0, d2, horizon_minutes=120)
     db_session.commit()
 
     latest_forecast = get_latest_forecast_values_by_site(db_session, site_uuids, d1)
@@ -356,6 +358,11 @@ def test_get_latest_forecast_values(db_session, sites):
         session=db_session, site_uuids=site_uuids, start_utc=d2, sum_by="gsp"
     )
     assert len(latest_forecast) == 3 + 1  # 3 from site 1, 1 from site 2
+
+    latest_forecast = get_latest_forecast_values_by_site(
+        session=db_session, site_uuids=site_uuids, start_utc=d2, forecast_horizon_minutes=60
+    )
+    assert len(latest_forecast) == 2
 
     with pytest.raises(ValueError):  # noqa
         _ = get_latest_forecast_values_by_site(
