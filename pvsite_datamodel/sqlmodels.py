@@ -6,14 +6,11 @@ from __future__ import annotations
 import enum
 import uuid
 from datetime import datetime
-from typing import List
 
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.orm import Mapped, declarative_base, relationship
 from sqlalchemy.schema import UniqueConstraint
-from sqlalchemy.orm import Mapped
-
 
 Base = declarative_base()
 
