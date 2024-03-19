@@ -38,6 +38,7 @@ def get_latest_forecast_values_by_site(
         f.site_uuid,
         fv.start_utc,
         f.timestamp_utc DESC
+        f.created_utc DESC
 
     :param session: The sqlalchemy database session
     :param site_uuids: list of site_uuids for which to fetch latest forecast values
@@ -76,6 +77,7 @@ def get_latest_forecast_values_by_site(
         ForecastSQL.site_uuid,
         ForecastValueSQL.start_utc,
         ForecastSQL.timestamp_utc.desc(),
+        ForecastSQL.created_utc.desc(),
     )
 
     if sum_by is None:
