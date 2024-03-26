@@ -11,8 +11,6 @@ sqlalchemy = "1.4.46"
 psycopg2-binary = "^2.9.5"
 pandas = "^1.5.3"
 pydantic = "^2.3.0"
-geopandas = "^0.14.2"
-
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.0.249"
@@ -22,6 +20,7 @@ black = "^23.1.0"
 isort = "^5.12.0"
 pytest-cov = "^4.0.0"
 alembic = "^1.9.4"
+geopandas = "^0.14.2"
 
 [project.urls]
 "GitHub" = "https://github.com/openclimatefix/pvsite-datamodel"
