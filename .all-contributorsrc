@@ -24,6 +24,69 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "peterdudfield",
+      "name": "Peter Dudfield",
+      "avatar_url": "https://avatars.githubusercontent.com/u/34686298?v=4",
+      "profile": "https://github.com/peterdudfield",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "confusedmatrix",
+      "name": "Chris Briggs",
+      "avatar_url": "https://avatars.githubusercontent.com/u/617309?v=4",
+      "profile": "https://confusedmatrix.com",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "rachel-labri-tipton",
+      "name": "rachel tipton",
+      "avatar_url": "https://avatars.githubusercontent.com/u/86949265?v=4",
+      "profile": "http://racheltipton.dev",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "ericcccsliu",
+      "name": "Eric Liu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/62641231?v=4",
+      "profile": "https://github.com/ericcccsliu",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "braddf",
+      "name": "braddf",
+      "avatar_url": "https://avatars.githubusercontent.com/u/41056982?v=4",
+      "profile": "https://github.com/braddf",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "bikramb98",
+      "name": "Bikram Baruah",
+      "avatar_url": "https://avatars.githubusercontent.com/u/24806286?v=4",
+      "profile": "https://github.com/bikramb98",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "AndrewLester",
+      "name": "Andrew Lester",
+      "avatar_url": "https://avatars.githubusercontent.com/u/23221268?v=4",
+      "profile": "http://andrewlester.net",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
