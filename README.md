@@ -1,6 +1,6 @@
 <h1 align="center">pvsite-datamodel</h1>
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-4-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-5-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 <p align="center">
     <a href="https://pypi.org/project/pvsite-datamodel/0.1.18/" alt="PyPi package">
@@ -290,6 +290,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/peterdudfield"><img src="https://avatars.githubusercontent.com/u/34686298?v=4?s=100" width="100px;" alt="Peter Dudfield"/><br /><sub><b>Peter Dudfield</b></sub></a><br /><a href="https://github.com/openclimatefix/pv-site-datamodel/commits?author=peterdudfield" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://confusedmatrix.com"><img src="https://avatars.githubusercontent.com/u/617309?v=4?s=100" width="100px;" alt="Chris Briggs"/><br /><sub><b>Chris Briggs</b></sub></a><br /><a href="https://github.com/openclimatefix/pv-site-datamodel/commits?author=confusedmatrix" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/ericcccsliu"><img src="https://avatars.githubusercontent.com/u/62641231?v=4?s=100" width="100px;" alt="Eric Liu"/><br /><sub><b>Eric Liu</b></sub></a><br /><a href="https://github.com/openclimatefix/pv-site-datamodel/commits?author=ericcccsliu" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/bikramb98"><img src="https://avatars.githubusercontent.com/u/24806286?v=4?s=100" width="100px;" alt="Bikram Baruah"/><br /><sub><b>Bikram Baruah</b></sub></a><br /><a href="https://github.com/openclimatefix/pv-site-datamodel/commits?author=bikramb98" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
