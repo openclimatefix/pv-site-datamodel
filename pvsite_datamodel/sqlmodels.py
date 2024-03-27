@@ -10,7 +10,7 @@ from typing import List
 
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.orm import Mapped, declarative_base, relationship
 from sqlalchemy.schema import UniqueConstraint
 
 Base = declarative_base()
@@ -41,7 +41,7 @@ class UserSQL(Base, CreatedMixin):
     )
 
     # Relationships
-    site_group: "SiteGroupSQL" = relationship("SiteGroupSQL", back_populates="users")
+    site_group: Mapped["SiteGroupSQL"] = relationship("SiteGroupSQL", back_populates="users")
     api_request = relationship("APIRequestSQL", back_populates="user")
 
 
@@ -58,11 +58,11 @@ class SiteGroupSQL(Base, CreatedMixin):
 
     # Relationships
     # N-N
-    sites: List["SiteSQL"] = relationship(
+    sites: Mapped[List["SiteSQL"]] = relationship(
         "SiteSQL", secondary="site_group_sites", back_populates="site_groups"
     )
     # 1-N, one site group can have many users
-    users: List[UserSQL] = relationship("UserSQL", back_populates="site_group")
+    users: Mapped[List[UserSQL]] = relationship("UserSQL", back_populates="site_group")
 
 
 class SiteGroupSiteSQL(Base, CreatedMixin):
@@ -155,12 +155,12 @@ class SiteSQL(Base, CreatedMixin):
         comment="Auto-incrementing integer ID of the site for use in ML training",
     )
 
-    forecasts: List["ForecastSQL"] = relationship("ForecastSQL", back_populates="site")
-    generation: List["GenerationSQL"] = relationship("GenerationSQL")
-    inverters: List["InverterSQL"] = relationship(
+    forecasts: Mapped[List["ForecastSQL"]] = relationship("ForecastSQL", back_populates="site")
+    generation: Mapped[List["GenerationSQL"]] = relationship("GenerationSQL")
+    inverters: Mapped[List["InverterSQL"]] = relationship(
         "InverterSQL", back_populates="site", cascade="all, delete-orphan"
     )
-    site_groups: List["SiteGroupSQL"] = relationship(
+    site_groups: Mapped[List["SiteGroupSQL"]] = relationship(
         "SiteGroupSQL", secondary="site_group_sites", back_populates="sites"
     )
 
@@ -206,7 +206,7 @@ class GenerationSQL(Base, CreatedMixin):
         comment="The end of the time interval over which this generated power value applies",
     )
 
-    site: SiteSQL = relationship("SiteSQL", back_populates="generation")
+    site: Mapped["SiteSQL"] = relationship("SiteSQL", back_populates="generation")
 
 
 class ForecastSQL(Base, CreatedMixin):
@@ -246,7 +246,7 @@ class ForecastSQL(Base, CreatedMixin):
     )
 
     # one (forecasts) to many (forecast_values)
-    forecast_values: List["ForecastValueSQL"] = relationship("ForecastValueSQL")
+    forecast_values: Mapped["ForecastValueSQL"] = relationship("ForecastValueSQL")
     site = relationship("SiteSQL", back_populates="forecasts")
 
     __table_args__ = (
@@ -307,7 +307,7 @@ class ForecastValueSQL(Base, CreatedMixin):
         comment="The forecast sequence this forcast value belongs to",
     )
 
-    forecast: ForecastSQL = relationship("ForecastSQL", back_populates="forecast_values")
+    forecast: Mapped["ForecastSQL"] = relationship("ForecastSQL", back_populates="forecast_values")
 
     __table_args__ = (
         # Here we assume that we always filter on `horizon_minutes` *for given forecasts*.
@@ -354,7 +354,7 @@ class InverterSQL(Base, CreatedMixin):
         comment="The UUID for the site that has this inverter",
     )
 
-    site: SiteSQL = relationship("SiteSQL", back_populates="inverters")
+    site: Mapped["SiteSQL"] = relationship("SiteSQL", back_populates="inverters")
 
 
 class APIRequestSQL(Base, CreatedMixin):
