@@ -6,6 +6,7 @@ from __future__ import annotations
 import enum
 import uuid
 from datetime import datetime
+from typing import List
 
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import UUID
@@ -57,11 +58,11 @@ class SiteGroupSQL(Base, CreatedMixin):
 
     # Relationships
     # N-N
-    sites: Mapped["SiteSQL"] = relationship(
+    sites: Mapped[List["SiteSQL"]] = relationship(
         "SiteSQL", secondary="site_group_sites", back_populates="site_groups"
     )
     # 1-N, one site group can have many users
-    users: Mapped[UserSQL] = relationship("UserSQL", back_populates="site_group")
+    users: Mapped[List[UserSQL]] = relationship("UserSQL", back_populates="site_group")
 
 
 class SiteGroupSiteSQL(Base, CreatedMixin):
@@ -154,12 +155,12 @@ class SiteSQL(Base, CreatedMixin):
         comment="Auto-incrementing integer ID of the site for use in ML training",
     )
 
-    forecasts: Mapped["ForecastSQL"] = relationship("ForecastSQL", back_populates="site")
-    generation: Mapped["GenerationSQL"] = relationship("GenerationSQL")
-    inverters: Mapped["InverterSQL"] = relationship(
+    forecasts: Mapped[List["ForecastSQL"]] = relationship("ForecastSQL", back_populates="site")
+    generation: Mapped[List["GenerationSQL"]] = relationship("GenerationSQL")
+    inverters: Mapped[List["InverterSQL"]] = relationship(
         "InverterSQL", back_populates="site", cascade="all, delete-orphan"
     )
-    site_groups: Mapped["SiteGroupSQL"] = relationship(
+    site_groups: Mapped[List["SiteGroupSQL"]] = relationship(
         "SiteGroupSQL", secondary="site_group_sites", back_populates="sites"
     )
 
