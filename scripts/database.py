@@ -1,7 +1,7 @@
-import structlog
+import logging
 from pvsite_datamodel.read.user import get_user_by_email as get_user_by_db
 from pvsite_datamodel.sqlmodels import APIRequestSQL
-logger = structlog.stdlib.get_logger()
+logger = logging.getLogger(__name__)
 def save_api_call_to_db(request, session, user=None):
     """
     Save api call to database
