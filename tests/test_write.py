@@ -9,7 +9,9 @@ import pytest
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, GenerationSQL
+from pvsite_datamodel.read.user import get_user_by_email
+from pvsite_datamodel.sqlmodels import APIRequestSQL, ForecastSQL, ForecastValueSQL, GenerationSQL
+from pvsite_datamodel.write.database import save_api_call_to_db
 from pvsite_datamodel.write.forecast import insert_forecast_values
 from pvsite_datamodel.write.generation import insert_generation_values
 from pvsite_datamodel.write.user_and_site import (
@@ -244,3 +246,10 @@ def test_change_user_site_group(db_session):
 
     assert user_site_group == site_group2.site_group_name
     assert user == "test_user@gmail.com"
+
+
+def test_save_api_call_to_db(db_session):
+    user = get_user_by_email(session=db_session, email="test@test.com")
+    url = "test"
+    save_api_call_to_db(url=url, session=db_session, user=user)
+    assert len(db_session.query(APIRequestSQL).all()) == 1
