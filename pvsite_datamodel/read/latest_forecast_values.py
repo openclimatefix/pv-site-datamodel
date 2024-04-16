@@ -45,7 +45,10 @@ def get_latest_forecast_values_by_site(
     :param start_utc: filters on forecast values target_time >= start_utc
     :param created_by: filter on forecast values created time <= created_by
     :param sum_by: optional, sum the forecast values by this column
-    :param forecast_horizon_minutes, optional, filter on forecast horizon minutes
+    :param forecast_horizon_minutes, optional, filter on forecast horizon minutes. We 
+        return any forecast with forecast horizon mintues >= this value. 
+        For example, for forecast_horizon_minutes==90, the latest forecast great or equal to 
+        forecast_horizon_minutes=90 will be loaded. 
     """
 
     if sum_by not in ["total", "dno", "gsp", None]:
@@ -68,7 +71,7 @@ def get_latest_forecast_values_by_site(
         query = query.filter(ForecastValueSQL.created_utc <= created_by)
 
     if forecast_horizon_minutes is not None:
-        query = query.filter(ForecastValueSQL.horizon_minutes == forecast_horizon_minutes)
+        query = query.filter(ForecastValueSQL.horizon_minutes >= forecast_horizon_minutes)
 
     # speed up query, so all information is gather in one query, rather than lots of little ones
     query = query.options(contains_eager(ForecastValueSQL.forecast)).populate_existing()
