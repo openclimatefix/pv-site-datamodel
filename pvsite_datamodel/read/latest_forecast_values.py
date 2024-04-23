@@ -4,7 +4,7 @@ import datetime as dt
 import uuid
 from typing import List, Optional, Union
 
-from sqlalchemy import func
+from sqlalchemy import func, text
 from sqlalchemy.orm import Session, contains_eager
 
 from pvsite_datamodel.pydantic_models import ForecastValueSum
@@ -18,6 +18,8 @@ def get_latest_forecast_values_by_site(
     sum_by: Optional[str] = None,
     created_by: Optional[dt.datetime] = None,
     forecast_horizon_minutes: Optional[int] = None,
+    day_ahead_hours: Optional[int] = None,
+    day_ahead_timezone_delta_hours: Optional[float] = 0,
 ) -> Union[dict[uuid.UUID, list[ForecastValueSQL]], List[ForecastValueSum]]:
     """Get the forecast values by input sites, get the latest value.
 
@@ -49,6 +51,12 @@ def get_latest_forecast_values_by_site(
         return any forecast with forecast horizon mintues >= this value.
         For example, for forecast_horizon_minutes==90, the latest forecast great or equal to
         forecast_horizon_minutes=90 will be loaded.
+    :param day_ahead_hours: optional, filter on forecast values on creattion time.
+        If day_ahead_hours=9, we only get forecasts made before 9 o'clock the day before.
+    :param day_ahead_timezone_delta_hours: optional, the timezone delta in hours.
+        As datetimes are stored in UTC, we need to adjust the start_utc when looking at day
+        ahead forecast. For example a forecast made a 04:00 UTC for 20:00 UTC for India,
+        is actually a day ahead forcast, as India is 5.5 hours ahead on UTC
     """
 
     if sum_by not in ["total", "dno", "gsp", None]:
@@ -72,6 +80,16 @@ def get_latest_forecast_values_by_site(
 
     if forecast_horizon_minutes is not None:
         query = query.filter(ForecastValueSQL.horizon_minutes >= forecast_horizon_minutes)
+
+    if day_ahead_hours:
+        query = query.filter(
+            ForecastValueSQL.created_utc
+            <= text(
+                f"date(start_utc + interval '{day_ahead_timezone_delta_hours}' hour "
+                f"- interval '1' day) + interval '{day_ahead_hours}' hour "
+                f"- interval '{day_ahead_timezone_delta_hours}' hour"
+            )
+        )
 
     # speed up query, so all information is gather in one query, rather than lots of little ones
     query = query.options(contains_eager(ForecastValueSQL.forecast)).populate_existing()
