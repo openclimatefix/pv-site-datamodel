@@ -82,6 +82,20 @@ def get_latest_forecast_values_by_site(
         query = query.filter(ForecastValueSQL.horizon_minutes >= forecast_horizon_minutes)
 
     if day_ahead_hours:
+        """Filter on forecast values on creation time for day ahead
+
+        For the UK, this means we only get forecasts made before 9 o'clock the day before.
+        We do this by
+        1. Getting the start_utc, and taking the date. '2024-04-01 20:00:00' -> '2024-04-01'
+        2. Minus one day. '2024-04-01' -> '2024-03-31'
+        3. Add 9 hours for 9 am. '2024-03-31' -> '2024-03-31 09:00:00'
+        4. Then only filters on forecasts made before this time
+
+        For India, which is 5.5 hours ahead of UTC, we need to adjust the timezone delta.
+        This is important as as forecast for '2024-04-01 20:00:00' UTC can be made before
+        '2024-04-01 04:30:00' UTC and be a day ahead forecast
+        """
+
         query = query.filter(
             ForecastValueSQL.created_utc
             <= text(
