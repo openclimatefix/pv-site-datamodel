@@ -62,6 +62,10 @@ def get_latest_forecast_values_by_site(
     if sum_by not in ["total", "dno", "gsp", None]:
         raise ValueError(f"sum_by must be one of ['total', 'dno', 'gsp'], not {sum_by}")
 
+    if day_ahead_timezone_delta_hours is not None:
+        # we use mintues and sql cant handle .5 hours (or any decimals)
+        day_ahead_timezone_delta_minute = int(day_ahead_timezone_delta_hours * 60)
+
     query = (
         session.query(ForecastValueSQL)
         .distinct(
@@ -99,9 +103,9 @@ def get_latest_forecast_values_by_site(
         query = query.filter(
             ForecastValueSQL.created_utc
             <= text(
-                f"date(start_utc + interval '{day_ahead_timezone_delta_hours}' hour "
+                f"date(start_utc + interval '{day_ahead_timezone_delta_minute}' minute "
                 f"- interval '1' day) + interval '{day_ahead_hours}' hour "
-                f"- interval '{day_ahead_timezone_delta_hours}' hour"
+                f"- interval '{day_ahead_timezone_delta_minute}' minute"
             )
         )
 
