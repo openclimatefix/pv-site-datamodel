@@ -64,7 +64,7 @@ def get_latest_forecast_values_by_site(
 
     if day_ahead_timezone_delta_hours is not None:
         # we use mintues and sql cant handle .5 hours (or any decimals)
-        day_ahead_timezone_delta_minute = int(day_ahead_timezone_delta_hours*60)
+        day_ahead_timezone_delta_minute = int(day_ahead_timezone_delta_hours * 60)
 
     query = (
         session.query(ForecastValueSQL)
