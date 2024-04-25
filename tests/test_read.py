@@ -8,6 +8,7 @@ import pytest
 from sqlalchemy.orm import Query
 
 from pvsite_datamodel import (
+    APIRequestSQL,
     ForecastSQL,
     ForecastValueSQL,
     SiteGroupSQL,
@@ -17,9 +18,11 @@ from pvsite_datamodel import (
 )
 from pvsite_datamodel.pydantic_models import LatitudeLongitudeLimits
 from pvsite_datamodel.read import (
+    get_all_last_api_request,
     get_all_site_groups,
     get_all_sites,
     get_all_users,
+    get_api_requests_for_one_user,
     get_latest_forecast_values_by_site,
     get_latest_status,
     get_pv_generation_by_sites,
@@ -559,3 +562,45 @@ def test_get_site_list_min(db_session, user_with_sites):
     lat_lon = LatitudeLongitudeLimits(latitude_min=50, longitude_min=2)
     sites = get_sites_from_user(session=db_session, user=user_with_sites, lat_lon_limits=lat_lon)
     assert len(sites) > 0
+
+
+def test_get_all_last_api_request(db_session):
+    user = get_user_by_email(session=db_session, email="test@test.com")
+    db_session.add(APIRequestSQL(user_uuid=user.uuid, url="test"))
+    db_session.add(APIRequestSQL(user_uuid=user.uuid, url="test2"))
+
+    last_requests_sql = get_all_last_api_request(session=db_session)
+    assert len(last_requests_sql) == 1
+    assert last_requests_sql[0].url == "test2"
+    assert last_requests_sql[0].user_uuid == user.uuid
+
+
+def test_get_api_requests_for_one_user(db_session):
+    user = get_user_by_email(session=db_session, email="test@test.com")
+    db_session.add(APIRequestSQL(user_uuid=user.uuid, url="test"))
+
+    requests_sql = get_api_requests_for_one_user(session=db_session, email=user.email)
+    assert len(requests_sql) == 1
+    assert requests_sql[0].url == "test"
+
+
+def test_get_api_requests_for_one_user_start_datetime(db_session):
+    user = get_user_by_email(session=db_session, email="test@test.com")
+    db_session.add(APIRequestSQL(user_uuid=user.uuid, url="test"))
+
+    requests_sql = get_api_requests_for_one_user(
+        session=db_session,
+        email=user.email,
+        start_datetime=dt.datetime.now() + dt.timedelta(hours=1),
+    )
+    assert len(requests_sql) == 0
+
+
+def test_get_api_requests_for_one_user_end_datetime(db_session):
+    user = get_user_by_email(session=db_session, email="test@test.com")
+    db_session.add(APIRequestSQL(user_uuid=user.uuid, url="test"))
+
+    requests_sql = get_api_requests_for_one_user(
+        session=db_session, email=user.email, end_datetime=dt.datetime.now() - dt.timedelta(hours=1)
+    )
+    assert len(requests_sql) == 0
