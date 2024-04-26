@@ -13,4 +13,11 @@ from .site import (
     get_sites_from_user,
 )
 from .status import get_latest_status
-from .user import get_all_site_groups, get_all_users, get_site_group_by_name, get_user_by_email
+from .user import (
+    get_all_last_api_request,
+    get_all_site_groups,
+    get_all_users,
+    get_api_requests_for_one_user,
+    get_site_group_by_name,
+    get_user_by_email,
+)
