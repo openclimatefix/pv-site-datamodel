@@ -572,7 +572,7 @@ def test_get_all_last_api_request(db_session):
     last_requests_sql = get_all_last_api_request(session=db_session)
     assert len(last_requests_sql) == 1
     assert last_requests_sql[0].url == "test2"
-    assert last_requests_sql[0].user_uuid == user.uuid
+    assert last_requests_sql[0].user_uuid == user.user_uuid
 
 
 def test_get_api_requests_for_one_user(db_session):
