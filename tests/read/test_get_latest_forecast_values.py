@@ -4,7 +4,6 @@ from typing import Optional
 import pytest
 
 from pvsite_datamodel import ForecastSQL, ForecastValueSQL, SiteSQL
-
 from pvsite_datamodel.read import get_latest_forecast_values_by_site
 
 

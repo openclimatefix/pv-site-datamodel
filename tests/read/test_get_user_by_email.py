@@ -1,7 +1,5 @@
 from pvsite_datamodel import UserSQL
-
 from pvsite_datamodel.read import get_user_by_email
-
 from pvsite_datamodel.write.user_and_site import create_site_group, create_user
 
 
