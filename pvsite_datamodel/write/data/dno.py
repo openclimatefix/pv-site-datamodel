@@ -9,6 +9,7 @@ and we want to added the gsp as {gsp_id}|{gsp_nam} into the database
 3. For each site add dno
 
 """
+
 import logging
 import os
 

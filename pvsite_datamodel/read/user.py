@@ -1,4 +1,5 @@
 """ Functions for reading user data from the database. """
+
 import logging
 from datetime import datetime
 from typing import List, Optional
