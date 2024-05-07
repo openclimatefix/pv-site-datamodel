@@ -96,6 +96,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "vishalj0501",
+      "name": "Vishal J",
+      "avatar_url": "https://avatars.githubusercontent.com/u/92500255?v=4",
+      "profile": "https://github.com/vishalj0501",
+      "contributions": [
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
