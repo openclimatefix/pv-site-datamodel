@@ -1,6 +1,7 @@
 """
 Functions to read from the database and format.
 """
+
 import logging
 
 from pvsite_datamodel.read.user import get_user_by_email as get_user_by_db

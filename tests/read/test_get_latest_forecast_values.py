@@ -3,15 +3,10 @@ from typing import Optional
 
 import pytest
 
-from pvsite_datamodel import (
-    ForecastSQL,
-    ForecastValueSQL,
-    SiteSQL
-)
+from pvsite_datamodel import ForecastSQL, ForecastValueSQL, SiteSQL
 
-from pvsite_datamodel.read import (
-    get_latest_forecast_values_by_site
-)
+from pvsite_datamodel.read import get_latest_forecast_values_by_site
+
 
 def _add_forecast_value(
     session,
@@ -250,4 +245,3 @@ def test_get_latest_forecast_values_day_head_with_timezone(db_session, sites):
             expected[site_uuid]
         ), f"{len(values_as_tuple)=}, {len(expected[site_uuid])=}"
         assert values_as_tuple == expected[site_uuid], f"{values_as_tuple=}, {expected[site_uuid]=}"
-

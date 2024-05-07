@@ -15,6 +15,7 @@ from pvsite_datamodel.read import (
 
 from pvsite_datamodel.write.user_and_site import create_site_group, create_user
 
+
 class TestGetPVGenerationByUser:
     """Tests for the get_pv_generation_by_client function."""
 

@@ -1,4 +1,5 @@
 """ Tools for making fake users and sites in the database."""
+
 import json
 from datetime import datetime, timezone
 from typing import Optional

@@ -1,4 +1,5 @@
 """Read pv generation functions."""
+
 import logging
 import uuid
 from datetime import datetime

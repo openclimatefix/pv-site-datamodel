@@ -1,10 +1,7 @@
-from pvsite_datamodel import (
-    StatusSQL
-)
+from pvsite_datamodel import StatusSQL
 
-from pvsite_datamodel.read import (
-    get_latest_status
-)
+from pvsite_datamodel.read import get_latest_status
+
 
 class TestGetLatestStatus:
     """Tests for the get_latest_status function."""

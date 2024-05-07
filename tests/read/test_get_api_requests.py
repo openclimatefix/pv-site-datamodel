@@ -1,13 +1,12 @@
 import datetime as dt
 
-from pvsite_datamodel import (
-    APIRequestSQL
-)
+from pvsite_datamodel import APIRequestSQL
 from pvsite_datamodel.read import (
     get_all_last_api_request,
     get_api_requests_for_one_user,
-    get_user_by_email
+    get_user_by_email,
 )
+
 
 def test_get_all_last_api_request(db_session):
     user = get_user_by_email(session=db_session, email="test@test.com")

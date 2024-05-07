@@ -1,4 +1,5 @@
 """ GSP functions for UK regions. """
+
 import logging
 import os
 
