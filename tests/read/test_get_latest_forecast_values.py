@@ -129,7 +129,6 @@ def test_get_latest_forecast_values(db_session, sites):
 
 
 def test_get_latest_forecast_values_with_end_utc(db_session, sites):
-
     # ****** setup ******
     site_uuids = [site.site_uuid for site in db_session.query(SiteSQL.site_uuid).limit(2)]
 
