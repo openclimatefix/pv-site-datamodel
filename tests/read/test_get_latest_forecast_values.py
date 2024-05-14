@@ -128,6 +128,75 @@ def test_get_latest_forecast_values(db_session, sites):
         )
 
 
+def test_get_latest_forecast_values_with_end_utc(db_session, sites):
+
+    # ****** setup ******
+    site_uuids = [site.site_uuid for site in db_session.query(SiteSQL.site_uuid).limit(2)]
+
+    s1, s2 = site_uuids
+
+    forecast_version = "123"
+
+    # Make sure we have some forecasts in the DB
+    s1_f1 = ForecastSQL(
+        site_uuid=s1,
+        forecast_version=forecast_version,
+        timestamp_utc=dt.datetime(2000, 1, 1),
+    )
+    s1_f2 = ForecastSQL(
+        site_uuid=s1,
+        forecast_version=forecast_version,
+        timestamp_utc=dt.datetime(2000, 1, 1, 0, 10),
+    )
+    s2_f1 = ForecastSQL(
+        site_uuid=s2,
+        forecast_version=forecast_version,
+        timestamp_utc=dt.datetime(2000, 1, 1),
+    )
+
+    db_session.add_all([s1_f1, s1_f2, s2_f1])
+    db_session.commit()
+
+    d0 = dt.datetime(2000, 1, 1, 0)
+    d1 = dt.datetime(2000, 1, 1, 1)
+    d2 = dt.datetime(2000, 1, 1, 2)
+    d3 = dt.datetime(2000, 1, 1, 3)
+    d4 = dt.datetime(2000, 1, 1, 4)
+
+    # site 1 forecast 1
+    _add_forecast_value(db_session, s1_f1, 1.0, d0, horizon_minutes=0)
+    _add_forecast_value(db_session, s1_f1, 2.0, d1, horizon_minutes=60)
+    _add_forecast_value(db_session, s1_f1, 3.0, d2, horizon_minutes=120)
+
+    # site 1 forecast 2
+    _add_forecast_value(db_session, s1_f2, 4.0, d2, horizon_minutes=60)
+    _add_forecast_value(db_session, s1_f2, 5.0, d3, horizon_minutes=120)
+    _add_forecast_value(db_session, s1_f2, 6.0, d4, horizon_minutes=180)
+
+    # Site 2 forecast 1
+    _add_forecast_value(db_session, s2_f1, 7.0, d0, horizon_minutes=0)
+    _add_forecast_value(db_session, s2_f1, 8.0, d1, horizon_minutes=60)
+    _add_forecast_value(db_session, s2_f1, 9.0, d2, horizon_minutes=120)
+    db_session.commit()
+
+    # ****** setup ******
+
+    latest_forecast = get_latest_forecast_values_by_site(db_session, site_uuids, d1, end_utc=d2)
+
+    expected = {
+        s1: [(d1, 2)],
+        s2: [(d1, 8)],
+    }
+
+    assert list(sorted(latest_forecast.keys())) == list(sorted(expected.keys()))
+
+    for site_uuid, forecast_values in latest_forecast.items():
+        # Format the values in a way that we can compare them.
+        values_as_tuple = [(v.start_utc, v.forecast_power_kw) for v in forecast_values]
+
+        assert values_as_tuple == expected[site_uuid]
+
+
 def test_get_latest_forecast_values_day_head(db_session, sites):
     """Test to get DA forecasts"""
     site_uuids = [site.site_uuid for site in db_session.query(SiteSQL.site_uuid).limit(2)]
