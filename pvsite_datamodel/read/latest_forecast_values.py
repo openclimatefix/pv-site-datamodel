@@ -15,6 +15,7 @@ def get_latest_forecast_values_by_site(
     session: Session,
     site_uuids: list[uuid.UUID],
     start_utc: dt.datetime,
+    end_utc: Optional[dt.datetime] = None,
     sum_by: Optional[str] = None,
     created_by: Optional[dt.datetime] = None,
     forecast_horizon_minutes: Optional[int] = None,
@@ -45,6 +46,7 @@ def get_latest_forecast_values_by_site(
     :param session: The sqlalchemy database session
     :param site_uuids: list of site_uuids for which to fetch latest forecast values
     :param start_utc: filters on forecast values target_time >= start_utc
+    :param end_utc: optional, filters on forecast values target_time < end_utc
     :param created_by: filter on forecast values created time <= created_by
     :param sum_by: optional, sum the forecast values by this column
     :param forecast_horizon_minutes, optional, filter on forecast horizon minutes. We
@@ -78,6 +80,9 @@ def get_latest_forecast_values_by_site(
             ForecastSQL.site_uuid.in_(site_uuids),
         )
     )
+
+    if end_utc is not None:
+        query = query.filter(ForecastValueSQL.start_utc < end_utc)
 
     if created_by is not None:
         query = query.filter(ForecastValueSQL.created_utc <= created_by)
