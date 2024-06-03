@@ -20,7 +20,7 @@ from pvsite_datamodel.write.data.utils import lat_lon_to_osgb
 try:
     import geopandas as gpd
 except ImportError:
-    raise ImportError("You might want to install geopandas")  # noqa
+    print("You might want to install geopandas")  # noqa
 
 logger = logging.getLogger(__name__)
 dir_path = os.path.dirname(os.path.realpath(__file__))
