@@ -17,11 +17,10 @@ def save_api_call_to_db(url, session, user=None):
     url = str(url)
     if user is None:
         email = "unknown"
-    else:
-        email = user.email
+        user = get_user_by_db(session=session, email=email)
 
-    # get user from db
-    user = get_user_by_db(session=session, email=email)
+    email = user.email
+
     # make api call
     logger.info(f"Saving api call ({url=}) to database for user {email}")
     api_request = APIRequestSQL(url=url, user=user)
