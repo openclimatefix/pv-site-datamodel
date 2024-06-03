@@ -13,12 +13,11 @@ and we want to added the gsp as {gsp_id}|{gsp_nam} into the database
 import logging
 import os
 
-from shapely.geometry import Point
-
 from pvsite_datamodel.write.data.utils import lat_lon_to_osgb
 
 try:
     import geopandas as gpd
+    from shapely.geometry import Point
 except ImportError:
     print("You might want to install geopandas")  # noqa
 

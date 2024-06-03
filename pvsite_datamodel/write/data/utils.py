@@ -1,6 +1,9 @@
 """ Utils for GSP and DNO. """
 
-import pyproj
+try:
+    import pyproj
+except ImportError:
+    print("You might want to install pyproj")  # noqa
 
 # OSGB is also called "OSGB 1936 / British National Grid -- United
 # Kingdom Ordnance Survey".  OSGB is used in many UK electricity
