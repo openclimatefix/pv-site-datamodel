@@ -11,18 +11,19 @@ from pvsite_datamodel.sqlmodels import APIRequestSQL, SiteGroupSQL, UserSQL
 logger = logging.getLogger(__name__)
 
 
-def get_user_by_email(session: Session, email: str):
+def get_user_by_email(session: Session, email: str, make_new_user_if_none: bool = True):
     """
     Get user by email. If user does not exist, make one.
 
     :param session: database session
     :param email: email of user
+    :param make_new_user_if_none: make user with email if doesn't exist
     :return: user object
     """
 
     user = session.query(UserSQL).filter(UserSQL.email == email).first()
 
-    if user is None:
+    if user is None and make_new_user_if_none == True:
         logger.info(f"User with email {email} not found, so making one")
 
         # making a new site group
