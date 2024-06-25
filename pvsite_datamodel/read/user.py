@@ -23,7 +23,7 @@ def get_user_by_email(session: Session, email: str, make_new_user_if_none: bool 
 
     user = session.query(UserSQL).filter(UserSQL.email == email).first()
 
-    if user is None and make_new_user_if_none == True:
+    if user is None and make_new_user_if_none is True:
         logger.info(f"User with email {email} not found, so making one")
 
         # making a new site group

@@ -28,5 +28,5 @@ class TestGetUserByEmail:
         user = get_user_by_email(
             session=db_session, email="test@test.com", make_new_user_if_none=False
         )
-        assert user == None
+        assert user is None
         assert len(db_session.query(UserSQL).all()) == 0
