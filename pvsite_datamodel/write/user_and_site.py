@@ -8,8 +8,8 @@ import sqlalchemy as sa
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.functions import func
 
-from pvsite_datamodel.read import get_user_by_email
 from pvsite_datamodel.pydantic_models import PVSiteEditMetadata
+from pvsite_datamodel.read import get_user_by_email
 from pvsite_datamodel.sqlmodels import (
     ForecastSQL,
     ForecastValueSQL,
@@ -245,11 +245,10 @@ def update_user_site_group(session: Session, email: str, site_group_name: str) -
 
     return user
 
+
 # update site metadata
-def edit_site(    
-    session: Session,
-    site_uuid: str,
-    site_info: PVSiteEditMetadata
+def edit_site(
+    session: Session, site_uuid: str, site_info: PVSiteEditMetadata
 ) -> Tuple[SiteSQL, str]:
     """
     Edit an existing site. Fill in only the fields that need to be updated.
@@ -270,10 +269,10 @@ def edit_site(
         - gsp: gsp of site
     """
     site = session.query(SiteSQL).filter(SiteSQL.site_uuid == site_uuid).first()
-    
+
     update_data = site_info.model_dump(exclude_unset=True, exclude_none=False)
 
-    # Update model class variable from requested fields 
+    # Update model class variable from requested fields
     for var, value in update_data.items():
         setattr(site, var, value)
 

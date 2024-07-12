@@ -9,8 +9,8 @@ import pytest
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from pvsite_datamodel.read.user import get_user_by_email
 from pvsite_datamodel.pydantic_models import PVSiteEditMetadata
+from pvsite_datamodel.read.user import get_user_by_email
 from pvsite_datamodel.sqlmodels import APIRequestSQL, ForecastSQL, ForecastValueSQL, GenerationSQL
 from pvsite_datamodel.write.database import save_api_call_to_db
 from pvsite_datamodel.write.forecast import insert_forecast_values
@@ -21,8 +21,8 @@ from pvsite_datamodel.write.user_and_site import (
     create_site,
     create_site_group,
     create_user,
-    make_fake_site,
     edit_site,
+    make_fake_site,
 )
 
 
@@ -265,8 +265,8 @@ def test_edit_site(db_session):
     metadata_to_update = PVSiteEditMetadata(tilt=15, capacity_kw=None)
 
     site, _ = edit_site(
-        session=db_session, 
-        site_uuid=str(site.site_uuid), 
+        session=db_session,
+        site_uuid=str(site.site_uuid),
         site_info=metadata_to_update,
     )
 
