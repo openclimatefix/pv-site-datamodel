@@ -2,13 +2,14 @@
 
 import json
 from datetime import datetime, timezone
-from typing import Optional
+from typing import Optional, Tuple
 
 import sqlalchemy as sa
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.functions import func
 
 from pvsite_datamodel.read import get_user_by_email
+from pvsite_datamodel.pydantic_models import PVSiteEditMetadata
 from pvsite_datamodel.sqlmodels import (
     ForecastSQL,
     ForecastValueSQL,
@@ -243,6 +244,46 @@ def update_user_site_group(session: Session, email: str, site_group_name: str) -
     session.commit()
 
     return user
+
+# update site metadata
+def edit_site(    
+    session: Session,
+    site_uuid: str,
+    site_info: PVSiteEditMetadata
+) -> Tuple[SiteSQL, str]:
+    """
+    Edit an existing site. Fill in only the fields that need to be updated.
+
+    :param session: database session
+    :param site_uuid: the existing site uuid
+    :param site_info: metadata for editing the site, should be an instance of PVSiteEditMetadata
+        - client_site_id: id the client uses for the site
+        - client_site_name: name the client uses for the site
+        - orientation: orientation of site
+        - tilt: tilt of site
+        - latitude: latitude of site as an integer
+        - longitude: longitude of site as an integer
+        - inverter_capacity_kw: inverter capacity of site in kw
+        - module_capacity_kw: module capacity of site in kw
+        - capacity_kw: capacity of site in kw
+        - dno: dno of site
+        - gsp: gsp of site
+    """
+    site = session.query(SiteSQL).filter(SiteSQL.site_uuid == site_uuid).first()
+    
+    update_data = site_info.model_dump(exclude_unset=True, exclude_none=False)
+
+    # Update model class variable from requested fields 
+    for var, value in update_data.items():
+        setattr(site, var, value)
+
+    session.add(site)
+    session.commit()
+    session.refresh(site)
+
+    message = f"Site with site uuid {site.site_uuid} updated successfully"
+
+    return site, message
 
 
 # delete functions for site, user, and site group
