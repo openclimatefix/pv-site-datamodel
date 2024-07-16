@@ -68,6 +68,7 @@ Currently available write functions accessible via `from pvsite_datamodels.write
 - add_site_to_site_group
 - change_user_site_group
 - update_user_site_group
+- edit_site
 - delete_site
 - delete_user
 - delete_site_group
