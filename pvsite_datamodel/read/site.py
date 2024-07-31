@@ -105,7 +105,9 @@ def get_all_sites(session: Session) -> List[SiteSQL]:
     return sites
 
 
-def get_sites_by_country(session: Session, country: str, client_name: Optional[str] = None) -> List[SiteSQL]:
+def get_sites_by_country(
+    session: Session, country: str, client_name: Optional[str] = None
+) -> List[SiteSQL]:
     """Get sites for specific country from the sites table.
 
     :param session: database session

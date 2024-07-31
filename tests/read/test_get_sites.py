@@ -61,12 +61,11 @@ class TestGetSitesByCountry:
     def test_returns_correct_client_name(self, make_sites_for_country, db_session):
         country = "india"
         sites = make_sites_for_country(country)
-        out = get_sites_by_country(db_session, country, client_name='test')
+        out = get_sites_by_country(db_session, country, client_name="test")
         assert len(out) == len(sites)
 
-        out = get_sites_by_country(db_session, country, client_name='test2')
+        out = get_sites_by_country(db_session, country, client_name="test2")
         assert len(out) == 0
-
 
     def test_returns_no_sites_for_unknown_country(self, make_sites_for_country, db_session):
         _ = make_sites_for_country("uk")
