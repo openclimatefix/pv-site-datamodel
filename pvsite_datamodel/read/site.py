@@ -105,11 +105,14 @@ def get_all_sites(session: Session) -> List[SiteSQL]:
     return sites
 
 
-def get_sites_by_country(session: Session, country: str) -> List[SiteSQL]:
+def get_sites_by_country(
+    session: Session, country: str, client_name: Optional[str] = None
+) -> List[SiteSQL]:
     """Get sites for specific country from the sites table.
 
     :param session: database session
     :param country: country name
+    :param client_name: optional client string, we search this in the 'client_site_name'.
     :return: site object
     """
     logger.debug(f"Getting sites by country={country}")
@@ -119,6 +122,13 @@ def get_sites_by_country(session: Session, country: str) -> List[SiteSQL]:
 
     # filter by country
     query = query.filter(SiteSQL.country == country)
+
+    # filter by client string
+    # This could cause an issue if client_a's name is in the site of clients_b.
+    # We could make a new Client table and join it with sites
+    # https://github.com/openclimatefix/pv-site-datamodel/issues/148
+    if client_name is not None:
+        query = query.filter(SiteSQL.client_site_name.like(f"%{client_name}%"))
 
     # order by uuuid
     query = query.order_by(SiteSQL.site_uuid)
