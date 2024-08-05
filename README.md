@@ -32,6 +32,7 @@ Classes specifying table schemas:
 - GenerationSQL
 - ForecastSQL
 - ForecastValueSQL
+- MLModelSQL
 - UserSQL
 - SiteSQL
 - SiteGroupSQL
@@ -176,6 +177,12 @@ classDiagram
         + url : String
         + user_uuid : UUID ≪ FK ≫
     }
+    
+    class MLModelSQL{
+        + uuid : UUID ≪ PK ≫
+        + mode_name : String
+        + model_version : UUID ≪ FK ≫
+    }
 
     UserSQL "1" -- "N" SiteGroupSQL : belongs_to
     SiteGroupSQL "N" -- "N" SiteSQL : contains
@@ -183,6 +190,7 @@ classDiagram
     SiteSQL "1" -- "N" GenerationSQL : generates
     SiteSQL "1" -- "N" ForecastSQL : forecasts
     ForecastSQL "1" -- "N" ForecastValueSQL : contains
+    MLModelSQL "1" -- "N" ForecastValueSQL : forecasts
     SiteSQL "1" -- "N" InverterSQL : contains
     UserSQL "1" -- "N" APIRequestSQL : performs_request
     class Legend{

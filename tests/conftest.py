@@ -18,7 +18,7 @@ from pvsite_datamodel.write.user_and_site import create_site_group, create_user
 @pytest.fixture(scope="session")
 def engine():
     """Database engine fixture."""
-    with PostgresContainer("postgres:14.5") as postgres:
+    with PostgresContainer("postgres:15.5") as postgres:
         # TODO need to setup postgres database with docker
         url = postgres.get_connection_url()
         engine = create_engine(url)
