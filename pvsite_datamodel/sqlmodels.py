@@ -6,7 +6,7 @@ from __future__ import annotations
 import enum
 import uuid
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import UUID
@@ -20,6 +20,20 @@ class CreatedMixin:
     """Mixin to add created datetime to model."""
 
     created_utc = sa.Column(sa.DateTime, default=lambda: datetime.utcnow())
+
+
+class MLModelSQL(Base, CreatedMixin):
+    """ML model that is being used."""
+
+    __tablename__ = "ml_model"
+
+    model_uuid = sa.Column(UUID, primary_key=True, server_default=sa.func.gen_random_uuid())
+    name = sa.Column(sa.String)
+    version = sa.Column(sa.String)
+
+    forecast_values: Mapped[List["ForecastValueSQL"]] = relationship(
+        "ForecastValueSQL", back_populates="ml_model"
+    )
 
 
 class UserSQL(Base, CreatedMixin):
@@ -306,8 +320,17 @@ class ForecastValueSQL(Base, CreatedMixin):
         nullable=False,
         comment="The forecast sequence this forcast value belongs to",
     )
+    ml_model_uuid = sa.Column(
+        UUID(as_uuid=True),
+        sa.ForeignKey("ml_model.model_uuid"),
+        nullable=True,
+        comment="The ML Model this forcast value belongs to",
+    )
 
     forecast: Mapped["ForecastSQL"] = relationship("ForecastSQL", back_populates="forecast_values")
+    ml_model: Mapped[Optional[MLModelSQL]] = relationship(
+        "MLModelSQL", back_populates="forecast_values"
+    )
 
     __table_args__ = (
         # Here we assume that we always filter on `horizon_minutes` *for given forecasts*.

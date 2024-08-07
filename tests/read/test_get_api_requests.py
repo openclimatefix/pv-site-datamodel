@@ -45,6 +45,8 @@ def test_get_api_requests_for_one_user_end_datetime(db_session):
     db_session.add(APIRequestSQL(user_uuid=user.user_uuid, url="test"))
 
     requests_sql = get_api_requests_for_one_user(
-        session=db_session, email=user.email, end_datetime=dt.datetime.now() - dt.timedelta(hours=1)
+        session=db_session,
+        email=user.email,
+        end_datetime=dt.datetime.now(tz=dt.timezone.utc) - dt.timedelta(hours=1),
     )
     assert len(requests_sql) == 0

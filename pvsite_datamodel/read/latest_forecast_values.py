@@ -8,7 +8,7 @@ from sqlalchemy import func, text
 from sqlalchemy.orm import Session, contains_eager
 
 from pvsite_datamodel.pydantic_models import ForecastValueSum
-from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, SiteSQL
+from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, MLModelSQL, SiteSQL
 
 
 def get_latest_forecast_values_by_site(
@@ -21,6 +21,7 @@ def get_latest_forecast_values_by_site(
     forecast_horizon_minutes: Optional[int] = None,
     day_ahead_hours: Optional[int] = None,
     day_ahead_timezone_delta_hours: Optional[float] = 0,
+    model_name: Optional[str] = None,
 ) -> Union[dict[uuid.UUID, list[ForecastValueSQL]], List[ForecastValueSum]]:
     """Get the forecast values by input sites, get the latest value.
 
@@ -59,6 +60,7 @@ def get_latest_forecast_values_by_site(
         As datetimes are stored in UTC, we need to adjust the start_utc when looking at day
         ahead forecast. For example a forecast made a 04:00 UTC for 20:00 UTC for India,
         is actually a day ahead forcast, as India is 5.5 hours ahead on UTC
+    :param model_name: optional, filter on forecast values with this model name
     """
 
     if sum_by not in ["total", "dno", "gsp", None]:
@@ -113,6 +115,11 @@ def get_latest_forecast_values_by_site(
                 f"- interval '{day_ahead_timezone_delta_minute}' minute"
             )
         )
+
+    if model_name is not None:
+        # join with MLModelSQL to filter on model_name
+        query = query.join(MLModelSQL)
+        query = query.filter(MLModelSQL.name == model_name)
 
     # speed up query, so all information is gather in one query, rather than lots of little ones
     query = query.options(contains_eager(ForecastValueSQL.forecast)).populate_existing()
