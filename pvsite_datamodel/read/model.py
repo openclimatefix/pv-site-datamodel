@@ -9,7 +9,7 @@ from pvsite_datamodel.sqlmodels import MLModelSQL
 logger = logging.getLogger(__name__)
 
 
-def get_model(session: Session, name: str, version: Optional[str] = None) -> MLModelSQL:
+def get_or_create_model(session: Session, name: str, version: Optional[str] = None) -> MLModelSQL:
     """
     Get model object from name and version.
 

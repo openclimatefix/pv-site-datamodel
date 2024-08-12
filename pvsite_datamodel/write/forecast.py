@@ -8,7 +8,7 @@ from typing import Optional
 import pandas as pd
 from sqlalchemy.orm import Session
 
-from pvsite_datamodel.read.model import get_model
+from pvsite_datamodel.read.model import get_or_create_model
 from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL
 
 _log = logging.getLogger(__name__)
@@ -35,7 +35,7 @@ def insert_forecast_values(
     session.flush()
 
     if (ml_model_name is not None) and (ml_model_version is not None):
-        ml_model = get_model(session, ml_model_name, ml_model_version)
+        ml_model = get_or_create_model(session, ml_model_name, ml_model_version)
         ml_model_uuid = ml_model.uuid
     else:
         ml_model_uuid = None

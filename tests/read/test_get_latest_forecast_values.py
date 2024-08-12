@@ -4,7 +4,7 @@ from typing import Optional
 import pytest
 
 from pvsite_datamodel import ForecastSQL, ForecastValueSQL, SiteSQL
-from pvsite_datamodel.read import get_latest_forecast_values_by_site, get_model
+from pvsite_datamodel.read import get_latest_forecast_values_by_site, get_or_create_model
 
 
 def _add_forecast_value(
@@ -29,7 +29,7 @@ def _add_forecast_value(
         fv.created_utc = created_utc
 
     if model_name is not None:
-        model = get_model(session, model_name)
+        model = get_or_create_model(session, model_name)
         fv.ml_model_uuid = str(model.model_uuid)
 
     session.add(fv)
