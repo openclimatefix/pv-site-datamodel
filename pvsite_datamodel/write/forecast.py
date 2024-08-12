@@ -26,6 +26,8 @@ def insert_forecast_values(
     :param session: sqlalchemy session for interacting with the database
     :param forecast_meta: Meta info about the forecast values
     :param forecast_values_df: dataframe with the data to insert
+    :param ml_model_name: name of the ML model used to generate the forecast
+    :param ml_model_version: version of the ML model used to generate the forecast
     """
 
     forecast = ForecastSQL(**forecast_meta)
@@ -36,7 +38,7 @@ def insert_forecast_values(
 
     if (ml_model_name is not None) and (ml_model_version is not None):
         ml_model = get_or_create_model(session, ml_model_name, ml_model_version)
-        ml_model_uuid = ml_model.uuid
+        ml_model_uuid = ml_model.model_uuid
     else:
         ml_model_uuid = None
 

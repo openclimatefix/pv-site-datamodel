@@ -52,7 +52,13 @@ class TestInsertForecastValues:
         assert ptypes.is_numeric_dtype(forecast_values_df["forecast_power_kw"])
         assert ptypes.is_numeric_dtype(forecast_values_df["horizon_minutes"])
 
-        insert_forecast_values(db_session, forecast_meta, forecast_values_df)
+        insert_forecast_values(
+            db_session,
+            forecast_meta,
+            forecast_values_df,
+            ml_model_name="test",
+            ml_model_version="0.0.0",
+        )
 
         assert db_session.query(ForecastSQL).count() == 1
         assert db_session.query(ForecastValueSQL).count() == 10
