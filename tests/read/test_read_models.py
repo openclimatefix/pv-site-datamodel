@@ -1,4 +1,7 @@
 """ test get models"""
+import datetime as dt
+from uuid import uuid4
+
 import pandas as pd
 
 from pvsite_datamodel.read.model import get_models, get_or_create_model
@@ -43,4 +46,37 @@ def test_get_models_with_datetimes(db_session, forecast_valid_input):
         ml_model_version=model.version,
     )
 
-    _ = get_models(session=db_session, start_datetime=pd.Timestamp("2021-01-01 00:00:00"))
+    now = dt.datetime.now(dt.timezone.utc)
+    models = get_models(session=db_session, start_datetime=now)
+    assert len(models) == 1
+
+    models = get_models(session=db_session, start_datetime=now + dt.timedelta(days=1))
+    assert len(models) == 0
+
+
+def test_get_models_with_datetimes_with_sites(db_session, forecast_valid_input):
+    model = get_or_create_model(session=db_session, name="test_name", version="9.9.10")
+
+    forecast_valid_meta_input, forecast_valid_values_input = forecast_valid_input
+
+    df = pd.DataFrame(forecast_valid_values_input)
+
+    insert_forecast_values(
+        session=db_session,
+        forecast_meta=forecast_valid_meta_input,
+        forecast_values_df=df,
+        ml_model_name=model.name,
+        ml_model_version=model.version,
+    )
+
+    models = get_models(
+        session=db_session,
+        start_datetime=dt.datetime.now(dt.timezone.utc),
+        site_uuid=forecast_valid_meta_input["site_uuid"],
+    )
+    assert len(models) == 1
+
+    models = get_models(
+        session=db_session, start_datetime=dt.datetime.now(dt.timezone.utc), site_uuid=str(uuid4())
+    )
+    assert len(models) == 0
