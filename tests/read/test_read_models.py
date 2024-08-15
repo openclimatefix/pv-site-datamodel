@@ -28,25 +28,16 @@ def test_get_models(db_session):
     assert len(models) == 1
 
 
-def test_get_models_with_datetimes(db_session):
+def test_get_models_with_datetimes(db_session, forecast_valid_input):
     model = get_or_create_model(session=db_session, name="test_name", version="9.9.10")
 
-    df = pd.DataFrame(
-        {
-            "site_uuid": ["test_uuid"],
-            "start_utc": [pd.Timestamp("2021-01-01 00:00:00")],
-            "power_kw": [0.0],
-        }
-    )
-    forecast_meta = {
-        "site_uuid": "test_uuid",
-        "timestamp_utc": pd.Timestamp("2021-01-01 00:00:00"),
-        "forecast_version": "0.0.0",
-    }
+    forecast_valid_meta_input, forecast_valid_values_input = forecast_valid_input
+
+    df = pd.DataFrame(forecast_valid_values_input)
 
     insert_forecast_values(
         session=db_session,
-        forecast_meta=forecast_meta,
+        forecast_meta=forecast_valid_meta_input,
         forecast_values_df=df,
         ml_model_name=model.name,
         ml_model_version=model.version,
