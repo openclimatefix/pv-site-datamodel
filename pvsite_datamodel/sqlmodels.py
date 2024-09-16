@@ -172,7 +172,7 @@ class SiteSQL(Base, CreatedMixin):
     client_uuid = sa.Column(
         UUID(as_uuid=True),
         sa.ForeignKey("clients.client_uuid"),
-        nullable=False,
+        nullable=True,
         index=True,
         comment="The UUID of the client this site belongs to",
     )
@@ -191,12 +191,13 @@ class SiteSQL(Base, CreatedMixin):
 class ClientSQL(Base, CreatedMixin):
     """Class representing the client table.
 
-    Each client row specifies a single client."""
+    Each client row specifies a single client.
+    """
 
     __tablename__ = "clients"
 
     client_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    client_name = sa.Column(sa.String(255), index=True, unique=True)
+    client_name = sa.Column(sa.String(255), nullable=False, index=True, unique=True)
 
     sites: Mapped[List[SiteSQL]] = relationship("SiteSQL", back_populates="client")
 
