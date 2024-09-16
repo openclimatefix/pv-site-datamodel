@@ -10,7 +10,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from testcontainers.postgres import PostgresContainer
 
-from pvsite_datamodel import GenerationSQL, SiteSQL, StatusSQL
+from pvsite_datamodel import ClientSQL, GenerationSQL, SiteSQL, StatusSQL
 from pvsite_datamodel.sqlmodels import Base
 from pvsite_datamodel.write.user_and_site import create_site_group, create_user
 
@@ -51,6 +51,12 @@ def db_session(engine):
 @pytest.fixture()
 def sites(db_session):
     """Create some fake sites."""
+    # creating a fake client owning the sites
+    client = ClientSQL(client_name="client_name_test")
+    db_session.add(client)
+    db_session.commit()
+    db_session.refresh(client)
+
     sites = []
     for i in range(0, 4):
         site = SiteSQL(
@@ -65,6 +71,7 @@ def sites(db_session):
             ml_id=i,
             dno=json.dumps({"dno_id": str(i), "name": "unknown", "long_name": "unknown"}),
             gsp=json.dumps({"gsp_id": str(i), "name": "unknown"}),
+            client_uuid=client.client_uuid,
         )
         db_session.add(site)
         db_session.commit()

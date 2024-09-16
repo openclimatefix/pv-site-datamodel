@@ -13,6 +13,7 @@ from .user_and_site import (
     delete_site,
     delete_site_group,
     delete_user,
+    edit_site,
     make_fake_site,
     update_user_site_group,
 )
