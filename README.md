@@ -1,7 +1,9 @@
 <h1 align="center">pvsite-datamodel</h1>
+
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-11-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
+
 <p align="center">
     <a href="https://pypi.org/project/pvsite-datamodel/0.1.18/" alt="PyPi package">
         <img src="https://img.shields.io/pypi/v/pvsite-datamodel"></a>
