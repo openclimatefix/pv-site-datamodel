@@ -18,9 +18,11 @@ from pvsite_datamodel.write.generation import insert_generation_values
 from pvsite_datamodel.write.user_and_site import (
     add_site_to_site_group,
     change_user_site_group,
+    create_client,
     create_site,
     create_site_group,
     create_user,
+    edit_client,
     edit_site,
     make_fake_site,
 )
@@ -279,3 +281,42 @@ def test_edit_site(db_session):
     assert site.tilt == metadata_to_update.tilt
     assert site.capacity_kw == metadata_to_update.capacity_kw
     assert site.latitude == prev_latitude
+
+
+def test_create_client(db_session):
+    "Test to create a new client."
+    client = create_client(session=db_session, client_name="Test Client")
+
+    assert client.client_name == "Test Client"
+
+
+def test_edit_client(db_session):
+    "Test to edit a client."
+    client = create_client(session=db_session, client_name="Test Client")
+
+    client = edit_client(
+        session=db_session,
+        client_uuid=client.client_uuid,
+        client_name="Edited Client",
+    )
+
+    assert client.client_name == "Edited Client"
+
+
+def test_create_new_site_with_client_uuid(db_session):
+    "Test the creation of a site with a client uuid"
+    # creating a fake client owning the site
+    client = create_client(session=db_session, client_name="Test Client")
+
+    site, _ = create_site(
+        session=db_session,
+        client_site_id=6932,
+        client_site_name="test_site_name",
+        latitude=51.0,
+        longitude=0.0,
+        capacity_kw=1.0,
+        client_uuid=client.client_uuid,
+    )
+
+    assert site.client_site_name == "test_site_name"
+    assert site.client_uuid == client.client_uuid

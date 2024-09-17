@@ -3,6 +3,7 @@
 import json
 from datetime import datetime, timezone
 from typing import Optional, Tuple
+from uuid import UUID
 
 import sqlalchemy as sa
 from sqlalchemy.orm.session import Session
@@ -11,6 +12,7 @@ from sqlalchemy.sql.functions import func
 from pvsite_datamodel.pydantic_models import PVSiteEditMetadata
 from pvsite_datamodel.read import get_user_by_email
 from pvsite_datamodel.sqlmodels import (
+    ClientSQL,
     ForecastSQL,
     ForecastValueSQL,
     SiteAssetType,
@@ -74,6 +76,7 @@ def create_site(
     tilt: Optional[float] = None,
     inverter_capacity_kw: Optional[float] = None,
     module_capacity_kw: Optional[float] = None,
+    client_uuid: Optional[UUID] = None,
 ) -> [SiteSQL, str]:
     """
     Create a site and adds it to the database.
@@ -148,6 +151,7 @@ def create_site(
         tilt=tilt,
         inverter_capacity_kw=inverter_capacity_kw,
         module_capacity_kw=module_capacity_kw,
+        client_uuid=client_uuid,
     )
 
     session.add(site)
@@ -267,6 +271,7 @@ def edit_site(
         - capacity_kw: capacity of site in kw
         - dno: dno of site
         - gsp: gsp of site
+        - client_uuid: The UUID of the client this site belongs to
     """
     site = session.query(SiteSQL).filter(SiteSQL.site_uuid == site_uuid).first()
 
@@ -370,3 +375,35 @@ def delete_site_group(session: Session, site_group_name: str) -> str:
     session.commit()
 
     return message
+
+
+def create_client(session: Session, client_name: str) -> ClientSQL:
+    """Create a client.
+
+    :param session: database session
+    :param client_name: name of client being created
+    """
+    client = ClientSQL(client_name=client_name)
+
+    session.add(client)
+    session.commit()
+    session.refresh(client)
+
+    return client
+
+
+def edit_client(session: Session, client_uuid: UUID, client_name: str) -> ClientSQL:
+    """Edit an existing client.
+
+    :param session: database session
+    :param client_uuid: the existing client uuid
+    :param client_name: name of the client
+    """
+    client = session.query(ClientSQL).filter(ClientSQL.client_uuid == client_uuid).first()
+
+    client.client_name = client_name
+
+    session.add(client)
+    session.commit()
+
+    return client

@@ -76,6 +76,8 @@ Currently available write functions accessible via `from pvsite_datamodels.write
 - delete_user
 - delete_site_group
 - make_fake_site
+- create_client
+- edit_client
 
 
 ## Install the dependencies (requires [poetry][poetry])
