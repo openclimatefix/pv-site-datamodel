@@ -37,6 +37,7 @@ Classes specifying table schemas:
 - SiteSQL
 - SiteGroupSQL
 - StatusSQL
+- ClientSQL
 
 Database connection objects:
 - DatabaseConnection
@@ -138,7 +139,14 @@ classDiagram
         + inverter_capacity_kw : Float
         + module_capacity_kw : Float
         + ml_id : Integer ≪ U ≫
+        + client_uuid : UUID ≪ FK ≫
     }
+
+    class ClientSQL{
+        + client_uuid : UUID ≪ PK ≫
+        + client_name : String(255)
+    }
+
     class GenerationSQL{
         + generation_uuid : UUID ≪ PK ≫
         + site_uuid : UUID ≪ FK ≫
@@ -195,6 +203,7 @@ classDiagram
     MLModelSQL "1" -- "N" ForecastValueSQL : forecasts
     SiteSQL "1" -- "N" InverterSQL : contains
     UserSQL "1" -- "N" APIRequestSQL : performs_request
+    ClientSQL "1" -- "N" SiteSQL : owns
     class Legend{
     UUID: Universally Unique Identifier
     PK: Primary Key
