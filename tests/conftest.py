@@ -49,13 +49,8 @@ def db_session(engine):
 
 
 @pytest.fixture()
-def sites(db_session):
+def sites(db_session, client):
     """Create some fake sites."""
-    # creating a fake client owning the sites
-    client = ClientSQL(client_name="client_name_test")
-    db_session.add(client)
-    db_session.commit()
-    db_session.refresh(client)
 
     sites = []
     for i in range(0, 4):
@@ -286,3 +281,13 @@ def statuses(db_session) -> List[StatusSQL]:
         statuses.append(status)
 
     return statuses
+
+
+@pytest.fixture()
+def client(db_session):
+    """Create a fake client."""
+    client = ClientSQL(client_name="client_name_test")
+    db_session.add(client)
+    db_session.commit()
+
+    return client

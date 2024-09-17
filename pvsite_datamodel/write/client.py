@@ -22,7 +22,6 @@ def create_client(session: Session, client_name: str) -> ClientSQL:
 
     session.add(client)
     session.commit()
-    session.refresh(client)
 
     return client
 

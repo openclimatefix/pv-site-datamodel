@@ -58,6 +58,7 @@ Currently available functions accessible via `from pvsite_datamodel.read import 
 - get_site_group_by_name
 - get_latest_status
 - get_latest_forecast_values_by_site
+- get_client_by_name
 
 
 ### Write package functions
