@@ -12,7 +12,6 @@ from sqlalchemy.sql.functions import func
 from pvsite_datamodel.pydantic_models import PVSiteEditMetadata
 from pvsite_datamodel.read import get_user_by_email
 from pvsite_datamodel.sqlmodels import (
-    ClientSQL,
     ForecastSQL,
     ForecastValueSQL,
     SiteAssetType,
@@ -375,35 +374,3 @@ def delete_site_group(session: Session, site_group_name: str) -> str:
     session.commit()
 
     return message
-
-
-def create_client(session: Session, client_name: str) -> ClientSQL:
-    """Create a client.
-
-    :param session: database session
-    :param client_name: name of client being created
-    """
-    client = ClientSQL(client_name=client_name)
-
-    session.add(client)
-    session.commit()
-    session.refresh(client)
-
-    return client
-
-
-def edit_client(session: Session, client_uuid: UUID, client_name: str) -> ClientSQL:
-    """Edit an existing client.
-
-    :param session: database session
-    :param client_uuid: the existing client uuid
-    :param client_name: name of the client
-    """
-    client = session.query(ClientSQL).filter(ClientSQL.client_uuid == client_uuid).first()
-
-    client.client_name = client_name
-
-    session.add(client)
-    session.commit()
-
-    return client

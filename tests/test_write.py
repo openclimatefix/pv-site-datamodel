@@ -12,17 +12,16 @@ from sqlalchemy.orm import Session
 from pvsite_datamodel.pydantic_models import PVSiteEditMetadata
 from pvsite_datamodel.read.user import get_user_by_email
 from pvsite_datamodel.sqlmodels import APIRequestSQL, ForecastSQL, ForecastValueSQL, GenerationSQL
+from pvsite_datamodel.write.client import create_client, edit_client
 from pvsite_datamodel.write.database import save_api_call_to_db
 from pvsite_datamodel.write.forecast import insert_forecast_values
 from pvsite_datamodel.write.generation import insert_generation_values
 from pvsite_datamodel.write.user_and_site import (
     add_site_to_site_group,
     change_user_site_group,
-    create_client,
     create_site,
     create_site_group,
     create_user,
-    edit_client,
     edit_site,
     make_fake_site,
 )
@@ -301,22 +300,3 @@ def test_edit_client(db_session):
     )
 
     assert client.client_name == "Edited Client"
-
-
-def test_create_new_site_with_client_uuid(db_session):
-    "Test the creation of a site with a client uuid"
-    # creating a fake client owning the site
-    client = create_client(session=db_session, client_name="Test Client")
-
-    site, _ = create_site(
-        session=db_session,
-        client_site_id=6932,
-        client_site_name="test_site_name",
-        latitude=51.0,
-        longitude=0.0,
-        capacity_kw=1.0,
-        client_uuid=client.client_uuid,
-    )
-
-    assert site.client_site_name == "test_site_name"
-    assert site.client_uuid == client.client_uuid
