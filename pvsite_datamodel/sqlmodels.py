@@ -122,9 +122,6 @@ class SiteSQL(Base, CreatedMixin):
     """
 
     __tablename__ = "sites"
-    __table_args__ = (
-        UniqueConstraint("client_site_name", "ml_id", name="uniq_cons_client_name_ml_id"),
-    )
 
     site_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     client_site_id = sa.Column(
