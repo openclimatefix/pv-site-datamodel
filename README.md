@@ -79,6 +79,7 @@ Currently available write functions accessible via `from pvsite_datamodels.write
 - make_fake_site
 - create_client
 - edit_client
+- assign_site_to_client
 
 
 ## Install the dependencies (requires [poetry][poetry])
