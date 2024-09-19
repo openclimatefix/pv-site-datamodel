@@ -7,6 +7,7 @@ from typing import List, Optional
 from sqlalchemy.orm import Session, contains_eager
 
 from pvsite_datamodel.sqlmodels import APIRequestSQL, SiteGroupSQL, UserSQL
+
 logger = logging.getLogger(__name__)
 
 
@@ -25,10 +26,12 @@ def get_user_by_email(session: Session, email: str, make_new_user_if_none: bool 
     if user is None and make_new_user_if_none is True:
         logger.info(f"User with email {email} not found, so making one")
 
-        #checking for site_group
+        # checking for site_group
         site_group = (
-        session.query(SiteGroupSQL).filter(SiteGroupSQL.site_group_name == f"site_group_for_{email}").first()
-    )
+            session.query(SiteGroupSQL)
+            .filter(SiteGroupSQL.site_group_name == f"site_group_for_{email}")
+            .first()
+        )
         # making a new site group if one doesn't exist
         if site_group is None:
             site_group = SiteGroupSQL(site_group_name=f"site_group_for_{email}")
