@@ -1,7 +1,7 @@
 <h1 align="center">pvsite-datamodel</h1>
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-11-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-12-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 <p align="center">
@@ -310,6 +310,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
       <td align="center" valign="top" width="14.28%"><a href="http://andrewlester.net"><img src="https://avatars.githubusercontent.com/u/23221268?v=4?s=100" width="100px;" alt="Andrew Lester"/><br /><sub><b>Andrew Lester</b></sub></a><br /><a href="https://github.com/openclimatefix/pv-site-datamodel/commits?author=AndrewLester" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/suleman1412"><img src="https://avatars.githubusercontent.com/u/37236131?v=4?s=100" width="100px;" alt="Suleman Karigar"/><br /><sub><b>Suleman Karigar</b></sub></a><br /><a href="https://github.com/openclimatefix/pv-site-datamodel/commits?author=suleman1412" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/vishalj0501"><img src="https://avatars.githubusercontent.com/u/92500255?v=4?s=100" width="100px;" alt="Vishal J"/><br /><sub><b>Vishal J</b></sub></a><br /><a href="https://github.com/openclimatefix/pv-site-datamodel/commits?author=vishalj0501" title="Tests">⚠️</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/ProfessionalCaddie"><img src="https://avatars.githubusercontent.com/u/180212671?v=4?s=100" width="100px;" alt="Nicholas Tucker"/><br /><sub><b>Nicholas Tucker</b></sub></a><br /><a href="https://github.com/openclimatefix/pv-site-datamodel/commits?author=ProfessionalCaddie" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
