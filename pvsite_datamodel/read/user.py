@@ -26,10 +26,17 @@ def get_user_by_email(session: Session, email: str, make_new_user_if_none: bool 
     if user is None and make_new_user_if_none is True:
         logger.info(f"User with email {email} not found, so making one")
 
-        # making a new site group
-        site_group = SiteGroupSQL(site_group_name=f"site_group_for_{email}")
-        session.add(site_group)
-        session.commit()
+        # checking for site_group
+        site_group = (
+            session.query(SiteGroupSQL)
+            .filter(SiteGroupSQL.site_group_name == f"site_group_for_{email}")
+            .first()
+        )
+        # making a new site group if one doesn't exist
+        if site_group is None:
+            site_group = SiteGroupSQL(site_group_name=f"site_group_for_{email}")
+            session.add(site_group)
+            session.commit()
 
         # make a new user
         user = UserSQL(email=email, site_group_uuid=site_group.site_group_uuid)
