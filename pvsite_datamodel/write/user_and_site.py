@@ -74,6 +74,7 @@ def create_site(
     tilt: Optional[float] = None,
     inverter_capacity_kw: Optional[float] = None,
     module_capacity_kw: Optional[float] = None,
+    ml_id: Optional[int] = None,
 ) -> [SiteSQL, str]:
     """
     Create a site and adds it to the database.
@@ -93,6 +94,7 @@ def create_site(
     :param tilt: tilt of site, default is 35
     :param inverter_capacity_kw: inverter capacity of site in kw
     :param module_capacity_kw: module capacity of site in kw
+    :param ml_id: internal ML modelling id
 
     """
     max_ml_id = session.query(func.max(SiteSQL.ml_id)).scalar()
@@ -133,7 +135,7 @@ def create_site(
         dno = json.dumps(dno)
 
     site = SiteSQL(
-        ml_id=max_ml_id + 1,
+        ml_id=ml_id if ml_id else max_ml_id + 1,
         client_site_id=client_site_id,
         client_site_name=client_site_name,
         latitude=latitude,

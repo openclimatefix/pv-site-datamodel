@@ -165,7 +165,6 @@ class SiteSQL(Base, CreatedMixin):
         sa.Integer,
         autoincrement=True,
         nullable=False,
-        unique=True,
         comment="Auto-incrementing integer ID of the site for use in ML training",
     )
 
