@@ -204,6 +204,34 @@ def test_create_new_site_twice(db_session):
     assert site_2.ml_id == 2
 
 
+# test for create_site to check ml_id duplicates are allowed for separate clients
+def test_ml_id_duplicate_for_unique_clients(db_session):
+    """Test create sites with duplicate ml_id for different clients"""
+
+    site_1, _ = create_site(
+        session=db_session,
+        client_site_id=6932,
+        client_site_name="test_site_name_1",
+        latitude=1.0,
+        longitude=1.0,
+        capacity_kw=1.0,
+        ml_id=1,
+    )
+
+    site_2, _ = create_site(
+        session=db_session,
+        client_site_id=6933,
+        client_site_name="test_site_name_2",
+        latitude=1.0,
+        longitude=1.0,
+        capacity_kw=1.0,
+        ml_id=1,
+    )
+
+    assert site_1.ml_id == 1
+    assert site_2.ml_id == 1
+
+
 def test_create_user(db_session):
     "Test to create a new user."
 
