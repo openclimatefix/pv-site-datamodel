@@ -1,3 +1,6 @@
+from concurrent.futures import ThreadPoolExecutor
+from functools import partial
+
 from pvsite_datamodel import SiteGroupSQL, UserSQL
 from pvsite_datamodel.read import get_user_by_email
 from pvsite_datamodel.write.user_and_site import create_site_group, create_user
@@ -38,13 +41,9 @@ class TestGetUserByEmail:
         assert len(db_session.query(UserSQL).all()) == 0
 
     def test_make_user_db_twice(self, db_session):
-        from multiprocessing import Process
-
-        from functools import partial
         get_user_by_email_partial = partial(get_user_by_email, db_session, "test@test.com")
         tasks = [get_user_by_email_partial for _ in range(5)]
 
-        from concurrent.futures import ThreadPoolExecutor
         with ThreadPoolExecutor() as executor:
             running_tasks = [executor.submit(task) for task in tasks]
             for running_task in running_tasks:
