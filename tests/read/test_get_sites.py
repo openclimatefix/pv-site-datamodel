@@ -12,6 +12,7 @@ from pvsite_datamodel.read import (
     get_site_by_client_site_name,
     get_site_by_uuid,
     get_site_group_by_name,
+    get_sites_by_client_name,
     get_sites_by_country,
     get_sites_from_user,
 )
@@ -166,3 +167,18 @@ def test_get_site_list_min(db_session, user_with_sites):
     lat_lon = LatitudeLongitudeLimits(latitude_min=50, longitude_min=2)
     sites = get_sites_from_user(session=db_session, user=user_with_sites, lat_lon_limits=lat_lon)
     assert len(sites) > 0
+
+
+class TestGetSitesByClientName:
+    """Tests for the get_sites_by_client_name function."""
+
+    def tests_gets_site_for_existing_client(self, sites, db_session):
+        client_name = "client_name_test"
+        out = get_sites_by_client_name(session=db_session, client_name=client_name)
+
+        assert len(out) == len(sites)
+        assert out[0].site_uuid == sites[0].site_uuid
+
+    def test_raises_error_for_empty_site_list(self, sites, db_session):
+        with pytest.raises(Exception, match="Could not find sites from client _"):
+            _ = get_sites_by_client_name(session=db_session, client_name="_")

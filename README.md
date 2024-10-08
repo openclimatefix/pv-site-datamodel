@@ -40,6 +40,7 @@ Classes specifying table schemas:
 - SiteSQL
 - SiteGroupSQL
 - StatusSQL
+- ClientSQL
 
 Database connection objects:
 - DatabaseConnection
@@ -54,11 +55,13 @@ Currently available functions accessible via `from pvsite_datamodel.read import 
 - get_site_by_uuid
 - get_site_by_client_site_id
 - get_site_by_client_site_name
+- get_sites_by_client_name 
 - get_all_sites
 - get_sites_by_country
 - get_site_group_by_name
 - get_latest_status
 - get_latest_forecast_values_by_site
+- get_client_by_name
 
 
 ### Write package functions
@@ -77,6 +80,9 @@ Currently available write functions accessible via `from pvsite_datamodels.write
 - delete_user
 - delete_site_group
 - make_fake_site
+- create_client
+- edit_client
+- assign_site_to_client
 
 
 ## Install the dependencies (requires [poetry][poetry])
@@ -140,7 +146,14 @@ classDiagram
         + inverter_capacity_kw : Float
         + module_capacity_kw : Float
         + ml_id : Integer ≪ U ≫
+        + client_uuid : UUID ≪ FK ≫
     }
+
+    class ClientSQL{
+        + client_uuid : UUID ≪ PK ≫
+        + client_name : String(255)
+    }
+
     class GenerationSQL{
         + generation_uuid : UUID ≪ PK ≫
         + site_uuid : UUID ≪ FK ≫
@@ -197,6 +210,7 @@ classDiagram
     MLModelSQL "1" -- "N" ForecastValueSQL : forecasts
     SiteSQL "1" -- "N" InverterSQL : contains
     UserSQL "1" -- "N" APIRequestSQL : performs_request
+    ClientSQL "1" -- "N" SiteSQL : owns
     class Legend{
     UUID: Universally Unique Identifier
     PK: Primary Key

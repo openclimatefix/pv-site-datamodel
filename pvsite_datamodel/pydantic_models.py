@@ -2,6 +2,7 @@
 
 from datetime import datetime
 from typing import Optional
+from uuid import UUID
 
 from pydantic import BaseModel, Field
 
@@ -63,3 +64,6 @@ class PVSiteEditMetadata(BaseModel):
     capacity_kw: Optional[float] = Field(None, description="The site's total capacity in kw", ge=0)
     dno: Optional[str] = Field(None, description="The site's DNO")
     gsp: Optional[str] = Field(None, description="The site's GSP")
+    client_uuid: Optional[UUID] = Field(
+        None, description="The UUID of the client this site belongs to"
+    )
