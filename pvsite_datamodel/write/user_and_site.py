@@ -3,6 +3,7 @@
 import json
 from datetime import datetime, timezone
 from typing import Optional, Tuple
+from uuid import UUID
 
 import sqlalchemy as sa
 from sqlalchemy.orm.session import Session
@@ -74,6 +75,7 @@ def create_site(
     tilt: Optional[float] = None,
     inverter_capacity_kw: Optional[float] = None,
     module_capacity_kw: Optional[float] = None,
+    client_uuid: Optional[UUID] = None,
     ml_id: Optional[int] = None,
 ) -> [SiteSQL, str]:
     """
@@ -150,6 +152,7 @@ def create_site(
         tilt=tilt,
         inverter_capacity_kw=inverter_capacity_kw,
         module_capacity_kw=module_capacity_kw,
+        client_uuid=client_uuid,
     )
 
     session.add(site)
@@ -269,6 +272,7 @@ def edit_site(
         - capacity_kw: capacity of site in kw
         - dno: dno of site
         - gsp: gsp of site
+        - client_uuid: The UUID of the client this site belongs to
     """
     site = session.query(SiteSQL).filter(SiteSQL.site_uuid == site_uuid).first()
 

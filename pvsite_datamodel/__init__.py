@@ -3,6 +3,7 @@
 from .connection import DatabaseConnection
 from .sqlmodels import (
     APIRequestSQL,
+    ClientSQL,
     ForecastSQL,
     ForecastValueSQL,
     GenerationSQL,
