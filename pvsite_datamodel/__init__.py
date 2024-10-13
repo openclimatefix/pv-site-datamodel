@@ -3,6 +3,7 @@
 from .connection import DatabaseConnection
 from .sqlmodels import (
     APIRequestSQL,
+    ClientSQL,
     ForecastSQL,
     ForecastValueSQL,
     GenerationSQL,
@@ -13,4 +14,4 @@ from .sqlmodels import (
     UserSQL,
 )
 
-__version__ = "1.0.36"
+__version__ = "1.0.40"

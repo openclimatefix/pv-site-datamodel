@@ -6,7 +6,7 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 
 from pvsite_datamodel.pydantic_models import LatitudeLongitudeLimits
-from pvsite_datamodel.sqlmodels import SiteGroupSiteSQL, SiteGroupSQL, SiteSQL, UserSQL
+from pvsite_datamodel.sqlmodels import ClientSQL, SiteGroupSiteSQL, SiteGroupSQL, SiteSQL, UserSQL
 
 logger = logging.getLogger(__name__)
 
@@ -169,4 +169,34 @@ def get_sites_from_user(session, user, lat_lon_limits: Optional[LatitudeLongitud
 
     else:
         sites = user.site_group.sites
+    return sites
+
+
+def get_sites_by_client_name(session: Session, client_name: str) -> List[SiteSQL]:
+    """Get sites from client name.
+
+    :param session: database session
+    :param client_name: client name
+    :return: list of site objects
+    """
+    logger.debug(f"Getting {client_name}'s sites")
+
+    # start main query
+    query = session.query(SiteSQL)
+
+    # join the Client table
+    query = query.join(ClientSQL)
+
+    # order by uuuid
+    query = query.order_by(SiteSQL.site_uuid)
+
+    # select the sites related to the client name
+    query = query.filter(ClientSQL.client_name == client_name)
+
+    # get all results
+    sites: Optional[List[SiteSQL]] = query.all()
+
+    if len(sites) == 0:
+        raise Exception(f"Could not find sites from client {client_name}")
+
     return sites

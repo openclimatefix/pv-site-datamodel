@@ -165,8 +165,15 @@ class SiteSQL(Base, CreatedMixin):
         sa.Integer,
         autoincrement=True,
         nullable=False,
-        unique=True,
         comment="Auto-incrementing integer ID of the site for use in ML training",
+    )
+
+    client_uuid = sa.Column(
+        UUID(as_uuid=True),
+        sa.ForeignKey("clients.client_uuid"),
+        nullable=True,
+        index=True,
+        comment="The UUID of the client this site belongs to",
     )
 
     forecasts: Mapped[List["ForecastSQL"]] = relationship("ForecastSQL", back_populates="site")
@@ -177,6 +184,21 @@ class SiteSQL(Base, CreatedMixin):
     site_groups: Mapped[List["SiteGroupSQL"]] = relationship(
         "SiteGroupSQL", secondary="site_group_sites", back_populates="sites"
     )
+    client: Mapped[List["ClientSQL"]] = relationship("ClientSQL", back_populates="sites")
+
+
+class ClientSQL(Base, CreatedMixin):
+    """Class representing the client table.
+
+    Each client row specifies a single client.
+    """
+
+    __tablename__ = "clients"
+
+    client_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
+    client_name = sa.Column(sa.String(255), nullable=False, index=True, unique=True)
+
+    sites: Mapped[List[SiteSQL]] = relationship("SiteSQL", back_populates="client")
 
 
 class GenerationSQL(Base, CreatedMixin):

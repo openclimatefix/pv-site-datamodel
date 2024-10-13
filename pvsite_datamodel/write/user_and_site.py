@@ -3,6 +3,7 @@
 import json
 from datetime import datetime, timezone
 from typing import Optional, Tuple
+from uuid import UUID
 
 import sqlalchemy as sa
 from sqlalchemy.orm.session import Session
@@ -74,6 +75,8 @@ def create_site(
     tilt: Optional[float] = None,
     inverter_capacity_kw: Optional[float] = None,
     module_capacity_kw: Optional[float] = None,
+    client_uuid: Optional[UUID] = None,
+    ml_id: Optional[int] = None,
 ) -> [SiteSQL, str]:
     """
     Create a site and adds it to the database.
@@ -93,6 +96,7 @@ def create_site(
     :param tilt: tilt of site, default is 35
     :param inverter_capacity_kw: inverter capacity of site in kw
     :param module_capacity_kw: module capacity of site in kw
+    :param ml_id: internal ML modelling id
 
     """
     max_ml_id = session.query(func.max(SiteSQL.ml_id)).scalar()
@@ -133,7 +137,7 @@ def create_site(
         dno = json.dumps(dno)
 
     site = SiteSQL(
-        ml_id=max_ml_id + 1,
+        ml_id=ml_id if ml_id else max_ml_id + 1,
         client_site_id=client_site_id,
         client_site_name=client_site_name,
         latitude=latitude,
@@ -148,6 +152,7 @@ def create_site(
         tilt=tilt,
         inverter_capacity_kw=inverter_capacity_kw,
         module_capacity_kw=module_capacity_kw,
+        client_uuid=client_uuid,
     )
 
     session.add(site)
@@ -267,6 +272,7 @@ def edit_site(
         - capacity_kw: capacity of site in kw
         - dno: dno of site
         - gsp: gsp of site
+        - client_uuid: The UUID of the client this site belongs to
     """
     site = session.query(SiteSQL).filter(SiteSQL.site_uuid == site_uuid).first()
 
