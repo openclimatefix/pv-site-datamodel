@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import List, Optional
 
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, declarative_base, relationship
 from sqlalchemy.schema import UniqueConstraint
 
@@ -200,6 +200,39 @@ class SiteSQL(Base, CreatedMixin):
     )
     client: Mapped[List["ClientSQL"]] = relationship("ClientSQL", back_populates="sites")
     ml_model: Mapped[Optional[MLModelSQL]] = relationship("MLModelSQL", back_populates="sites")
+
+class SiteHistorySQL(Base, CreatedMixin):
+    """Class representing the sites table.
+
+    Each site row specifies a single panel or cluster of panels
+    found on a residential house or commercial building. Their
+    data is provided by a client.
+
+    *Approximate size: *
+    4 clients * ~1000 sites each = ~4000 rows
+    """
+
+    __tablename__ = "h_sites"
+
+    site_history_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
+
+    site_uuid = sa.Column(
+        UUID(as_uuid=True),
+        sa.ForeignKey("sites.site_uuid"),
+        nullable=False,
+        index=True,
+        comment="The site which this history record relates to",
+    )
+
+    # JSONB column to store the snapshot of the site data
+    site_data = sa.Column(
+        JSONB, nullable=False, comment="A snapshot of the site record as JSONB"
+    )
+
+    # Foreign key to track the user who made the change
+    changed_by = sa.Column(
+        UUID(as_uuid=True), sa.ForeignKey("users.user_uuid"), nullable=False, index=True
+    )
 
 
 class ClientSQL(Base, CreatedMixin):
