@@ -304,6 +304,7 @@ def test_edit_site(db_session):
         session=db_session,
         site_uuid=str(site.site_uuid),
         site_info=metadata_to_update,
+        user_uuid="matt123"
     )
 
     assert site.tilt == metadata_to_update.tilt

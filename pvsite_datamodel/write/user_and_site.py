@@ -6,6 +6,7 @@ from typing import Optional, Tuple
 from uuid import UUID
 
 import sqlalchemy as sa
+from sqlalchemy import text
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.functions import func
 
@@ -253,7 +254,7 @@ def update_user_site_group(session: Session, email: str, site_group_name: str) -
 
 # update site metadata
 def edit_site(
-    session: Session, site_uuid: str, site_info: PVSiteEditMetadata
+    session: Session, site_uuid: str, site_info: PVSiteEditMetadata, user_uuid: str=None
 ) -> Tuple[SiteSQL, str]:
     """
     Edit an existing site. Fill in only the fields that need to be updated.
@@ -273,7 +274,11 @@ def edit_site(
         - dno: dno of site
         - gsp: gsp of site
         - client_uuid: The UUID of the client this site belongs to
+    :param user:
     """
+    if user_uuid is not None:
+        session.execute(text(f"SET pvsite_datamodel.current_user_uuid = '{user_uuid}'"))
+
     site = session.query(SiteSQL).filter(SiteSQL.site_uuid == site_uuid).first()
 
     update_data = site_info.model_dump(exclude_unset=True, exclude_none=False)
