@@ -230,9 +230,7 @@ class SiteHistorySQL(Base, CreatedMixin):
     )
 
     # Foreign key to track the user who made the change
-    changed_by = sa.Column(
-        UUID(as_uuid=True), sa.ForeignKey("users.user_uuid"), nullable=False, index=True
-    )
+    changed_by = sa.Column(UUID(as_uuid=True), sa.ForeignKey("users.user_uuid"), nullable=True)
 
 
 class ClientSQL(Base, CreatedMixin):
