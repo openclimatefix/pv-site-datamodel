@@ -29,10 +29,16 @@ def engine():
         engine = create_engine(url)
 
         # run alembic migrations
+<<<<<<< HEAD
         ini_path = os.path.join(PROJECT_PATH, "alembic.ini")
         alembic_cfg = Config(file_=ini_path)
         alembic_dir = os.path.join(PROJECT_PATH, "alembic")
         alembic_cfg.set_main_option("script_location", alembic_dir)
+=======
+        alembic_cfg = Config(file_="../alembic.ini")
+        alembic_path = os.path.join(PROJECT_PATH, "alembic")
+        alembic_cfg.set_main_option("script_location", alembic_path)
+>>>>>>> 992c9a0 (formatting)
         os.environ["DB_URL"] = url
         command.upgrade(alembic_cfg, "head")
 
