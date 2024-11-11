@@ -2,7 +2,9 @@
 
 import datetime as dt
 import json
+import os.path
 import uuid
+from pathlib import Path
 from typing import List
 
 import pytest
@@ -11,9 +13,12 @@ from sqlalchemy.orm import Session
 from testcontainers.postgres import PostgresContainer
 
 from pvsite_datamodel import ClientSQL, GenerationSQL, SiteSQL, StatusSQL
-from pvsite_datamodel.sqlmodels import Base
 from pvsite_datamodel.write.user_and_site import create_site_group, create_user
+from alembic.config import Config
+from alembic import command
 
+
+PROJECT_PATH = Path(__file__).parent.parent.resolve()
 
 @pytest.fixture(scope="session")
 def engine():
@@ -22,7 +27,13 @@ def engine():
         # TODO need to setup postgres database with docker
         url = postgres.get_connection_url()
         engine = create_engine(url)
-        Base.metadata.create_all(engine)
+
+        # run alembic migrations
+        alembic_cfg = Config(file_="../alembic.ini")
+        alembic_path = os.path.join(PROJECT_PATH, 'alembic')
+        alembic_cfg.set_main_option('script_location', alembic_path)
+        os.environ['DB_URL'] = url
+        command.upgrade(alembic_cfg, "head")
 
         yield engine
 
