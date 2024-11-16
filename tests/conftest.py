@@ -29,7 +29,7 @@ def engine():
         engine = create_engine(url)
 
         # run alembic migrations
-        alembic_cfg = Config(file_="../alembic.ini")
+        alembic_cfg = Config(file_=os.path.join(PROJECT_PATH, "alembic.ini"))
         alembic_path = os.path.join(PROJECT_PATH, "alembic")
         alembic_cfg.set_main_option("script_location", alembic_path)
         os.environ["DB_URL"] = url
