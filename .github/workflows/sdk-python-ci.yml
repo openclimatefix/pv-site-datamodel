@@ -3,7 +3,7 @@ name: CI Pipeline for SDK - Python
 on: 
   push:
   pull_request:
-    types: [opened, reopened]
+    types: [opened, synchronize, reopened]
 
 jobs:
   lint_and_test:
