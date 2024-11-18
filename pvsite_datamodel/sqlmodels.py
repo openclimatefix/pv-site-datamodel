@@ -69,6 +69,9 @@ class SiteGroupSQL(Base, CreatedMixin):
 
     site_group_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     site_group_name = sa.Column(sa.String(255), index=True, unique=True)
+    service_level = sa.Column(sa.Integer, default=0, comment="The service level of the site group. "
+                                                             "0 is free"
+                                                             "1 is paid")
 
     # Relationships
     # N-N
