@@ -122,6 +122,7 @@ classDiagram
         class SiteGroupSQL{
         + site_group_uuid : UUID ≪ PK ≫
         + site_group_name : String(255) ≪ U ≫
+        + service_level : Integer ≪ U ≫
     }
 
     class SiteGroupSiteSQL{
