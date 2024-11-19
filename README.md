@@ -4,30 +4,38 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-12-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-<p align="center">
-    <a href="https://github.com/openclimatefix/ocf-meta-repo?tab=readme-ov-file#overview-of-ocfs-nowcasting-repositories" alt="Ease of Contribution">
-        <img src="https://img.shields.io/badge/ease%20of%20contribution:%20easy-32bd50"></a>
-    <a href="https://pypi.org/project/pvsite-datamodel/0.1.18/" alt="PyPi package">
-        <img src="https://img.shields.io/pypi/v/pvsite-datamodel"></a>
-    <a href="https://github.com/openclimatefix/pv-datamodel/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc" alt="Issues">
-        <img src="https://img.shields.io/github/issues/openclimatefix/pv-datamodel"/></a>
-    <a href="https://github.com/openclimatefix/pv-datamodel/graphs/contributors" alt="Contributors">
-        <img src="https://img.shields.io/github/contributors/openclimatefix/pv-datamodel" /></a>
-</p>
 
-Database schema specification for PV Site data.
+[![CI Pipeline for SDK - Python](https://github.com/openclimatefix/pv-site-datamodel/actions/workflows/sdk-python-ci.yml/badge.svg)](https://github.com/openclimatefix/pv-site-datamodel/actions/workflows/sdk-python-ci.yml)
+[![pypi badge](https://img.shields.io/pypi/v/pvsite-datamodel?&color=07BCDF)](https://pypi.org/project/ocf-template)
+[![ease of contribution: easy](https://img.shields.io/badge/ease%20of%20contribution:%20easy-32bd50)](https://github.com/openclimatefix#how-easy-is-it-to-get-involved) 
+[![open issues](https://img.shields.io/github/issues/openclimatefix/pv-datamodel)](https://github.com/openclimatefix/pv-datamodel/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc)
 
+Database schema specification for Site data. This contains forecasts, generation data, sites and user groups. 
 
-## Repository structure
+## Installation
 
-```yaml
-pvsite_datamodel:
-  read: # Sub package containing modules for reading from the database
-  write: # Sub package containing modules for writing to the database
-  - connection.py # Class for connecting to the database
-  - sqlmodels.py # SQLAlchemy definitions of table schemas
-tests: # External tests package
+To install the project for *general use* (**not** for development), use:
+`pip install pvsite-datamodel`
+
+## Example usage
+
+Here's an example to read the latest forecast values for a site:
+
+```python
+import os
+from pvsite_datamodel.connection import DatabaseConnection
+from pvsite_datamodel.read import get_latest_forecast_values_by_site
+
+url = os.getenv("DB_URL")
+connection = DatabaseConnection(url=url)
+with connection.get_session() as session:
+    forecast_values = get_latest_forecast_values_by_site(session, site_uuids=["1234-5678"])
+    print(forecast_values)
 ```
+
+
+## Documentation
+
 
 ### Top-level functions
 
@@ -43,11 +51,8 @@ Classes specifying table schemas:
 - StatusSQL
 - ClientSQL
 
-Database connection objects:
-- DatabaseConnection
 
-
-### Read package functions
+#### Read package functions
 
 Currently available functions accessible via `from pvsite_datamodel.read import <func>`:
 
@@ -65,7 +70,7 @@ Currently available functions accessible via `from pvsite_datamodel.read import 
 - get_client_by_name
 
 
-### Write package functions
+#### Write package functions
 
 Currently available write functions accessible via `from pvsite_datamodels.write import <func>`:
 - insert_forecast_values
@@ -86,25 +91,6 @@ Currently available write functions accessible via `from pvsite_datamodels.write
 - assign_site_to_client
 
 
-## Install the dependencies (requires [poetry][poetry])
-
-    poetry install
-
-
-## Coding style
-
-Format the code **in place**.
-
-    make format
-
-Lint the code
-
-    make lint
-
-
-## Running the tests
-
-    make test
 
 ## PVSite Database Schema
 
@@ -223,7 +209,7 @@ classDiagram
 
 ```
 
-## Multiple Clients
+### Multiple Clients
 
 We have the ability to have these different scenarios
 1. one user - can add or view one site
@@ -232,7 +218,7 @@ We have the ability to have these different scenarios
 4. Two users, wanting to look at multiple sites (could be added by another user). Any user from site group can add a site. 
 5. OCF user want to see everything (admin)
 
-### Solution
+#### Solution
 ```mermaid
   graph TD;
       User-- N:1 -->SiteGroup;
@@ -242,7 +228,7 @@ We have the ability to have these different scenarios
 - Each `sitegroup` contains multiple `sites`. One `site` can be in multiple `sitegroups`
 
 
-### 1. one user - one site
+#### 1. one user - one site
 
 ```mermaid
   graph TD;
@@ -250,7 +236,7 @@ We have the ability to have these different scenarios
       B --> C(Site);
 ```
 
-### 2. one user - two sites
+#### 2. one user - two sites
 
 ```mermaid
   graph TD;
@@ -259,7 +245,7 @@ We have the ability to have these different scenarios
 B --> C2(Site2);
 ```
 
-### 3. Two users - one site
+#### 3. Two users - one site
 
 ```mermaid
   graph TD;
@@ -268,7 +254,7 @@ A2(User=Bob)-->B(SiteGroup);
       B --> C1(Site1);
 ```
 
-### 4. Two users - two site
+#### 4. Two users - two site
 
 ```mermaid
   graph TD;
@@ -278,7 +264,7 @@ A2(User=Bob)-->B(SiteGroup);
 B --> C2(Site2);
 ```
 
-### 5. OCF can see everything
+#### 5. OCF can see everything
 
 ```mermaid
   graph TD;
@@ -296,11 +282,48 @@ B2 --> C3(Site3);
 
 
 
-## Database migrations using alembic
+## Database migrations 
 
+We are using `alembic` to manage the database schema migrations.
+The files are in 
 [./alembic](./alembic)
 
+See more infomation [here](https://github.com/openclimatefix/pv-site-datamodel/tree/main/alembic)
 
+## Development
+
+### Install the dependencies (requires [poetry][poetry])
+
+    poetry install
+
+### Repository structure
+
+```yaml
+pvsite_datamodel:
+  read: # modules for reading from the database
+  write: # modules for writing to the database
+  - connection.py # Class for connecting to the database
+  - sqlmodels.py # SQLAlchemy definitions of table schemas
+tests: # External tests package
+```
+
+### Coding style
+
+Format the code **in place**.
+
+    make format
+
+Lint the code
+
+    make lint
+
+
+### Running the test suite
+
+We run the test suit using
+
+    make test
+This runs the `pytest` test suite.
 
 [poetry]: https://python-poetry.org/
 
@@ -338,3 +361,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+
+*Part of the [Open Climate Fix](https://github.com/orgs/openclimatefix/people) community.*
+
+<img src="https://cdn.prod.website-files.com/62d92550f6774db58d441cca/6324a2038936ecda71599a8b_OCF_Logo_black_trans.png" style="background-color:white;" />
