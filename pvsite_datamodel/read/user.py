@@ -111,6 +111,17 @@ def get_all_last_api_request(session: Session) -> List[APIRequestSQL]:
     :return:
     """
 
+    query = session.query(APIRequestSQL)
+
+    include_in_url = None
+    exclude_in_url = None
+
+    if include_in_url is not None:
+        query = query.filter(APIRequestSQL.url.like(f"%{include_in_url}%"))
+
+    if exclude_in_url is not None:
+        query = query.filter(~APIRequestSQL.url.like(f"%{exclude_in_url}%"))
+
     last_requests_sql: [APIRequestSQL] = (
         session.query(APIRequestSQL)
         .distinct(APIRequestSQL.user_uuid)
@@ -138,8 +149,16 @@ def get_api_requests_for_one_user(
     :param start_datetime: only get api requests after start datetime
     :param end_datetime: only get api requests before end datetime
     """
+    include_in_url = None
+    exclude_in_url = None
 
     query = session.query(APIRequestSQL).join(UserSQL).filter(UserSQL.email == email)
+
+    if include_in_url is not None:
+        query = query.filter(APIRequestSQL.url.like(f"%{include_in_url}%"))
+
+    if exclude_in_url is not None:
+        query = query.filter(~APIRequestSQL.url.like(f"%{exclude_in_url}%"))
 
     if start_datetime is not None:
         query = query.filter(APIRequestSQL.created_utc >= start_datetime)
