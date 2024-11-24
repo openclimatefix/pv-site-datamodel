@@ -173,7 +173,12 @@ class SiteSQL(Base, CreatedMixin):
         comment="Auto-incrementing integer ID of the site for use in ML training",
     )
 
-    active = sa.Column(sa.Boolean,unique=False,default=True, comment="Dependent if the site is active")
+    active = sa.Column(
+        sa.Boolean,
+        unique=False,
+        default=True,
+        comment="Dependent if the site is active",
+    )
 
     client_uuid = sa.Column(
         UUID(as_uuid=True),
