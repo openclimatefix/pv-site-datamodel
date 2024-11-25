@@ -115,7 +115,7 @@ def get_all_last_api_request(
     :return:
     """
 
-    query = session.query(UserSQL)
+    query = session.query(APIRequestSQL)
 
     if include_in_url is not None:
         query = query.filter(APIRequestSQL.url.like(f"%{include_in_url}%"))
@@ -153,7 +153,7 @@ def get_api_requests_for_one_user(
     :param end_datetime: only get api requests before end datetime
     """
 
-    query = session.query(UserSQL)
+    query = session.query(APIRequestSQL)
 
     if include_in_url is not None:
         query = query.filter(APIRequestSQL.url.like(f"%{include_in_url}%"))
