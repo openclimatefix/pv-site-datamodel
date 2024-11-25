@@ -18,6 +18,7 @@ from pvsite_datamodel.write.forecast import insert_forecast_values
 from pvsite_datamodel.write.generation import insert_generation_values
 from pvsite_datamodel.write.user_and_site import (
     add_site_to_site_group,
+    assign_model_name_to_site,
     change_user_site_group,
     create_site,
     create_site_group,
@@ -342,3 +343,16 @@ def test_assign_site_to_client(db_session):
         f"Site with site uuid {site.site_uuid} successfully assigned "
         f"to the client {client.client_name}"
     )
+
+
+def test_assign_model_name_to_site(db_session):
+    """Test to assign a model name to a site"""
+    site = make_fake_site(db_session=db_session)
+
+    assign_model_name_to_site(db_session, site.site_uuid, "test_model")
+
+    assert site.ml_model.name == "test_model"
+
+    assign_model_name_to_site(db_session, site.site_uuid, "test_model_2")
+
+    assert site.ml_model.name == "test_model_2"

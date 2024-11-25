@@ -36,6 +36,10 @@ def engine():
         os.environ["DB_URL"] = url
         command.upgrade(alembic_cfg, "head")
 
+        # If you haven't run alembic migration yet, you might want to just run the tests with this
+        # from pvsite_datamodel.sqlmodels import Base
+        # Base.metadata.create_all(engine)
+
         yield engine
 
 
