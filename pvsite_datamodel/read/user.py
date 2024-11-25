@@ -103,7 +103,11 @@ def get_all_site_groups(session: Session) -> List[SiteGroupSQL]:
     return site_groups
 
 
-def get_all_last_api_request(session: Session) -> List[APIRequestSQL]:
+def get_all_last_api_request(
+    session: Session,
+    include_in_url=None,
+    exclude_in_url=None,
+) -> List[APIRequestSQL]:
     """
     Get all last api requests for all users.
 
@@ -112,9 +116,6 @@ def get_all_last_api_request(session: Session) -> List[APIRequestSQL]:
     """
 
     query = session.query(APIRequestSQL)
-
-    include_in_url = None
-    exclude_in_url = None
 
     if include_in_url is not None:
         query = query.filter(APIRequestSQL.url.like(f"%{include_in_url}%"))
@@ -140,6 +141,8 @@ def get_api_requests_for_one_user(
     email: str,
     start_datetime: Optional[datetime] = None,
     end_datetime: Optional[datetime] = None,
+    include_in_url=None,
+    exclude_in_url=None,
 ) -> List[APIRequestSQL]:
     """
     Get all api requests for one user.
@@ -149,8 +152,6 @@ def get_api_requests_for_one_user(
     :param start_datetime: only get api requests after start datetime
     :param end_datetime: only get api requests before end datetime
     """
-    include_in_url = None
-    exclude_in_url = None
 
     query = session.query(APIRequestSQL).join(UserSQL).filter(UserSQL.email == email)
 
