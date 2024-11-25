@@ -145,7 +145,7 @@ class SiteSQL(Base, CreatedMixin):
     dno = sa.Column(sa.String(255), comment="The Distribution Node Operator that owns the site")
     gsp = sa.Column(sa.String(255), comment="The Grid Supply Point in which the site is located")
 
-    active = sa.Column(sa.Boolean(), unique=False, default=True)
+    active = sa.Column(sa.Boolean, unique=False, default=True)
 
     asset_type = sa.Column(
         sa.Enum(SiteAssetType, name="site_asset_type"),
