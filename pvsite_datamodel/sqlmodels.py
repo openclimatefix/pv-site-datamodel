@@ -181,10 +181,6 @@ class SiteSQL(Base, CreatedMixin):
         comment="The UUID of the client this site belongs to",
     )
 
-    active = sa.Column(
-        sa.Boolean, unique=False, default=True, comment="Indiactes if the site is active"
-    )
-
     forecasts: Mapped[List["ForecastSQL"]] = relationship("ForecastSQL", back_populates="site")
     generation: Mapped[List["GenerationSQL"]] = relationship("GenerationSQL")
     inverters: Mapped[List["InverterSQL"]] = relationship(
