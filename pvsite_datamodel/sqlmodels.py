@@ -174,7 +174,7 @@ class SiteSQL(Base, CreatedMixin):
     )
 
     active = sa.Column(
-        sa.Boolean, unique=False, default=True, comment="Dependent if site is active"
+        sa.Boolean, unique=False, default=True, comment="Dependent if the site is active"
     )
 
     client_uuid = sa.Column(
