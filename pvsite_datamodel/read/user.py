@@ -105,8 +105,8 @@ def get_all_site_groups(session: Session) -> List[SiteGroupSQL]:
 
 def get_all_last_api_request(
     session: Session,
-    include_in_url=None,
-    exclude_in_url=None,
+    include_in_url:Optional[str] = None,
+    exclude_in_url:Optional[str] = None,
 ) -> List[APIRequestSQL]:
     """
     Get all last api requests for all users.
@@ -141,8 +141,8 @@ def get_api_requests_for_one_user(
     email: str,
     start_datetime: Optional[datetime] = None,
     end_datetime: Optional[datetime] = None,
-    include_in_url=None,
-    exclude_in_url=None,
+    include_in_url:Optional[str] = None,
+    exclude_in_url:Optional[str] = None,
 ) -> List[APIRequestSQL]:
     """
     Get all api requests for one user.
