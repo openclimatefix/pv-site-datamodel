@@ -35,6 +35,8 @@ class MLModelSQL(Base, CreatedMixin):
         "ForecastValueSQL", back_populates="ml_model"
     )
 
+    sites: Mapped[List["SiteSQL"]] = relationship("SiteSQL", back_populates="ml_model")
+
 
 class UserSQL(Base, CreatedMixin):
     """Class representing the users table.
@@ -181,6 +183,13 @@ class SiteSQL(Base, CreatedMixin):
         comment="The UUID of the client this site belongs to",
     )
 
+    ml_model_uuid = sa.Column(
+        UUID(as_uuid=True),
+        sa.ForeignKey("ml_model.model_uuid"),
+        nullable=True,
+        comment="The ML Model which should be used for this site",
+    )
+
     forecasts: Mapped[List["ForecastSQL"]] = relationship("ForecastSQL", back_populates="site")
     generation: Mapped[List["GenerationSQL"]] = relationship("GenerationSQL")
     inverters: Mapped[List["InverterSQL"]] = relationship(
@@ -190,6 +199,7 @@ class SiteSQL(Base, CreatedMixin):
         "SiteGroupSQL", secondary="site_group_sites", back_populates="sites"
     )
     client: Mapped[List["ClientSQL"]] = relationship("ClientSQL", back_populates="sites")
+    ml_model: Mapped[Optional[MLModelSQL]] = relationship("MLModelSQL", back_populates="sites")
 
 
 class ClientSQL(Base, CreatedMixin):

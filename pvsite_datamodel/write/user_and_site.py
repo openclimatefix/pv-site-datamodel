@@ -10,7 +10,7 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.functions import func
 
 from pvsite_datamodel.pydantic_models import PVSiteEditMetadata
-from pvsite_datamodel.read import get_user_by_email
+from pvsite_datamodel.read import get_or_create_model, get_site_by_uuid, get_user_by_email
 from pvsite_datamodel.sqlmodels import (
     ForecastSQL,
     ForecastValueSQL,
@@ -376,3 +376,16 @@ def delete_site_group(session: Session, site_group_name: str) -> str:
     session.commit()
 
     return message
+
+
+def assign_model_name_to_site(session: Session, site_uuid, model_name):
+    """
+    Assign a model name to a site.
+    """
+
+    site = get_site_by_uuid(session=session, site_uuid=site_uuid)
+
+    model = get_or_create_model(session=session, name=model_name)
+
+    site.ml_model_uuid = model.model_uuid
+    session.commit()
