@@ -149,6 +149,7 @@ classDiagram
         + module_capacity_kw : Float
         + ml_id : Integer ≪ U ≫
         + client_uuid : UUID ≪ FK ≫
+        + ml_model_uuid : UUID ≪ FK ≫
     }
 
     class ClientSQL{
@@ -208,6 +209,7 @@ classDiagram
     SiteGroupSQL "1" -- "N" SiteGroupSiteSQL : contains
     SiteSQL "1" -- "N" GenerationSQL : generates
     SiteSQL "1" -- "N" ForecastSQL : forecasts
+    SiteSQL "N" -- "0" MLModelSQL : ml_model
     ForecastSQL "1" -- "N" ForecastValueSQL : contains
     MLModelSQL "1" -- "N" ForecastValueSQL : forecasts
     SiteSQL "1" -- "N" InverterSQL : contains
