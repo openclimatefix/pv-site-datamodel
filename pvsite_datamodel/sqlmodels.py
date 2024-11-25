@@ -176,6 +176,7 @@ class SiteSQL(Base, CreatedMixin):
     client_uuid = sa.Column(
         UUID(as_uuid=True),
         sa.ForeignKey("clients.client_uuid"),
+        active=sa.Column(sa.Boolean(), unique=False, default=True),
         nullable=True,
         index=True,
         comment="The UUID of the client this site belongs to",
