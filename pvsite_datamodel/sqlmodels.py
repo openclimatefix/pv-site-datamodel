@@ -181,6 +181,7 @@ class SiteSQL(Base, CreatedMixin):
         index=True,
         comment="The UUID of the client this site belongs to",
     )
+    model_uuid = sa.Column(UUID(as_uuid=True), sa.ForeignKey("ml_model.model_uuid"))
 
     forecasts: Mapped[List["ForecastSQL"]] = relationship("ForecastSQL", back_populates="site")
     generation: Mapped[List["GenerationSQL"]] = relationship("GenerationSQL")
@@ -191,9 +192,6 @@ class SiteSQL(Base, CreatedMixin):
         "SiteGroupSQL", secondary="site_group_sites", back_populates="sites"
     )
     client: Mapped[List["ClientSQL"]] = relationship("ClientSQL", back_populates="sites")
-    ml_model: Mapped[Optional[MLModelSQL]] = relationship("MLModelSQL", back_populates="sites")
-
-    model_uuid = sa.Column(UUID(as_uuid=True), sa.ForeignKey("ml_model.model_uuid"))
     ml_model: Mapped[Optional[MLModelSQL]] = relationship("MLModelSQL", back_populates="sites")
 
 
