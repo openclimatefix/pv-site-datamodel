@@ -10,6 +10,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from pvsite_datamodel.pydantic_models import PVSiteEditMetadata
+from pvsite_datamodel.read.model import get_or_create_model
+from pvsite_datamodel.read.site import assign_model_to_site
 from pvsite_datamodel.read.user import get_user_by_email
 from pvsite_datamodel.sqlmodels import APIRequestSQL, ForecastSQL, ForecastValueSQL, GenerationSQL
 from pvsite_datamodel.write.client import assign_site_to_client, create_client, edit_client
@@ -342,3 +344,34 @@ def test_assign_site_to_client(db_session):
         f"Site with site uuid {site.site_uuid} successfully assigned "
         f"to the client {client.client_name}"
     )
+
+
+def test_assign_model_to_site(db_session):
+    """Test to assign a model to a site"""
+    site = make_fake_site(db_session=db_session)
+    model = get_or_create_model(session=db_session, model_name="Test Model")
+
+    message = assign_model_to_site(db_session, model.ml_model_uuid, site.site_uuid)
+
+    assert site.ml_model_uuid == model.ml_model_uuid
+    assert message == (
+        f"Model {model.ml_model_uuid} successfully assigned to site {site.site_uuid}"
+    )
+
+
+def test_assign_model_to_nonexistent_site(db_session):
+    """Test assigning a model to a nonexistent site"""
+    model = get_or_create_model(session=db_session, model_name="Test Model")
+    nonexistent_site_uuid = str(uuid.uuid4())
+
+    with pytest.raises(KeyError, match=f"Site with uuid {nonexistent_site_uuid} not found"):
+        assign_model_to_site(db_session, model.ml_model_uuid, nonexistent_site_uuid)
+
+
+def test_assign_nonexistent_model_to_site(db_session):
+    """Test assigning a nonexistent model to a site"""
+    site = make_fake_site(db_session=db_session)
+    nonexistent_model_uuid = str(uuid.uuid4())
+
+    with pytest.raises(KeyError, match=f"Model with uuid {nonexistent_model_uuid} not found"):
+        assign_model_to_site(db_session, nonexistent_model_uuid, site.site_uuid)

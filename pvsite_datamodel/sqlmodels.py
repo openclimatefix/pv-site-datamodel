@@ -9,6 +9,7 @@ from datetime import datetime
 from typing import List, Optional
 
 import sqlalchemy as sa
+from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, declarative_base, relationship
 from sqlalchemy.schema import UniqueConstraint
@@ -34,6 +35,7 @@ class MLModelSQL(Base, CreatedMixin):
     forecast_values: Mapped[List["ForecastValueSQL"]] = relationship(
         "ForecastValueSQL", back_populates="ml_model"
     )
+    sites: Mapped[List["SiteSQL"]] = relationship("SiteSQL", back_populates="ml_model")
 
 
 class UserSQL(Base, CreatedMixin):
@@ -185,6 +187,9 @@ class SiteSQL(Base, CreatedMixin):
         "SiteGroupSQL", secondary="site_group_sites", back_populates="sites"
     )
     client: Mapped[List["ClientSQL"]] = relationship("ClientSQL", back_populates="sites")
+
+    ml_model_id = Column(Integer, ForeignKey("ml_models.id"))
+    ml_model = relationship("MLModel", back_populates="sites")
 
 
 class ClientSQL(Base, CreatedMixin):

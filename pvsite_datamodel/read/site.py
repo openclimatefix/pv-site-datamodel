@@ -6,7 +6,14 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 
 from pvsite_datamodel.pydantic_models import LatitudeLongitudeLimits
-from pvsite_datamodel.sqlmodels import ClientSQL, SiteGroupSiteSQL, SiteGroupSQL, SiteSQL, UserSQL
+from pvsite_datamodel.sqlmodels import (
+    ClientSQL,
+    MLModelSQL,
+    SiteGroupSiteSQL,
+    SiteGroupSQL,
+    SiteSQL,
+    UserSQL,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -200,3 +207,28 @@ def get_sites_by_client_name(session: Session, client_name: str) -> List[SiteSQL
         raise Exception(f"Could not find sites from client {client_name}")
 
     return sites
+
+
+def assign_model_to_site(session: Session, model_uuid: str, site_uuid: str) -> str:
+    """Assign model to site.
+
+    :param session: database session
+    :param model_id: id of model
+    :param site_uuid: uuid of site
+    """
+    site = session.query(SiteSQL).filter(SiteSQL.site_uuid == site_uuid).first()
+
+    model = session.query(MLModelSQL).filter(MLModelSQL.ml_model_id == model_uuid).first()
+
+    if site is None:
+        raise KeyError(f"Site with uuid {site_uuid} not found")
+    if model is None:
+        raise KeyError(f"Model with uuid {model_uuid} not found")
+
+    site.ml_model_uuid = model.ml_model_uuid
+
+    session.add(site)
+    session.commit()
+
+    message = f"Model with id {model_uuid} successfully assigned to site with uuid {site_uuid}"
+    return message
