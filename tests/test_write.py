@@ -345,6 +345,8 @@ def test_assign_site_to_client(db_session):
         f"Site with site uuid {site.site_uuid} successfully assigned "
         f"to the client {client.client_name}"
     )
+
+
 def test_assign_model_name_to_site(db_session):
     """Test to assign a model name to a site"""
     site = make_fake_site(db_session=db_session)
@@ -356,6 +358,7 @@ def test_assign_model_name_to_site(db_session):
     assign_model_name_to_site(db_session, site.site_uuid, "test_model_2")
 
     assert site.ml_model.name == "test_model_2"
+
 
 def test_assign_model_to_site(db_session):
     """Test to assign a model to a site"""
