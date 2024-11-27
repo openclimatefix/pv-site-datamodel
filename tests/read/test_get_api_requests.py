@@ -70,7 +70,7 @@ def test_get_api_requests_for_one_user_new1(db_session):
 def test_get_api_requests_for_one_user_new2(db_session):
     user = get_user_by_email(session=db_session, email="test@test.com")
     db_session.add(APIRequestSQL(user_uuid=user.user_uuid, url="UI/test"))
-    db_session.add(APIRequestSQL(user_uuid=user.user_uuid, url="UI/test"))
+    db_session.add(APIRequestSQL(user_uuid=user.user_uuid, url="API/test"))
 
     requests_sql = get_api_requests_for_one_user(
         session=db_session,
