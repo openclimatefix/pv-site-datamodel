@@ -63,7 +63,7 @@ def test_get_api_requests_for_one_user_new1(db_session):
         exclude_in_url="UI",
     )
     assert len(requests_sql) == 1
-    assert requests_sql[0].url == "test"
+    assert requests_sql[0].url == "API/test"
 
 
 def test_get_api_requests_for_one_user_new2(db_session):
@@ -77,4 +77,4 @@ def test_get_api_requests_for_one_user_new2(db_session):
         exclude_in_url="UI",
     )
     assert len(requests_sql) == 1
-    assert requests_sql[0].url == "test"
+    assert requests_sql[0].url == "UI/test"
