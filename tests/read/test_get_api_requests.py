@@ -72,7 +72,6 @@ def test_get_api_requests_for_one_user_new2(db_session):
     db_session.add(APIRequestSQL(user_uuid=user.user_uuid, url="UI/test"))
     db_session.add(APIRequestSQL(user_uuid=user.user_uuid, url="UI/test"))
 
-
     requests_sql = get_api_requests_for_one_user(
         session=db_session,
         email=user.email,
