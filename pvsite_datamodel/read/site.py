@@ -218,7 +218,7 @@ def assign_model_to_site(session: Session, model_uuid: str, site_uuid: str) -> s
     """
     site = session.query(SiteSQL).filter(SiteSQL.site_uuid == site_uuid).first()
 
-    model = session.query(MLModelSQL).filter(MLModelSQL.ml_model_id == model_uuid).first()
+    model = session.query(MLModelSQL).filter(MLModelSQL.model_uuid == model_uuid).first()
 
     if site is None:
         raise KeyError(f"Site with uuid {site_uuid} not found")

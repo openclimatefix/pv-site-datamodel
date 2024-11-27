@@ -363,23 +363,21 @@ def test_assign_model_name_to_site(db_session):
 def test_assign_model_to_site(db_session):
     """Test to assign a model to a site"""
     site = make_fake_site(db_session=db_session)
-    model = get_or_create_model(session=db_session, model_name="Test Model")
+    model = get_or_create_model(session=db_session, name="Test Model")
 
-    message = assign_model_to_site(db_session, model.ml_model_uuid, site.site_uuid)
+    message = assign_model_to_site(db_session, model.model_uuid, site.site_uuid)
 
-    assert site.ml_model_uuid == model.ml_model_uuid
-    assert message == (
-        f"Model {model.ml_model_uuid} successfully assigned to site {site.site_uuid}"
-    )
+    assert site.ml_model_uuid == model.model_uuid
+    assert message == (f"Model {model.model_uuid} successfully assigned to site {site.site_uuid}")
 
 
 def test_assign_model_to_nonexistent_site(db_session):
     """Test assigning a model to a nonexistent site"""
-    model = get_or_create_model(session=db_session, model_name="Test Model")
+    model = get_or_create_model(session=db_session, name="Test Model")
     nonexistent_site_uuid = str(uuid.uuid4())
 
     with pytest.raises(KeyError, match=f"Site with uuid {nonexistent_site_uuid} not found"):
-        assign_model_to_site(db_session, model.ml_model_uuid, nonexistent_site_uuid)
+        assign_model_to_site(db_session, model.model_uuid, nonexistent_site_uuid)
 
 
 def test_assign_nonexistent_model_to_site(db_session):
