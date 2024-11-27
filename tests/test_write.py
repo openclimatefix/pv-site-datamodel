@@ -367,7 +367,7 @@ def test_assign_model_to_site(db_session):
 
     message = assign_model_to_site(db_session, model.model_uuid, site.site_uuid)
 
-    assert site.ml_model_uuid == model.model_uuid
+    assert site.model_uuid == model.model_uuid
     assert message == (f"Model {model.model_uuid} successfully assigned to site {site.site_uuid}")
 
 
