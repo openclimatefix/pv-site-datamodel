@@ -60,7 +60,6 @@ def test_get_api_requests_for_one_user_new(db_session):
         session=db_session,
         email=user.email,
         include_in_url="API",
-        exclude_in_url="UI",
     )
     assert len(requests_sql) == 1
     assert requests_sql[0].url == "test"
