@@ -131,6 +131,7 @@ class SiteSQL(Base, CreatedMixin):
     __tablename__ = "sites"
 
     site_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
+    active = sa.Column(sa.Boolean, default=True, unique=False)
     client_site_id = sa.Column(
         sa.Integer, index=True, comment="The ID of the site as given by the providing client"
     )
