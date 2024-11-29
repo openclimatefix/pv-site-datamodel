@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '12c0ccf6b825'
-down_revision = '08e6fd83f6da'
+down_revision = 'c8ef88c250e7'
 branch_labels = None
 depends_on = None
 
@@ -28,7 +28,7 @@ BEGIN
             site_uuid,
             site_data,
             changed_by,
-            operation_type
+            operation_type,
             created_utc
         ) VALUES (
             gen_random_uuid(),
@@ -62,8 +62,8 @@ BEGIN
             site_uuid,
             site_data,
             changed_by,
-            created_utc,
-            operation_type
+            operation_type,
+            created_utc
         ) VALUES (
             gen_random_uuid(),
             OLD.site_uuid,

@@ -218,7 +218,6 @@ class SiteHistorySQL(Base, CreatedMixin):
 
     site_uuid = sa.Column(
         UUID(as_uuid=True),
-        sa.ForeignKey("sites.site_uuid"),
         nullable=False,
         index=True,
         comment="The site which this history record relates to",
