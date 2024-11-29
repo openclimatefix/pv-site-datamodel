@@ -300,11 +300,12 @@ def test_edit_site(db_session):
 
     metadata_to_update = PVSiteEditMetadata(tilt=15, capacity_kw=None)
 
+    user = get_user_by_email(session=db_session, email="test@test.com")
     site, _ = edit_site(
         session=db_session,
         site_uuid=str(site.site_uuid),
         site_info=metadata_to_update,
-        user_uuid="matt123"
+        user_uuid=user.user_uuid
     )
 
     assert site.tilt == metadata_to_update.tilt
