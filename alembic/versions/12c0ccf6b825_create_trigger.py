@@ -22,21 +22,21 @@ DECLARE
 BEGIN
     user_uuid := current_setting('pvsite_datamodel.current_user_uuid', true)::UUID;
     
-        IF TG_OP = 'INSERT' THEN
+    IF TG_OP = 'INSERT' THEN
         INSERT INTO h_sites (
             site_history_uuid,
             site_uuid,
             site_data,
             changed_by,
-            change_timestamp,
             operation_type
+            created_utc
         ) VALUES (
             gen_random_uuid(),
             NEW.site_uuid,
             to_jsonb(NEW),
             user_uuid,
-            NOW(),
-            'INSERT'
+            'INSERT',
+            NOW()
         );
 
     ELSIF TG_OP = 'UPDATE' THEN
@@ -45,15 +45,15 @@ BEGIN
             site_uuid,
             site_data,
             changed_by,
-            change_timestamp,
-            operation_type
+            operation_type,
+            created_utc
         ) VALUES (
             gen_random_uuid(),
             NEW.site_uuid,
             to_jsonb(NEW),
             user_uuid,
-            NOW(),
-            'UPDATE'
+            'UPDATE',
+            NOW()
         );
 
     ELSIF TG_OP = 'DELETE' THEN
@@ -69,8 +69,8 @@ BEGIN
             OLD.site_uuid,
             to_jsonb(OLD),
             user_uuid,
-            NOW(),
-            'DELETE'
+            'DELETE',
+            NOW()
         );
     END IF;
 

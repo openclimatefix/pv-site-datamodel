@@ -232,6 +232,8 @@ class SiteHistorySQL(Base, CreatedMixin):
     # Foreign key to track the user who made the change
     changed_by = sa.Column(UUID(as_uuid=True), sa.ForeignKey("users.user_uuid"), nullable=True)
 
+    operation_type = sa.Column(sa.TEXT, nullable=False)
+
 
 class ClientSQL(Base, CreatedMixin):
     """Class representing the client table.
