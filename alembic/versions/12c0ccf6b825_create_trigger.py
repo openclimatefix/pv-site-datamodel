@@ -21,21 +21,60 @@ DECLARE
     user_uuid UUID;
 BEGIN
     user_uuid := current_setting('pvsite_datamodel.current_user_uuid', true)::UUID;
-    INSERT INTO h_sites (
-        site_history_uuid,
-        site_uuid,
-        site_data,
-        changed_by,
-        created_utc
-    ) VALUES (
-        gen_random_uuid(),
-        NEW.site_uuid,
-        to_jsonb(NEW),
-        user_uuid,  -- Assuming the client initiating the change is available here
-        NOW()
-    );
+    
+        IF TG_OP = 'INSERT' THEN
+        INSERT INTO h_sites (
+            site_history_uuid,
+            site_uuid,
+            site_data,
+            changed_by,
+            change_timestamp,
+            operation_type
+        ) VALUES (
+            gen_random_uuid(),
+            NEW.site_uuid,
+            to_jsonb(NEW),
+            user_uuid,
+            NOW(),
+            'INSERT'
+        );
 
-    RETURN NULL;  -- Triggers returning NULL mean "do nothing further"
+    ELSIF TG_OP = 'UPDATE' THEN
+        INSERT INTO h_sites (
+            site_history_uuid,
+            site_uuid,
+            site_data,
+            changed_by,
+            change_timestamp,
+            operation_type
+        ) VALUES (
+            gen_random_uuid(),
+            NEW.site_uuid,
+            to_jsonb(NEW),
+            user_uuid,
+            NOW(),
+            'UPDATE'
+        );
+
+    ELSIF TG_OP = 'DELETE' THEN
+        INSERT INTO h_sites (
+            site_history_uuid,
+            site_uuid,
+            site_data,
+            changed_by,
+            created_utc,
+            operation_type
+        ) VALUES (
+            gen_random_uuid(),
+            OLD.site_uuid,
+            to_jsonb(OLD),
+            user_uuid,
+            NOW(),
+            'DELETE'
+        );
+    END IF;
+
+    RETURN NULL;
 END;
 $$ LANGUAGE plpgsql;
 
