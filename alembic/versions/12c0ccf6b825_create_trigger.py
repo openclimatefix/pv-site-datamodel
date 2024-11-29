@@ -17,7 +17,10 @@ depends_on = None
 
 create_trigger = """CREATE OR REPLACE FUNCTION log_site_changes()
 RETURNS TRIGGER AS $$
+DECLARE
+    user_uuid UUID;
 BEGIN
+    user_uuid := current_setting('pvsite_datamodel.current_user_uuid', true)::UUID;
     INSERT INTO h_sites (
         site_history_uuid,
         site_uuid,
@@ -28,7 +31,7 @@ BEGIN
         gen_random_uuid(),
         NEW.site_uuid,
         to_jsonb(NEW),
-        NEW.client_uuid,  -- Assuming the client initiating the change is available here
+        user_uuid,  -- Assuming the client initiating the change is available here
         NOW()
     );
 
