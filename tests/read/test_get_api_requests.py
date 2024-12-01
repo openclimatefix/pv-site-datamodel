@@ -50,3 +50,33 @@ def test_get_api_requests_for_one_user_end_datetime(db_session):
         end_datetime=dt.datetime.now(tz=dt.timezone.utc) - dt.timedelta(hours=1),
     )
     assert len(requests_sql) == 0
+
+
+def test_get_api_requests_for_one_user_new1(db_session):
+    user = get_user_by_email(session=db_session, email="test@test.com")
+    db_session.add(APIRequestSQL(user_uuid=user.user_uuid, url="API/test"))
+    db_session.add(APIRequestSQL(user_uuid=user.user_uuid, url="UI/test"))
+
+    requests_sql = get_api_requests_for_one_user(
+        session=db_session,
+        email=user.email,
+        include_in_url="API",
+        exclude_in_url="UI",
+    )
+    assert len(requests_sql) == 1
+    assert requests_sql[0].url == "API/test"
+
+
+def test_get_api_requests_for_one_user_new2(db_session):
+    user = get_user_by_email(session=db_session, email="test@test.com")
+    db_session.add(APIRequestSQL(user_uuid=user.user_uuid, url="UI/test"))
+    db_session.add(APIRequestSQL(user_uuid=user.user_uuid, url="API/test"))
+
+    requests_sql = get_api_requests_for_one_user(
+        session=db_session,
+        email=user.email,
+        include_in_url="API",
+        exclude_in_url="UI",
+    )
+    assert len(requests_sql) == 1
+    assert requests_sql[0].url == "API/test"
