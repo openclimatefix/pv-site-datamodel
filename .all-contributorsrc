@@ -123,6 +123,16 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "hanaawad24",
+      "name": "hanaawad24",
+      "avatar_url": "https://avatars.githubusercontent.com/u/181783053?v=4",
+      "profile": "https://github.com/hanaawad24",
+      "contributions": [
+        "doc",
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
