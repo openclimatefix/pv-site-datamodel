@@ -357,6 +357,7 @@ def test_assign_model_name_to_site(db_session):
 
     assert site.ml_model.name == "test_model_2"
 
+
 def test_assign_model_to_nonexistent_site(db_session):
     """Test assigning a model to a nonexistent site"""
     nonexistent_site_uuid = str(uuid.uuid4())

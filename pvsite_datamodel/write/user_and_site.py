@@ -380,6 +380,7 @@ def delete_site_group(session: Session, site_group_name: str) -> str:
 
 def assign_model_name_to_site(session: Session, site_uuid, model_name):
     """Assign model to site.
+
     :param session: database session
     :param site_uuid: site uuid
     :param model_name: name of the model
@@ -389,7 +390,7 @@ def assign_model_name_to_site(session: Session, site_uuid, model_name):
 
     if site is None:
         raise KeyError(f"Site with uuid {site_uuid} not found")
-   
+
     model = get_or_create_model(session=session, name=model_name)
 
     site.ml_model_uuid = model.model_uuid
