@@ -388,9 +388,6 @@ def assign_model_name_to_site(session: Session, site_uuid, model_name):
 
     site = get_site_by_uuid(session=session, site_uuid=site_uuid)
 
-    if site is None:
-        raise KeyError(f"Site with uuid {site_uuid} not found")
-
     model = get_or_create_model(session=session, name=model_name)
 
     site.ml_model_uuid = model.model_uuid
