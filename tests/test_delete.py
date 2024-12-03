@@ -1,6 +1,6 @@
 """Test Delete Functions"""
 
-from pvsite_datamodel.sqlmodels import SiteSQL, UserSQL
+from pvsite_datamodel.sqlmodels import SiteSQL, UserSQL, SiteHistorySQL
 from pvsite_datamodel.write.user_and_site import (
     create_site_group,
     create_user,
@@ -17,6 +17,10 @@ def test_delete_site(db_session):
 
     site_1 = make_fake_site(db_session=db_session, ml_id=1)
 
+    # history table should contain a single entry
+    hist_size = db_session.query(SiteHistorySQL).filter(SiteHistorySQL.operation_type == 'INSERT').count()
+    assert hist_size == 1
+
     # todo add site to site group
 
     site_group = create_site_group(db_session=db_session, site_group_name="test_site_group")
@@ -30,6 +34,9 @@ def test_delete_site(db_session):
 
     assert site is None
     assert message == f"Site with site uuid {site_uuid} deleted successfully"
+
+    deleted_site = db_session.query(SiteHistorySQL).filter(SiteHistorySQL.operation_type == 'DELETE').first()
+    assert deleted_site.site_uuid == site_uuid
 
 
 def test_delete_user(db_session):
