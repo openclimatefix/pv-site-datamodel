@@ -103,13 +103,25 @@ def get_all_site_groups(session: Session) -> List[SiteGroupSQL]:
     return site_groups
 
 
-def get_all_last_api_request(session: Session) -> List[APIRequestSQL]:
+def get_all_last_api_request(
+    session: Session,
+    include_in_url: Optional[str] = None,
+    exclude_in_url: Optional[str] = None,
+) -> List[APIRequestSQL]:
     """
     Get all last api requests for all users.
 
     :param session: database session
     :return:
     """
+
+    query = session.query(APIRequestSQL)
+
+    if include_in_url is not None:
+        query = query.filter(APIRequestSQL.url.like(f"%{include_in_url}%"))
+
+    if exclude_in_url is not None:
+        query = query.filter(~APIRequestSQL.url.like(f"%{exclude_in_url}%"))
 
     last_requests_sql: [APIRequestSQL] = (
         session.query(APIRequestSQL)
@@ -129,6 +141,8 @@ def get_api_requests_for_one_user(
     email: str,
     start_datetime: Optional[datetime] = None,
     end_datetime: Optional[datetime] = None,
+    include_in_url: Optional[str] = None,
+    exclude_in_url: Optional[str] = None,
 ) -> List[APIRequestSQL]:
     """
     Get all api requests for one user.
@@ -139,7 +153,13 @@ def get_api_requests_for_one_user(
     :param end_datetime: only get api requests before end datetime
     """
 
-    query = session.query(APIRequestSQL).join(UserSQL).filter(UserSQL.email == email)
+    query = session.query(APIRequestSQL)
+
+    if include_in_url is not None:
+        query = query.filter(APIRequestSQL.url.like(f"%{include_in_url}%"))
+
+    if exclude_in_url is not None:
+        query = query.filter(~APIRequestSQL.url.like(f"%{exclude_in_url}%"))
 
     if start_datetime is not None:
         query = query.filter(APIRequestSQL.created_utc >= start_datetime)
