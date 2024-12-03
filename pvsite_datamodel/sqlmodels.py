@@ -201,6 +201,7 @@ class SiteSQL(Base, CreatedMixin):
     client: Mapped[List["ClientSQL"]] = relationship("ClientSQL", back_populates="sites")
     ml_model: Mapped[Optional[MLModelSQL]] = relationship("MLModelSQL", back_populates="sites")
 
+
 class SiteHistorySQL(Base, CreatedMixin):
     """Class representing the sites table.
 

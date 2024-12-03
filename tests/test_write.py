@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 
 from pvsite_datamodel.pydantic_models import PVSiteEditMetadata
 from pvsite_datamodel.read.user import get_user_by_email
-from pvsite_datamodel.sqlmodels import APIRequestSQL, ForecastSQL, ForecastValueSQL, GenerationSQL
+from pvsite_datamodel.sqlmodels import APIRequestSQL, ForecastSQL, ForecastValueSQL, GenerationSQL, SiteHistorySQL
 from pvsite_datamodel.write.client import assign_site_to_client, create_client, edit_client
 from pvsite_datamodel.write.database import save_api_call_to_db
 from pvsite_datamodel.write.forecast import insert_forecast_values
@@ -295,7 +295,16 @@ def test_save_api_call_to_db(db_session):
 
 def test_edit_site(db_session):
     """Test the update of site metadata"""
+    # history table should be empty
+    hist_size = db_session.query(SiteHistorySQL).count()
+    assert hist_size == 0
+
     site = make_fake_site(db_session=db_session)
+
+    # history table should contain a single entry
+    hist_size = db_session.query(SiteHistorySQL).count()
+    assert hist_size == 1
+
     prev_latitude = site.latitude
 
     metadata_to_update = PVSiteEditMetadata(tilt=15, capacity_kw=None)
@@ -311,6 +320,10 @@ def test_edit_site(db_session):
     assert site.tilt == metadata_to_update.tilt
     assert site.capacity_kw == metadata_to_update.capacity_kw
     assert site.latitude == prev_latitude
+
+    # after editing there should be another entry in the history table
+    hist_size = db_session.query(SiteHistorySQL).count()
+    assert hist_size == 2
 
 
 def test_create_client(db_session):
