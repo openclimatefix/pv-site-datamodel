@@ -1,6 +1,6 @@
 """Test Delete Functions"""
 
-from pvsite_datamodel.sqlmodels import SiteSQL, UserSQL, SiteHistorySQL
+from pvsite_datamodel.sqlmodels import SiteHistorySQL, SiteSQL, UserSQL
 from pvsite_datamodel.write.user_and_site import (
     create_site_group,
     create_user,
