@@ -328,9 +328,12 @@ def test_edit_site(db_session):
     assert site.latitude == prev_latitude
 
     # after editing there should be another entry in the history table
-    edited_site = db_session.query(SiteHistorySQL).filter(SiteHistorySQL.operation_type == 'UPDATE').first()
-    assert edited_site.site_uuid == site.site_uuid
-    assert edited_site.changed_by == user.user_uuid
+    h_site = (
+        db_session.query(SiteHistorySQL).filter(SiteHistorySQL.operation_type == "UPDATE").first()
+    )
+
+    assert h_site.site_uuid == site.site_uuid
+    assert h_site.changed_by == user.user_uuid
 
 
 def test_create_client(db_session):
