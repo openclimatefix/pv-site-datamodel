@@ -11,7 +11,13 @@ from sqlalchemy.orm import Session
 
 from pvsite_datamodel.pydantic_models import PVSiteEditMetadata
 from pvsite_datamodel.read.user import get_user_by_email
-from pvsite_datamodel.sqlmodels import APIRequestSQL, ForecastSQL, ForecastValueSQL, GenerationSQL, SiteHistorySQL
+from pvsite_datamodel.sqlmodels import (
+    APIRequestSQL,
+    ForecastSQL,
+    ForecastValueSQL,
+    GenerationSQL,
+    SiteHistorySQL,
+)
 from pvsite_datamodel.write.client import assign_site_to_client, create_client, edit_client
 from pvsite_datamodel.write.database import save_api_call_to_db
 from pvsite_datamodel.write.forecast import insert_forecast_values
@@ -314,7 +320,7 @@ def test_edit_site(db_session):
         session=db_session,
         site_uuid=str(site.site_uuid),
         site_info=metadata_to_update,
-        user_uuid=user.user_uuid
+        user_uuid=user.user_uuid,
     )
 
     assert site.tilt == metadata_to_update.tilt

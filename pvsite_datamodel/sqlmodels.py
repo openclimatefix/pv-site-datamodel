@@ -232,9 +232,7 @@ class SiteHistorySQL(Base, CreatedMixin):
     )
 
     # JSONB column to store the snapshot of the site data
-    site_data = sa.Column(
-        JSONB, nullable=False, comment="A snapshot of the site record as JSONB"
-    )
+    site_data = sa.Column(JSONB, nullable=False, comment="A snapshot of the site record as JSONB")
 
     # Foreign key to track the user who made the change
     changed_by = sa.Column(UUID(as_uuid=True), sa.ForeignKey("users.user_uuid"), nullable=True)

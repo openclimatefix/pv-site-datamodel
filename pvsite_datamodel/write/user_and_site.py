@@ -254,7 +254,7 @@ def update_user_site_group(session: Session, email: str, site_group_name: str) -
 
 # update site metadata
 def edit_site(
-    session: Session, site_uuid: str, site_info: PVSiteEditMetadata, user_uuid: str=None
+    session: Session, site_uuid: str, site_info: PVSiteEditMetadata, user_uuid: str = None
 ) -> Tuple[SiteSQL, str]:
     """
     Edit an existing site. Fill in only the fields that need to be updated.
