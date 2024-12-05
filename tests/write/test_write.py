@@ -154,6 +154,45 @@ def test_create_new_site(db_session):
     )
 
 
+def test_create_new_site_with_user(db_session):
+    user = get_user_by_email(session=db_session, email="test@test.com")
+
+    site, message = create_site(
+        session=db_session,
+        client_site_id=6932,
+        client_site_name="test_site_1",
+        latitude=51.0,
+        longitude=0.0,
+        capacity_kw=1.0,
+        user_uuid=user.user_uuid
+    )
+
+    # after creating there should be an entry in the history table
+    h_site = (
+        db_session.query(SiteHistorySQL).filter(SiteHistorySQL.operation_type == "INSERT").first()
+    )
+
+    assert h_site.site_uuid == site.site_uuid
+    assert h_site.changed_by == user.user_uuid
+
+    # create site without setting user
+    site_2, _ = create_site(
+        session=db_session,
+        client_site_id=6932,
+        client_site_name="test_site_2",
+        latitude=51.0,
+        longitude=0.0,
+        capacity_kw=1.0,
+    )
+
+    h_site_2 = (
+        db_session.query(SiteHistorySQL).filter(SiteHistorySQL.site_uuid == site_2.site_uuid).first()
+    )
+
+    assert h_site_2.changed_by is None
+
+
+
 def test_create_new_site_in_specified_country(db_session):
     site, message = create_site(
         session=db_session,

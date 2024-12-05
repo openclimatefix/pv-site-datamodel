@@ -20,7 +20,7 @@ RETURNS TRIGGER AS $$
 DECLARE
     user_uuid UUID;
 BEGIN
-    user_uuid := current_setting('pvsite_datamodel.current_user_uuid', true)::UUID;
+    user_uuid := nullif(current_setting('pvsite_datamodel.current_user_uuid', true), '')::UUID;
     
     IF TG_OP = 'INSERT' THEN
         INSERT INTO h_sites (
