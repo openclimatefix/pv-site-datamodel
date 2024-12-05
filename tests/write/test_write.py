@@ -189,6 +189,7 @@ def test_create_new_site_with_user(db_session):
         db_session.query(SiteHistorySQL).filter(SiteHistorySQL.site_uuid == site_2.site_uuid).first()
     )
 
+    # user should not be set
     assert h_site_2.changed_by is None
 
 
