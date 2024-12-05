@@ -78,7 +78,7 @@ def create_site(
     module_capacity_kw: Optional[float] = None,
     client_uuid: Optional[UUID] = None,
     ml_id: Optional[int] = None,
-    user_uuid: Optional[str] = None
+    user_uuid: Optional[str] = None,
 ) -> [SiteSQL, str]:
     """
     Create a site and adds it to the database.
@@ -407,7 +407,7 @@ def assign_model_name_to_site(session: Session, site_uuid, model_name):
 
 def set_session_user(session: Session, user_uuid: str):
     """
-    Sets a variable which is then used by the log_site_changes function when updating the site history table.
+    Set variable which is then used by the log_site_changes function when updating the site history table.
 
     :param session: the session
     :param user_uuid: the user UUID

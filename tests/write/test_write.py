@@ -164,7 +164,7 @@ def test_create_new_site_with_user(db_session):
         latitude=51.0,
         longitude=0.0,
         capacity_kw=1.0,
-        user_uuid=user.user_uuid
+        user_uuid=user.user_uuid,
     )
 
     # after creating there should be an entry in the history table
@@ -186,12 +186,13 @@ def test_create_new_site_with_user(db_session):
     )
 
     h_site_2 = (
-        db_session.query(SiteHistorySQL).filter(SiteHistorySQL.site_uuid == site_2.site_uuid).first()
+        db_session.query(SiteHistorySQL)
+        .filter(SiteHistorySQL.site_uuid == site_2.site_uuid)
+        .first()
     )
 
     # user should not be set
     assert h_site_2.changed_by is None
-
 
 
 def test_create_new_site_in_specified_country(db_session):
