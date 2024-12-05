@@ -406,8 +406,10 @@ def assign_model_name_to_site(session: Session, site_uuid, model_name):
 
 
 def set_session_user(session: Session, user_uuid: str):
-    """
-    Set variable which is then used by the log_site_changes function when updating the site history table.
+    """Set user session variable.
+
+    Sets a variable which is then used by the log_site_changes function when updating
+    the site history table.
 
     :param session: the session
     :param user_uuid: the user UUID
@@ -415,4 +417,4 @@ def set_session_user(session: Session, user_uuid: str):
     if user_uuid is not None:
         session.execute(text(f"SET pvsite_datamodel.current_user_uuid = '{user_uuid}'"))
     else:
-        session.execute(text(f"RESET pvsite_datamodel.current_user_uuid"))
+        session.execute(text("RESET pvsite_datamodel.current_user_uuid"))

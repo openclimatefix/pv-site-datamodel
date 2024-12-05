@@ -212,8 +212,8 @@ class SiteSQL(Base, CreatedMixin):
 class SiteHistorySQL(Base, CreatedMixin):
     """Class representing the sites history table.
 
-    Stores a history of changes to sites over time. Uses JSONB so that schema changes to the site table
-    do not affect the history table.
+    Stores a history of changes to sites over time. Uses JSONB so that schema changes to the
+    site table do not affect the history table.
     """
 
     __tablename__ = "h_sites"
