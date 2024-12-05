@@ -210,14 +210,10 @@ class SiteSQL(Base, CreatedMixin):
 
 
 class SiteHistorySQL(Base, CreatedMixin):
-    """Class representing the sites table.
+    """Class representing the sites history table.
 
-    Each site row specifies a single panel or cluster of panels
-    found on a residential house or commercial building. Their
-    data is provided by a client.
-
-    *Approximate size: *
-    4 clients * ~1000 sites each = ~4000 rows
+    Stores a history of changes to sites over time. Uses JSONB so that schema changes to the site table
+    do not affect the history table.
     """
 
     __tablename__ = "h_sites"
