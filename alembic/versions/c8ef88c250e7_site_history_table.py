@@ -17,7 +17,7 @@ depends_on = None
 
 
 def upgrade() -> None:
-    op.create_table('h_sites',
+    op.create_table('sites_history',
     sa.Column('site_history_uuid', sa.UUID(), nullable=False),
     sa.Column('site_uuid', sa.UUID(), nullable=False, comment='The site which this history record relates to'),
     sa.Column('site_data', postgresql.JSONB(astext_type=sa.Text()), nullable=False, comment='A snapshot of the site record as JSONB'),
@@ -27,9 +27,9 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['changed_by'], ['users.user_uuid'], ),
     sa.PrimaryKeyConstraint('site_history_uuid')
     )
-    op.create_index(op.f('ix_h_sites_site_uuid'), 'h_sites', ['site_uuid'], unique=False)
+    op.create_index(op.f('ix_sites_history_site_uuid'), 'sites_history', ['site_uuid'], unique=False)
 
 
 def downgrade() -> None:
-    op.drop_index(op.f('ix_h_sites_site_uuid'), table_name='h_sites')
-    op.drop_table('h_sites')
+    op.drop_index(op.f('ix_sites_history_site_uuid'), table_name='sites_history')
+    op.drop_table('sites_history')

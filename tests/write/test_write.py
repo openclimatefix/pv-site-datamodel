@@ -369,6 +369,8 @@ def test_edit_site(db_session):
     assert site.latitude == prev_latitude
 
     # after editing there should be another entry in the history table
+    hist_size = db_session.query(SiteHistorySQL).count()
+    assert hist_size == 2
     h_site = (
         db_session.query(SiteHistorySQL).filter(SiteHistorySQL.operation_type == "UPDATE").first()
     )

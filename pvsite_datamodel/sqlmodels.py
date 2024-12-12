@@ -216,7 +216,7 @@ class SiteHistorySQL(Base, CreatedMixin):
     site table do not affect the history table.
     """
 
-    __tablename__ = "h_sites"
+    __tablename__ = "sites_history"
 
     site_history_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
 
