@@ -11,7 +11,13 @@ from sqlalchemy.orm import Session
 
 from pvsite_datamodel.pydantic_models import PVSiteEditMetadata
 from pvsite_datamodel.read.user import get_user_by_email
-from pvsite_datamodel.sqlmodels import APIRequestSQL, ForecastSQL, ForecastValueSQL, GenerationSQL
+from pvsite_datamodel.sqlmodels import (
+    APIRequestSQL,
+    ForecastSQL,
+    ForecastValueSQL,
+    GenerationSQL,
+    SiteHistorySQL,
+)
 from pvsite_datamodel.write.client import assign_site_to_client, create_client, edit_client
 from pvsite_datamodel.write.database import save_api_call_to_db
 from pvsite_datamodel.write.forecast import insert_forecast_values
@@ -146,6 +152,47 @@ def test_create_new_site(db_session):
         message == f"Site with client site id {site.client_site_id} "
         f"and site uuid {site.site_uuid} created successfully"
     )
+
+
+def test_create_new_site_with_user(db_session):
+    user = get_user_by_email(session=db_session, email="test@test.com")
+
+    site, message = create_site(
+        session=db_session,
+        client_site_id=6932,
+        client_site_name="test_site_1",
+        latitude=51.0,
+        longitude=0.0,
+        capacity_kw=1.0,
+        user_uuid=user.user_uuid,
+    )
+
+    # after creating there should be an entry in the history table
+    h_site = (
+        db_session.query(SiteHistorySQL).filter(SiteHistorySQL.operation_type == "INSERT").first()
+    )
+
+    assert h_site.site_uuid == site.site_uuid
+    assert h_site.changed_by == user.user_uuid
+
+    # create site without setting user
+    site_2, _ = create_site(
+        session=db_session,
+        client_site_id=6932,
+        client_site_name="test_site_2",
+        latitude=51.0,
+        longitude=0.0,
+        capacity_kw=1.0,
+    )
+
+    h_site_2 = (
+        db_session.query(SiteHistorySQL)
+        .filter(SiteHistorySQL.site_uuid == site_2.site_uuid)
+        .first()
+    )
+
+    # user should not be set
+    assert h_site_2.changed_by is None
 
 
 def test_create_new_site_in_specified_country(db_session):
@@ -295,20 +342,41 @@ def test_save_api_call_to_db(db_session):
 
 def test_edit_site(db_session):
     """Test the update of site metadata"""
+    # history table should be empty
+    hist_size = db_session.query(SiteHistorySQL).count()
+    assert hist_size == 0
+
     site = make_fake_site(db_session=db_session)
+
+    # history table should contain a single entry
+    hist_size = db_session.query(SiteHistorySQL).count()
+    assert hist_size == 1
+
     prev_latitude = site.latitude
 
     metadata_to_update = PVSiteEditMetadata(tilt=15, capacity_kw=None)
 
+    user = get_user_by_email(session=db_session, email="test@test.com")
     site, _ = edit_site(
         session=db_session,
         site_uuid=str(site.site_uuid),
         site_info=metadata_to_update,
+        user_uuid=user.user_uuid,
     )
 
     assert site.tilt == metadata_to_update.tilt
     assert site.capacity_kw == metadata_to_update.capacity_kw
     assert site.latitude == prev_latitude
+
+    # after editing there should be another entry in the history table
+    hist_size = db_session.query(SiteHistorySQL).count()
+    assert hist_size == 2
+    h_site = (
+        db_session.query(SiteHistorySQL).filter(SiteHistorySQL.operation_type == "UPDATE").first()
+    )
+
+    assert h_site.site_uuid == site.site_uuid
+    assert h_site.changed_by == user.user_uuid
 
 
 def test_create_client(db_session):
