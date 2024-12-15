@@ -12,7 +12,7 @@ from pvsite_datamodel.sqlmodels import APIRequestSQL, SiteGroupSQL, UserSQL
 logger = logging.getLogger(__name__)
 
 
-def get_user_by_email(session: Session, email: str, make_new_user_if_none: bool = True):
+def get_user_by_email(session: Session, email: str, make_new_user_if_none: bool = True) -> UserSQL:
     """
     Get user by email. If user does not exist, make one.
 

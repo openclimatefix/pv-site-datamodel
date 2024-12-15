@@ -6,6 +6,7 @@ from typing import Optional, Tuple
 from uuid import UUID
 
 import sqlalchemy as sa
+from sqlalchemy import text
 from sqlalchemy.orm.session import Session
 from sqlalchemy.sql.functions import func
 
@@ -77,6 +78,7 @@ def create_site(
     module_capacity_kw: Optional[float] = None,
     client_uuid: Optional[UUID] = None,
     ml_id: Optional[int] = None,
+    user_uuid: Optional[str] = None,
 ) -> [SiteSQL, str]:
     """
     Create a site and adds it to the database.
@@ -97,8 +99,11 @@ def create_site(
     :param inverter_capacity_kw: inverter capacity of site in kw
     :param module_capacity_kw: module capacity of site in kw
     :param ml_id: internal ML modelling id
+    :param user_uuid: the UUID of the user creating the site
 
     """
+    set_session_user(session, user_uuid)
+
     max_ml_id = session.query(func.max(SiteSQL.ml_id)).scalar()
 
     if max_ml_id is None:
@@ -253,7 +258,7 @@ def update_user_site_group(session: Session, email: str, site_group_name: str) -
 
 # update site metadata
 def edit_site(
-    session: Session, site_uuid: str, site_info: PVSiteEditMetadata
+    session: Session, site_uuid: str, site_info: PVSiteEditMetadata, user_uuid: str = None
 ) -> Tuple[SiteSQL, str]:
     """
     Edit an existing site. Fill in only the fields that need to be updated.
@@ -273,7 +278,10 @@ def edit_site(
         - dno: dno of site
         - gsp: gsp of site
         - client_uuid: The UUID of the client this site belongs to
+    :param user_uuid: the UUID of the user editing the site
     """
+    set_session_user(session, user_uuid)
+
     site = session.query(SiteSQL).filter(SiteSQL.site_uuid == site_uuid).first()
 
     update_data = site_info.model_dump(exclude_unset=True, exclude_none=False)
@@ -292,12 +300,15 @@ def edit_site(
 
 
 # delete functions for site, user, and site group
-def delete_site(session: Session, site_uuid: str) -> SiteGroupSQL:
+def delete_site(session: Session, site_uuid: str, user_uuid: Optional[str] = None) -> SiteGroupSQL:
     """Delete a site group.
 
     :param session: database session
     :param site_uuid: unique identifier for site
+    :param user_uuid: the UUID of the user deleting the site
     """
+    set_session_user(session, user_uuid)
+
     site = session.query(SiteSQL).filter(SiteSQL.site_uuid == site_uuid).first()
 
     forecast_uuids = (
@@ -379,8 +390,11 @@ def delete_site_group(session: Session, site_group_name: str) -> str:
 
 
 def assign_model_name_to_site(session: Session, site_uuid, model_name):
-    """
-    Assign a model name to a site.
+    """Assign model to site.
+
+    :param session: database session
+    :param site_uuid: site uuid
+    :param model_name: name of the model
     """
 
     site = get_site_by_uuid(session=session, site_uuid=site_uuid)
@@ -389,3 +403,18 @@ def assign_model_name_to_site(session: Session, site_uuid, model_name):
 
     site.ml_model_uuid = model.model_uuid
     session.commit()
+
+
+def set_session_user(session: Session, user_uuid: str):
+    """Set user session variable.
+
+    Sets a variable which is then used by the log_site_changes function when updating
+    the site history table.
+
+    :param session: the session
+    :param user_uuid: the user UUID
+    """
+    if user_uuid is not None:
+        session.execute(text(f"SET pvsite_datamodel.current_user_uuid = '{user_uuid}'"))
+    else:
+        session.execute(text("RESET pvsite_datamodel.current_user_uuid"))
