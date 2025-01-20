@@ -31,6 +31,9 @@ class MLModelSQL(Base, CreatedMixin):
     name = sa.Column(sa.String)
     version = sa.Column(sa.String)
 
+    # Add description with default message
+    description = sa.Column(sa.String, nullable=True, server_default="No description provided.")
+
     forecast_values: Mapped[List["ForecastValueSQL"]] = relationship(
         "ForecastValueSQL", back_populates="ml_model"
     )
