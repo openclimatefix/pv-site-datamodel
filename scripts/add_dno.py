@@ -29,7 +29,6 @@ dno_shapes = gpd.read_file(url)
 url = os.getenv("DB_URL")
 connection = DatabaseConnection(url=url)
 with connection.get_session() as session:
-
     # get sites with no gsp
     query = session.query(SiteSQL)
     query = query.filter(SiteSQL.dno == None)
@@ -38,7 +37,6 @@ with connection.get_session() as session:
     print(f"Total sites are {len(sites)}")
 
     for site in sites:
-
         latitude = site.latitude
         longitude = site.longitude
 

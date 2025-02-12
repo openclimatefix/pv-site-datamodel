@@ -35,7 +35,6 @@ gsp_names = pd.read_csv(f"{dir}/gsp_new_ids_and_names-edited.csv")
 url = os.getenv("DB_URL")
 connection = DatabaseConnection(url=url)
 with connection.get_session() as session:
-
     # get sites with no gsp
     query = session.query(SiteSQL)
     query = query.filter(SiteSQL.gsp == None)
@@ -44,7 +43,6 @@ with connection.get_session() as session:
     print(f"Total sites are {len(sites)}")
 
     for site in sites:
-
         latitude = site.latitude
         longitude = site.longitude
 

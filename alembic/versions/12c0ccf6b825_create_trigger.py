@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '12c0ccf6b825'
-down_revision = 'c8ef88c250e7'
+revision = "12c0ccf6b825"
+down_revision = "c8ef88c250e7"
 branch_labels = None
 depends_on = None
 
@@ -70,6 +70,7 @@ drop_trigger = """
 DROP TRIGGER IF EXISTS site_changes_trigger ON sites;
 DROP FUNCTION IF EXISTS log_site_changes;
 """
+
 
 def upgrade() -> None:
     op.execute(create_trigger)
