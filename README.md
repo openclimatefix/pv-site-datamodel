@@ -1,13 +1,7 @@
 <h1 align="center">pvsite-datamodel</h1>
 
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-<<<<<<< HEAD
-
 [![All Contributors](https://img.shields.io/badge/all_contributors-15-orange.svg?style=flat-square)](#contributors-)
 
-=======
-[![All Contributors](https://img.shields.io/badge/all_contributors-16-orange.svg?style=flat-square)](#contributors-)
->>>>>>> f7ceea69aaee23e7fa31e9941b45118f0a159531
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 <p align="center">
