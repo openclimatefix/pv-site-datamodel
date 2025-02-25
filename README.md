@@ -17,21 +17,21 @@
 
 Database schema specification for PV Site data.
 
-
 ## Repository structure
 
 ```yaml
 pvsite_datamodel:
   read: # Sub package containing modules for reading from the database
   write: # Sub package containing modules for writing to the database
-  - connection.py # Class for connecting to the database
-  - sqlmodels.py # SQLAlchemy definitions of table schemas
+    - connection.py # Class for connecting to the database
+    - sqlmodels.py # SQLAlchemy definitions of table schemas
 tests: # External tests package
 ```
 
 ### Top-level functions
 
 Classes specifying table schemas:
+
 - APIRequestSQL
 - GenerationSQL
 - ForecastSQL
@@ -44,67 +44,152 @@ Classes specifying table schemas:
 - ClientSQL
 
 Database connection objects:
+
 - DatabaseConnection
 
+### Read and write package functions
 
-### Read package functions
+- Read function currently accessible via `from pvsite_datamodel.read import <func>`.
+- Write function Currently accessible via `from pvsite_datamodels.write import <func>`.
 
-Currently available functions accessible via `from pvsite_datamodel.read import <func>`:
+| **Read Package Functions**           | **Write Package Functions** |
+| ------------------------------------ | --------------------------- |
+| `get_user_by_email`                  | `insert_forecast_values`    |
+| `get_pv_generation_by_sites`         | `insert_generation_values`  |
+| `get_site_by_uuid`                   | `create_site`               |
+| `get_site_by_client_site_id`         | `create_site_group`         |
+| `get_site_by_client_site_name`       | `create_user`               |
+| `get_sites_by_client_name`           | `create_client`             |
+| `get_all_sites`                      | `make_fake_site`            |
+| `get_sites_by_country`               | `add_site_to_site_group`    |
+| `get_site_group_by_name`             | `change_user_site_group`    |
+| `get_latest_status`                  | `update_user_site_group`    |
+| `get_latest_forecast_values_by_site` | `edit_site`                 |
+| `get_client_by_name`                 | `edit_client`               |
+|                                      | `assign_site_to_client`     |
+|                                      | `delete_site`               |
+|                                      | `delete_user`               |
+|                                      | `delete_site_group`         |
 
-- get_user_by_email
-- get_pv_generation_by_sites
-- get_site_by_uuid
-- get_site_by_client_site_id
-- get_site_by_client_site_name
-- get_sites_by_client_name 
-- get_all_sites
-- get_sites_by_country
-- get_site_group_by_name
-- get_latest_status
-- get_latest_forecast_values_by_site
-- get_client_by_name
+## Local Repository Setup(Linux)
 
+This guide walks you through setting up the repository locally, installing dependencies. Follow the steps carefully to get your development environment up and running.
 
-### Write package functions
+**Pre-requisite:** 
+- Install [Poetry][poetry] for dependency management
 
-Currently available write functions accessible via `from pvsite_datamodels.write import <func>`:
-- insert_forecast_values
-- insert_generation_values
-- create_site
-- create_site_group
-- create_user
-- add_site_to_site_group
-- change_user_site_group
-- update_user_site_group
-- edit_site
-- delete_site
-- delete_user
-- delete_site_group
-- make_fake_site
-- create_client
-- edit_client
-- assign_site_to_client
+- Install Pgadmin4 for database management
 
+### Database Setup
 
-## Install the dependencies (requires [poetry][poetry])
+Follow these steps to set up the database locally:
 
-    poetry install
+1. **Install PostgreSQL:**
+Download and install PostgreSQL on your system : [Download PostgreSQL for Linux ](https://www.postgresql.org/download/linux/ubuntu/)
 
 
-## Coding style
+2. **Start PostgreSQL Service:**
+```bash
+sudo service postgresql start
+```
 
-Format the code **in place**.
 
-    make format
+3. **Check PostgreSQL Status:**
+Ensure the service is running properly:
+```bash
+sudo service postgresql status
+```
 
-Lint the code
 
-    make lint
+4. **Get Your Local IP Address:**
+Copy the IP address to configure your connection:
+```bash
+hostname -I
+```
+
+
+5. **Create the Database:**
+Use **pgAdmin 4** or the command line to create your database.
+
+
+6. **Run Migrations with Alembic:**
+Export the database URL and apply migrations:
+```bash
+export DB_URL="postgresql://<username>:<password>@<your_ip>:5432/<your_database>"
+```
+
+
+- **Note:** Replace the placeholders with your actual database credentials.
+
+7. **Run the migrations:**
+```bash
+
+poetry run alembic upgrade head
+```
+
+
+
+### Steps to setup the repository locally
+
+1. **Fork & Clone the Repository:**
+```bash
+git clone https://github.com/openclimatefix/pv-site-datamodel.git
+```
+
+
+2. **Navigate to the Repository:**
+```bash
+cd pv-site-datamodel
+```
+
+3. **Install Dependencies:**
+```bash
+poetry install
+```
+
+
+4. **Activate Virtual Environment:**
+```bash
+source .venv/bin/activate
+```
+
+
+5. **Set Database URL:**
+
+Replace the placeholder with your actual database connection string.
+```bash
+export DB_URL="postgresql://<username>:<password>@<your_ip>:5432/<your_database>"
+```
+
+
+6. **Make Code Changes:**
+
+Modify the necessary code files as needed.
+
+
+7. **Format the Code:**
+```bash
+make format
+```
+
+
+8. **Lint the Code:**
+```bash
+make lint
+```
+
+
+---
 
 
 ## Running the tests
 
+Run the following command to execute the test suite:
+
+```bash
     make test
+```
+
 
 ## PVSite Database Schema
 
@@ -197,7 +282,7 @@ classDiagram
         + url : String
         + user_uuid : UUID ≪ FK ≫
     }
-    
+
     class MLModelSQL{
         + uuid : UUID ≪ PK ≫
         + mode_name : String
@@ -228,21 +313,23 @@ classDiagram
 ## Multiple Clients
 
 We have the ability to have these different scenarios
+
 1. one user - can add or view one site
 2. one user, can add or view multiple sites
 3. Two users (for example from the sample company), want to look at one site
-4. Two users, wanting to look at multiple sites (could be added by another user). Any user from site group can add a site. 
+4. Two users, wanting to look at multiple sites (could be added by another user). Any user from site group can add a site.
 5. OCF user want to see everything (admin)
 
 ### Solution
+
 ```mermaid
   graph TD;
       User-- N:1 -->SiteGroup;
       SiteGroup-- N:N -->Site;
 ```
-- One `user` is in one `sitegroup`. Each site group can have multiple users. 
-- Each `sitegroup` contains multiple `sites`. One `site` can be in multiple `sitegroups`
 
+- One `user` is in one `sitegroup`. Each site group can have multiple users.
+- Each `sitegroup` contains multiple `sites`. One `site` can be in multiple `sitegroups`
 
 ### 1. one user - one site
 
@@ -294,15 +381,9 @@ B2 --> C2(Site2);
 B2 --> C3(Site3);
 ```
 
-
-
-
-
 ## Database migrations using alembic
 
 [./alembic](./alembic)
-
-
 
 [poetry]: https://python-poetry.org/
 
