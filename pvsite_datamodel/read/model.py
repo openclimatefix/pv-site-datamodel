@@ -91,7 +91,7 @@ def get_models(
         query = query.where(SiteSQL.site_uuid == site_uuid)
 
     # order by created utc desc
-    query = query.order_by(MLModelSQL.created_utc.desc())
+    query = query.order_by(MLModelSQL.name, MLModelSQL.created_utc.desc())
 
     models: [MLModelSQL] = query.all()
     return models
