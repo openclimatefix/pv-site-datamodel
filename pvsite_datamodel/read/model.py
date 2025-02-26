@@ -10,7 +10,9 @@ from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, MLModelSQL
 logger = logging.getLogger(__name__)
 
 
-def get_or_create_model(session: Session, name: str, version: Optional[str] = None) -> MLModelSQL:
+def get_or_create_model(
+    session: Session, name: str, version: Optional[str] = None, description: Optional[str] = None
+) -> MLModelSQL:
     """
     Get model object from name and version.
 
@@ -19,6 +21,7 @@ def get_or_create_model(session: Session, name: str, version: Optional[str] = No
     :param session: database session
     :param name: name of the model
     :param version: version of the model
+    :param description: description of the model
 
     return: Model object
 
@@ -44,13 +47,19 @@ def get_or_create_model(session: Session, name: str, version: Optional[str] = No
         )
         model = MLModelSQL(name=name, version=version)
 
-        # get last model not with this version,
-        # so that we can copy the description forward
-        last_model = session.query(MLModelSQL).\
-            filter(MLModelSQL.name == name). \
-            order_by(MLModelSQL.version.desc()).one_or_none()
-        if last_model is not None:
-            model.description = last_model.description
+        if description is not None:
+            model.description = description
+        else:
+            # get last model not with this version,
+            # so that we can copy the description forward
+            last_model = (
+                session.query(MLModelSQL)
+                .filter(MLModelSQL.name == name)
+                .order_by(MLModelSQL.version.desc())
+                .one_or_none()
+            )
+            if last_model is not None:
+                model.description = last_model.description
 
         session.add(model)
         session.commit()

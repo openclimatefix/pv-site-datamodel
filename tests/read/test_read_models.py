@@ -10,7 +10,9 @@ from pvsite_datamodel.write.forecast import insert_forecast_values
 
 
 def test_get_model(db_session):
-    model_read_1 = get_or_create_model(session=db_session, name="test_name", version="9.9.9")
+    model_read_1 = get_or_create_model(
+        session=db_session, name="test_name", version="9.9.9", description="test_desc"
+    )
     model_read_2 = get_or_create_model(session=db_session, name="test_name", version="9.9.9")
 
     assert model_read_1.name == model_read_2.name
@@ -19,7 +21,10 @@ def test_get_model(db_session):
     assert len(db_session.query(MLModelSQL).all()) == 1
 
     _ = get_or_create_model(session=db_session, name="test_name", version="9.9.10")
-    assert len(db_session.query(MLModelSQL).all()) == 2
+    models = db_session.query(MLModelSQL).all()
+    assert len(models) == 2
+    assert models[1].version == "9.9.10"
+    assert models[1].description == "test_desc"
 
 
 def test_get_models(db_session):
