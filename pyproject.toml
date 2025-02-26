@@ -23,7 +23,7 @@ pytest-cov = "^4.0.0"
 alembic = "^1.9.4"
 geopandas = "^0.14.2"
 
-[project.urls]
+[tool.project.urls]
 "GitHub" = "https://github.com/openclimatefix/pvsite-datamodel"
 
 
