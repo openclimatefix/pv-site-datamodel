@@ -1,3 +1,9 @@
+[project]
+name = "pvsite-datamodel"
+dynamic = [ "version" ]
+description = "SDK for interacting with the PVSite database"
+authors = [{ name = "Open Climate Fix team", email = "info@openclimatefix.org" }]
+readme = "README.md"
 
 [tool.poetry]
 name = "pvsite-datamodel"
