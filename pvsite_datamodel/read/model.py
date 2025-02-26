@@ -42,8 +42,16 @@ def get_or_create_model(session: Session, name: str, version: Optional[str] = No
         logger.debug(
             f"Model for name {name} and version {version} does not exist so going to add it"
         )
-
         model = MLModelSQL(name=name, version=version)
+
+        # get last model not with this version,
+        # so that we can copy the description forward
+        last_model = session.query(MLModelSQL).\
+            filter(MLModelSQL.name == name). \
+            order_by(MLModelSQL.version.desc()).one_or_none()
+        if last_model is not None:
+            model.description = last_model.description
+
         session.add(model)
         session.commit()
 
