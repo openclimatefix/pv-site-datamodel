@@ -151,6 +151,15 @@
       "contributions": [
         "test"
       ]
+    },
+    {
+      "login": "abillama05",
+      "name": "Ruth Velasquez",
+      "avatar_url": "https://avatars.githubusercontent.com/u/142541875?v=4",
+      "profile": "https://www.linkedin.com/in/ruth-velasquez070/",
+      "contributions": [
+        "ideas"
+      ]
     }
   ],
   "contributorsPerLine": 7,
