@@ -380,12 +380,14 @@ class ForecastValueSQL(Base, CreatedMixin):
 
     # This is the different between `start_utc` and the `forecast`'s `timestamp_utc`, in minutes.
     # It's useful to have it in its own column to efficiently query forecasts for a given horizon.
-    # TODO Set to nullable=False
     horizon_minutes = sa.Column(
         sa.Integer,
-        nullable=True,
-        comment="The time difference between the creation time of the forecast value "
-        "and the start of the time interval it applies for",
+        nullable=False,
+        server_default=sa.text("-1"),
+        comment=(
+            "The time difference between the creation time of the forecast value "
+            "and the start of the time interval it applies for"
+        ),
     )
 
     forecast_uuid = sa.Column(
