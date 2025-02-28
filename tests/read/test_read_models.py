@@ -34,6 +34,7 @@ def test_get_models(db_session):
     models = get_models(session=db_session)
 
     assert len(models) == 1
+    assert models[0].version == "9.9.10"
 
 
 def test_get_models_with_datetimes(db_session, forecast_valid_input):
