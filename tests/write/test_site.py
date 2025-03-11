@@ -24,12 +24,14 @@ def test_create_new_site(db_session):
         latitude=51.0,
         longitude=0.0,
         capacity_kw=1.0,
+        owner="test_owner",
     )
 
     assert site.client_site_name == "test_site_name"
     assert site.ml_id == 1
     assert site.client_site_id == 6932
     assert site.country == "uk"
+    assert site.owner == "test_owner"
     assert (
         message == f"Site with client site id {site.client_site_id} "
         f"and site uuid {site.site_uuid} created successfully"
@@ -47,6 +49,7 @@ def test_create_new_site_with_user(db_session):
         longitude=0.0,
         capacity_kw=1.0,
         user_uuid=user.user_uuid,
+        owner="test_owner",
     )
 
     # after creating there should be an entry in the history table
@@ -57,6 +60,9 @@ def test_create_new_site_with_user(db_session):
     assert h_site.site_uuid == site.site_uuid
     assert h_site.changed_by == user.user_uuid
 
+    # verify owner was set correctly
+    assert site.owner == "test_owner"
+
     # create site without setting user
     site_2, _ = create_site(
         session=db_session,
@@ -65,6 +71,7 @@ def test_create_new_site_with_user(db_session):
         latitude=51.0,
         longitude=0.0,
         capacity_kw=1.0,
+        owner="test_owner_2",
     )
 
     h_site_2 = (
@@ -75,6 +82,8 @@ def test_create_new_site_with_user(db_session):
 
     # user should not be set
     assert h_site_2.changed_by is None
+
+    assert site_2.owner == "test_owner_2"
 
 
 def test_create_new_site_in_specified_country(db_session):

@@ -39,6 +39,7 @@ def make_fake_site(db_session, ml_id=1):
         module_capacity_kw=4.3,
         created_utc=datetime.now(timezone.utc),
         ml_id=ml_id,
+        owner="test_owner",
     )
     db_session.add(site)
     db_session.commit()
@@ -79,6 +80,7 @@ def create_site(
     client_uuid: Optional[UUID] = None,
     ml_id: Optional[int] = None,
     user_uuid: Optional[str] = None,
+    owner: Optional[str] = None,
 ) -> [SiteSQL, str]:
     """
     Create a site and adds it to the database.
@@ -99,6 +101,7 @@ def create_site(
     :param inverter_capacity_kw: inverter capacity of site in kw
     :param module_capacity_kw: module capacity of site in kw
     :param ml_id: internal ML modelling id
+    :param owner: optional owner string for the site
     :param user_uuid: the UUID of the user creating the site
 
     """
@@ -141,6 +144,9 @@ def create_site(
         dno = get_dno(latitude=latitude, longitude=longitude)
         dno = json.dumps(dno)
 
+    if owner is None:
+        owner = "test_owner"
+
     site = SiteSQL(
         ml_id=ml_id if ml_id else max_ml_id + 1,
         client_site_id=client_site_id,
@@ -158,6 +164,7 @@ def create_site(
         inverter_capacity_kw=inverter_capacity_kw,
         module_capacity_kw=module_capacity_kw,
         client_uuid=client_uuid,
+        owner=owner,
     )
 
     session.add(site)
@@ -277,6 +284,7 @@ def edit_site(
         - capacity_kw: capacity of site in kw
         - dno: dno of site
         - gsp: gsp of site
+        - owner: (optional) owner of the site
         - client_uuid: The UUID of the client this site belongs to
     :param user_uuid: the UUID of the user editing the site
     """
