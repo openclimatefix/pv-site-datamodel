@@ -35,6 +35,8 @@ class TestInsertForecastValues:
         assert ptypes.is_datetime64_any_dtype(forecast_values_df["end_utc"])
         assert ptypes.is_numeric_dtype(forecast_values_df["forecast_power_kw"])
         assert ptypes.is_numeric_dtype(forecast_values_df["horizon_minutes"])
+        if "probabilistic_values" in forecast_values_df.columns:
+            assert forecast_values_df["probabilistic_values"].dtype == object
 
         insert_forecast_values(
             db_session,
@@ -46,6 +48,11 @@ class TestInsertForecastValues:
 
         assert db_session.query(ForecastSQL).count() == 1
         assert db_session.query(ForecastValueSQL).count() == 10
+
+        for fv in db_session.query(ForecastValueSQL).all():
+            assert isinstance(fv.probabilistic_values, dict)
+            if "probabilistic_values" not in forecast_values_df.columns:
+                assert fv.probabilistic_values == {}
 
     def test_invalid_forecast_meta(self, db_session, forecast_with_invalid_meta_input):
         """Test function errors on invalid forecast metadata"""
