@@ -251,6 +251,7 @@ class ClientSQL(Base, CreatedMixin):
     client_name = sa.Column(sa.String(255), nullable=False, index=True, unique=True)
 
     sites: Mapped[List[SiteSQL]] = relationship("SiteSQL", back_populates="client")
+    users: Mapped[List[UserSQL]] = relationship("UserSQL", back_populates="client")
 
 
 class GenerationSQL(Base, CreatedMixin):

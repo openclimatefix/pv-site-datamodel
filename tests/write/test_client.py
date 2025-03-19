@@ -1,5 +1,10 @@
-from pvsite_datamodel.write.client import assign_site_to_client, create_client, edit_client
-from pvsite_datamodel.write.user_and_site import create_site, make_fake_site
+from pvsite_datamodel.write.client import (
+    assign_site_to_client,
+    assign_user_to_client,
+    create_client,
+    edit_client,
+)
+from pvsite_datamodel.write.user_and_site import create_site, create_user, make_fake_site
 
 
 def test_create_client(db_session):
@@ -32,6 +37,25 @@ def test_assign_site_to_client(db_session):
     assert site.client_uuid == client.client_uuid
     assert message == (
         f"Site with site uuid {site.site_uuid} successfully assigned "
+        f"to the client {client.client_name}"
+    )
+
+
+def test_assign_user_to_client(db_session):
+    """Test to assign a user to a client"""
+    user = create_user(
+        session=db_session, user_uuid="123e4567-e89b-12d3-a456-426614174000", user_name="Test User"
+    )
+
+    client = create_client(session=db_session, client_name="Test Client")
+
+    message = assign_user_to_client(db_session, user.user_uuid, client.client_name)
+
+    db_session.refresh(user)
+
+    assert user.client_uuid == client.client_uuid
+    assert message == (
+        f"User with user uuid {user.user_uuid} successfully assigned "
         f"to the client {client.client_name}"
     )
 
