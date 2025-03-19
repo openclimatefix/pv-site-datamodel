@@ -15,12 +15,14 @@ def _add_forecast_value(
     horizon_minutes: Optional[int] = None,
     created_utc: Optional[dt.datetime] = None,
     model_name: Optional[str] = None,
+    probabilistic_values: Optional[dict] = None,
 ):
     fv = ForecastValueSQL(
         forecast_uuid=forecast.forecast_uuid,
         forecast_power_kw=power,
         start_utc=ts,
         end_utc=ts + dt.timedelta(minutes=5),
+        probabilistic_values=probabilistic_values if probabilistic_values is not None else {},
     )
     if horizon_minutes:
         fv.forecast_horizon_minutes = horizon_minutes
@@ -367,3 +369,64 @@ def test_get_latest_forecast_values_model_name(db_session, sites):
     )
     assert len(latest_forecast) == 2
     assert len(latest_forecast[s1]) == 0
+
+
+def test_get_latest_forecast_values_probabilistic_value_limit2(db_session, sites):
+    # Retrieve two sites for testing (limit(2))
+    site_uuids = [site.site_uuid for site in db_session.query(SiteSQL.site_uuid).limit(2)]
+    site1, site2 = site_uuids
+
+    forecast_version = "123"
+
+    # Create a forecast for each site
+    forecast1 = ForecastSQL(
+        site_uuid=site1,
+        forecast_version=forecast_version,
+        timestamp_utc=dt.datetime(2000, 1, 1),
+    )
+    forecast2 = ForecastSQL(
+        site_uuid=site2,
+        forecast_version=forecast_version,
+        timestamp_utc=dt.datetime(2000, 1, 1),
+    )
+    db_session.add_all([forecast1, forecast2])
+    db_session.commit()
+
+    d0 = dt.datetime(2000, 1, 1, 0, tzinfo=dt.timezone.utc)
+
+    # For site1: Add a forecast value with explicit probabilistic_values provided
+    prob_values = {"p10": 10, "p50": 50, "p90": 90}
+    _add_forecast_value(
+        db_session, forecast1, power=1.0, ts=d0, horizon_minutes=0, probabilistic_values=prob_values
+    )
+
+    # For site2: Add a forecast value without providing probabilistic_values (defaults to {})
+    _add_forecast_value(
+        db_session,
+        forecast2,
+        power=2.0,
+        ts=d0,
+        horizon_minutes=0,
+    )
+
+    db_session.commit()
+
+    # Retrieve the latest forecast values starting from d0 for both sites
+    latest_forecast = get_latest_forecast_values_by_site(db_session, site_uuids, d0)
+
+    # Verify that forecast values exist for both sites
+    assert site1 in latest_forecast
+    assert site2 in latest_forecast
+    # Expect one forecast value for each site
+    assert len(latest_forecast[site1]) == 1
+    assert len(latest_forecast[site2]) == 1
+
+    # Retrieve the forecast values for each site
+    fv_site1 = latest_forecast[site1][0]
+    fv_site2 = latest_forecast[site2][0]
+
+    # Assert that site1's forecast value has the explicit probabilistic values provided
+    assert fv_site1.probabilistic_values == prob_values
+
+    # Assert that site2's forecast value uses the default (empty dictionary)
+    assert fv_site2.probabilistic_values == {}

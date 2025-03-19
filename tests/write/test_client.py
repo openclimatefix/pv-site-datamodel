@@ -4,7 +4,8 @@ from pvsite_datamodel.write.client import (
     create_client,
     edit_client,
 )
-from pvsite_datamodel.write.user_and_site import create_site, create_user, make_fake_site
+from pvsite_datamodel.write.user_and_site import create_site, create_site_group, create_user
+from tests.test_models import make_fake_site
 
 
 def test_create_client(db_session):
@@ -43,8 +44,10 @@ def test_assign_site_to_client(db_session):
 
 def test_assign_user_to_client(db_session):
     """Test to assign a user to a client"""
+
+    site_group = create_site_group(db_session=db_session)
     user = create_user(
-        session=db_session, user_uuid="123e4567-e89b-12d3-a456-426614174000", user_name="Test User"
+        session=db_session, email="test_user@gmail.com", site_group_name=site_group.site_group_name
     )
 
     client = create_client(session=db_session, client_name="Test Client")

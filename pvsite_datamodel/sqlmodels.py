@@ -58,10 +58,17 @@ class UserSQL(Base, CreatedMixin):
         nullable=False,
         comment="The foreign key to the site_groups table",
     )
+    client_uuid = sa.Column(
+        UUID(as_uuid=True),
+        sa.ForeignKey("clients.client_uuid"),
+        nullable=True,
+        comment="The foreign key to the clients table",
+    )
 
     # Relationships
     site_group: Mapped["SiteGroupSQL"] = relationship("SiteGroupSQL", back_populates="users")
     api_request = relationship("APIRequestSQL", back_populates="user")
+    client: Mapped[Optional["ClientSQL"]] = relationship("ClientSQL", back_populates="users")
 
 
 class SiteGroupSQL(Base, CreatedMixin):
@@ -402,6 +409,13 @@ class ForecastValueSQL(Base, CreatedMixin):
         sa.ForeignKey("ml_model.model_uuid"),
         nullable=True,
         comment="The ML Model this forcast value belongs to",
+    )
+
+    probabilistic_values = sa.Column(
+        JSONB,
+        nullable=False,
+        server_default=sa.text("'{}'"),  # Default to an empty JSON object
+        comment="Probabilistic forecast values, like p10, p50, p90",
     )
 
     forecast: Mapped["ForecastSQL"] = relationship("ForecastSQL", back_populates="forecast_values")
