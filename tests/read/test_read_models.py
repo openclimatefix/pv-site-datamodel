@@ -21,9 +21,10 @@ def test_get_model(db_session):
     assert len(db_session.query(MLModelSQL).all()) == 1
 
     _ = get_or_create_model(session=db_session, name="test_name", version="9.9.10")
+    _ = get_or_create_model(session=db_session, name="test_name", version="9.9.11")
     models = db_session.query(MLModelSQL).all()
     assert len(models) == 2
-    assert models[1].version == "9.9.10"
+    assert models[1].version == "9.9.11"
     assert models[1].description == "test_desc"
 
 
