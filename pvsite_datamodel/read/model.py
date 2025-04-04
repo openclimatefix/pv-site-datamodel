@@ -54,8 +54,9 @@ def get_or_create_model(
             # so that we can copy the description forward
             last_model = (
                 session.query(MLModelSQL)
+                .distinct(MLModelSQL.version)
                 .filter(MLModelSQL.name == name)
-                .order_by(MLModelSQL.version.desc())
+                .order_by(MLModelSQL.version, MLModelSQL.created_utc.desc())
                 .one_or_none()
             )
             if last_model is not None:
