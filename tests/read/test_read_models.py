@@ -23,9 +23,9 @@ def test_get_model(db_session):
     _ = get_or_create_model(session=db_session, name="test_name", version="9.9.10")
     _ = get_or_create_model(session=db_session, name="test_name", version="9.9.11")
     models = db_session.query(MLModelSQL).all()
-    assert len(models) == 2
-    assert models[1].version == "9.9.11"
-    assert models[1].description == "test_desc"
+    assert len(models) == 3
+    assert models[2].version == "9.9.11"
+    assert models[2].description == "test_desc"
 
 
 def test_get_models(db_session):
