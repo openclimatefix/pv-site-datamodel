@@ -1,7 +1,5 @@
 """Tests for curtailment read operations."""
-import pytest
 from datetime import date, time
-from uuid import uuid4
 from pvsite_datamodel.read.curtailment import (
     get_curtailment_by_uuid,
     get_curtailments_by_site_uuid,

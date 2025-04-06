@@ -1,7 +1,5 @@
 """Tests for curtailment write operations."""
 from datetime import date, time
-from uuid import uuid4
-import pytest
 from pvsite_datamodel.write.curtailment import (
     create_curtailment,
     update_curtailment,

@@ -9,8 +9,7 @@ from sqlalchemy.orm import Session
 from pvsite_datamodel.sqlmodels import CurtailmentSQL
 from pvsite_datamodel.read.curtailment import (
     get_curtailment_by_uuid,
-    get_curtailments_by_site_uuid,
-    get_active_curtailments
+    get_curtailments_by_site_uuid
 )
 from pvsite_datamodel.write.curtailment import (
     create_curtailment,
