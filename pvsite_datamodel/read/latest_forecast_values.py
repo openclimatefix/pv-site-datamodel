@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session, contains_eager
 
 from pvsite_datamodel.pydantic_models import ForecastValueSum
 from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, MLModelSQL, SiteSQL
+from pvsite_datamodel.read.curtailment import get_active_curtailments
 
 
 def get_latest_forecast_values_by_site(
@@ -22,6 +23,7 @@ def get_latest_forecast_values_by_site(
     day_ahead_hours: Optional[int] = None,
     day_ahead_timezone_delta_hours: Optional[float] = 0,
     model_name: Optional[str] = None,
+    apply_curtailments: bool = True,
 ) -> Union[dict[uuid.UUID, list[ForecastValueSQL]], List[ForecastValueSum]]:
     """Get the forecast values by input sites, get the latest value.
 
@@ -65,6 +67,16 @@ def get_latest_forecast_values_by_site(
 
     if sum_by not in ["total", "dno", "gsp", None]:
         raise ValueError(f"sum_by must be one of ['total', 'dno', 'gsp'], not {sum_by}")
+
+    # Get active curtailments for each site if enabled
+    site_curtailments = {}
+    if apply_curtailments:
+        for site_uuid in site_uuids:
+            # Convert datetime to date/time for curtailment check
+            target_date = start_utc.date()
+            target_time = start_utc.time()
+            curtailments = get_active_curtailments(session, site_uuid, target_date, target_time)
+            site_curtailments[site_uuid] = curtailments
 
     if day_ahead_timezone_delta_hours is not None:
         # we use mintues and sql cant handle .5 hours (or any decimals)
@@ -139,8 +151,19 @@ def get_latest_forecast_values_by_site(
 
         for site_uuid in site_uuids:
             site_latest_forecast_values: list[ForecastValueSQL] = [
-                fv for fv in forecast_values if fv.forecast.site_uuid == site_uuid
+                fv for fv in forecast_values 
+                if fv.forecast.site_uuid == site_uuid
             ]
+
+            # Apply curtailment reduction if enabled and curtailments exist
+            if apply_curtailments and site_uuid in site_curtailments:
+                curtailments = site_curtailments[site_uuid]
+                if curtailments:  # Only process if there are active curtailments
+                    for fv in site_latest_forecast_values:
+                        for curtailment in curtailments:
+                            if (fv.start_utc.time() >= curtailment.from_time_utc and 
+                                fv.start_utc.time() <= curtailment.to_time_utc):
+                                fv.forecast_power_kw = max(0, fv.forecast_power_kw - curtailment.curtailment_kw)
 
             output_dict[site_uuid] = site_latest_forecast_values
 

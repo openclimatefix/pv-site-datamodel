@@ -28,7 +28,10 @@ target_metadata = Base.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-config.set_main_option("sqlalchemy.url", os.environ["DB_URL"])
+# Use the URL from alembic.ini rather than environment variable
+url = config.get_main_option("sqlalchemy.url")
+if not url:
+    raise ValueError("No database URL configured in alembic.ini")
 
 
 def run_migrations_offline() -> None:
