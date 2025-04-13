@@ -141,6 +141,13 @@ class SiteSQL(Base, CreatedMixin):
         sa.String(255), index=True, comment="The ID of the site as given by the providing client"
     )
 
+    owner = sa.Column(
+        sa.String(255),
+        nullable=True,
+        default=None,
+        comment="The owner of the site or the source of data, providing additional context",
+    )
+
     country = sa.Column(
         sa.String(255), server_default="uk", comment="The country in which the site is located"
     )
