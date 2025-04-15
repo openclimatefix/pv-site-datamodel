@@ -50,6 +50,7 @@ def get_latest_forecast_values_by_site(
 
     Returns:
         Dict mapping site uuids to list of forecast values
+    -------
     """
     # convert uuid to list if it's a single uuid
     if isinstance(site_uuids, UUID):
