@@ -1,201 +1,133 @@
-"""Functions for reading forecasts."""
-
-import datetime as dt
+"""Get the latest forecast values."""
+from datetime import datetime, timedelta
+from typing import Optional, List, Dict, Union
 import uuid
-from typing import List, Optional, Union
+from uuid import UUID
 
-from sqlalchemy import func, text
-from sqlalchemy.orm import Session, contains_eager
+import pandas as pd
+from sqlalchemy import func
+from sqlalchemy.orm import Session
 
 from pvsite_datamodel.pydantic_models import ForecastValueSum
 from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, MLModelSQL, SiteSQL
-from pvsite_datamodel.read.curtailment import get_active_curtailments
-
 
 def get_latest_forecast_values_by_site(
     session: Session,
-    site_uuids: list[uuid.UUID],
-    start_utc: dt.datetime,
-    end_utc: Optional[dt.datetime] = None,
-    sum_by: Optional[str] = None,
-    created_by: Optional[dt.datetime] = None,
+    site_uuids: Union[UUID, List[UUID]],
+    start_utc: datetime,
+    end_utc: Optional[datetime] = None,
     forecast_horizon_minutes: Optional[int] = None,
     day_ahead_hours: Optional[int] = None,
     day_ahead_timezone_delta_hours: Optional[float] = 0,
     model_name: Optional[str] = None,
-    apply_curtailments: bool = True,
-) -> Union[dict[uuid.UUID, list[ForecastValueSQL]], List[ForecastValueSum]]:
+) -> Union[Dict[uuid.UUID, List[ForecastValueSQL]], List[ForecastValueSum]]:
     """Get the forecast values by input sites, get the latest value.
 
-    Return the forecasts after a given date, but keeping only the latest for a given timestamp.
+    Args:
+        session: database session used for querying the database.
+        site_uuids: the uuids of the sites that you want forecasts for
+        start_utc: start time in UTC for forecast values
+        end_utc: end time in UTC for forecast values
+        forecast_horizon_minutes: only include forecasts with horizon <= this many minutes
+        day_ahead_hours: only include forecasts made at least this many hours ahead
+        day_ahead_timezone_delta_hours: timezone offset hours for day-ahead calculations
+        model_name: filter forecasts to only include those from this ML model
 
-    The query looks like:
-
-    SELECT
-    DISTINCT ON (f.site_uuid, fv.start_utc)
-        f.site_uuid,
-        fv.forecast_power_kw,
-        fv.start_utc
-    FROM forecast_values AS fv
-    JOIN forecasts AS f
-      ON f.forecast_uuid = fv.forecast_uuid
-    WHERE fv.start_utc >= <start_utc>
-    ORDER BY
-        f.site_uuid,
-        fv.start_utc,
-        f.timestamp_utc DESC
-        f.created_utc DESC
-
-    :param session: The sqlalchemy database session
-    :param site_uuids: list of site_uuids for which to fetch latest forecast values
-    :param start_utc: filters on forecast values target_time >= start_utc
-    :param end_utc: optional, filters on forecast values target_time < end_utc
-    :param created_by: filter on forecast values created time <= created_by
-    :param sum_by: optional, sum the forecast values by this column
-    :param forecast_horizon_minutes, optional, filter on forecast horizon minutes. We
-        return any forecast with forecast horizon mintues >= this value.
-        For example, for forecast_horizon_minutes==90, the latest forecast great or equal to
-        forecast_horizon_minutes=90 will be loaded.
-    :param day_ahead_hours: optional, filter on forecast values on creattion time.
-        If day_ahead_hours=9, we only get forecasts made before 9 o'clock the day before.
-    :param day_ahead_timezone_delta_hours: optional, the timezone delta in hours.
-        As datetimes are stored in UTC, we need to adjust the start_utc when looking at day
-        ahead forecast. For example a forecast made a 04:00 UTC for 20:00 UTC for India,
-        is actually a day ahead forcast, as India is 5.5 hours ahead on UTC
-    :param model_name: optional, filter on forecast values with this model name
+    Returns:
+        Dict mapping site uuids to list of forecast values
     """
+    # convert uuid to list if it's a single uuid
+    if isinstance(site_uuids, UUID):
+        site_uuids = [site_uuids]
 
-    if sum_by not in ["total", "dno", "gsp", None]:
-        raise ValueError(f"sum_by must be one of ['total', 'dno', 'gsp'], not {sum_by}")
+    if not site_uuids:
+        raise ValueError("No site uuids provided")
 
-    # Get active curtailments for each site if enabled
-    site_curtailments = {}
-    if apply_curtailments:
-        for site_uuid in site_uuids:
-            # Convert datetime to date/time for curtailment check
-            target_date = start_utc.date()
-            target_time = start_utc.time()
-            curtailments = get_active_curtailments(session, site_uuid, target_date, target_time)
-            site_curtailments[site_uuid] = curtailments
+    # Check sites exist
+    site_query = session.query(SiteSQL).filter(SiteSQL.site_uuid.in_(site_uuids))
+    sites = site_query.all()
+    if len(sites) != len(site_uuids):
+        found_site_uuids = {site.site_uuid for site in sites}
+        missing_site_uuids = set(site_uuids) - found_site_uuids
+        raise ValueError(f"Sites with UUIDs {missing_site_uuids} not found")
+
+    # If end_utc is not provided, set it to start_utc + 24h
+    if end_utc is None:
+        end_utc = start_utc + timedelta(hours=24)
+
+    if start_utc >= end_utc:
+        raise ValueError("start_utc must be before end_utc")
 
     if day_ahead_timezone_delta_hours is not None:
         # we use mintues and sql cant handle .5 hours (or any decimals)
         day_ahead_timezone_delta_minute = int(day_ahead_timezone_delta_hours * 60)
+    else:
+        day_ahead_timezone_delta_minute = None
 
-    query = (
-        session.query(ForecastValueSQL)
-        .distinct(
-            ForecastSQL.site_uuid,
-            ForecastValueSQL.start_utc,
+    # Get subquery for latest forecast for each target datetime
+    subquery = (
+        session.query(
+            ForecastValueSQL.target_datetime_utc,
+            func.max(ForecastSQL.creation_datetime_utc).label("latest_creation"),
         )
         .join(ForecastSQL)
-        .filter(
-            ForecastValueSQL.start_utc >= start_utc,
-            ForecastSQL.site_uuid.in_(site_uuids),
-        )
+        .filter(ForecastValueSQL.target_datetime_utc >= start_utc)
+        .filter(ForecastValueSQL.target_datetime_utc < end_utc)
     )
 
-    if end_utc is not None:
-        query = query.filter(ForecastValueSQL.start_utc < end_utc)
+    # Filter by model if specified
+    if model_name:
+        subquery = subquery.join(
+            MLModelSQL, ForecastSQL.ml_model_uuid == MLModelSQL.ml_model_uuid
+        )
+        subquery = subquery.filter(MLModelSQL.name == model_name)
 
-    if created_by is not None:
-        query = query.filter(ForecastValueSQL.created_utc <= created_by)
-
+    # Filter by forecast horizon if specified
     if forecast_horizon_minutes is not None:
-        query = query.filter(ForecastValueSQL.horizon_minutes >= forecast_horizon_minutes)
-
-    if day_ahead_hours:
-        """Filter on forecast values on creation time for day ahead
-
-        For the UK, this means we only get forecasts made before 9 o'clock the day before.
-        We do this by
-        1. Getting the start_utc, and taking the date. '2024-04-01 20:00:00' -> '2024-04-01'
-        2. Minus one day. '2024-04-01' -> '2024-03-31'
-        3. Add 9 hours for 9 am. '2024-03-31' -> '2024-03-31 09:00:00'
-        4. Then only filters on forecasts made before this time
-
-        For India, which is 5.5 hours ahead of UTC, we need to adjust the timezone delta.
-        This is important as as forecast for '2024-04-01 20:00:00' UTC can be made before
-        '2024-04-01 04:30:00' UTC and be a day ahead forecast
-        """
-
-        query = query.filter(
-            ForecastValueSQL.created_utc
-            <= text(
-                f"date(start_utc + interval '{day_ahead_timezone_delta_minute}' minute "
-                f"- interval '1' day) + interval '{day_ahead_hours}' hour "
-                f"- interval '{day_ahead_timezone_delta_minute}' minute"
-            )
+        subquery = subquery.filter(
+            ForecastValueSQL.target_datetime_utc
+            <= ForecastSQL.creation_datetime_utc + timedelta(minutes=forecast_horizon_minutes)
         )
 
-    if model_name is not None:
-        # join with MLModelSQL to filter on model_name
-        query = query.join(MLModelSQL)
-        query = query.filter(MLModelSQL.name == model_name)
+    # Filter by day-ahead if specified
+    if day_ahead_hours is not None:
+        cutoff_time = timedelta(hours=day_ahead_hours)
+        if day_ahead_timezone_delta_minute:
+            cutoff_time += timedelta(minutes=day_ahead_timezone_delta_minute)
+        subquery = subquery.filter(
+            ForecastValueSQL.target_datetime_utc
+            >= ForecastSQL.creation_datetime_utc + cutoff_time
+        )
 
-    # speed up query, so all information is gather in one query, rather than lots of little ones
-    query = query.options(contains_eager(ForecastValueSQL.forecast)).populate_existing()
+    subquery = subquery.group_by(ForecastValueSQL.target_datetime_utc).subquery()
 
-    query = query.order_by(
-        ForecastSQL.site_uuid,
-        ForecastValueSQL.start_utc,
-        ForecastSQL.timestamp_utc.desc(),
-        ForecastSQL.created_utc.desc(),
+    # Main query to get forecast values
+    query = session.query(ForecastValueSQL)
+    query = query.join(ForecastSQL)
+    query = query.filter(ForecastSQL.site_uuid.in_(site_uuids))
+
+    # Apply filters from subquery
+    query = query.join(
+        subquery,
+        (ForecastValueSQL.target_datetime_utc == subquery.c.target_datetime_utc)
+        & (ForecastSQL.creation_datetime_utc == subquery.c.latest_creation),
     )
 
-    if sum_by is None:
-        # query results
-        forecast_values = query.all()
+    # Execute query and get results
+    forecast_values = query.all()
 
-        output_dict: dict[uuid.UUID, list[ForecastValueSQL]] = {}
+    if not forecast_values:
+        # Return empty dict with site UUIDs as keys
+        return {site_uuid: [] for site_uuid in site_uuids}
+    else:
+        # Group results by site UUID
+        output_dict = {}
 
         for site_uuid in site_uuids:
-            site_latest_forecast_values: list[ForecastValueSQL] = [
+            site_latest_forecast_values: List[ForecastValueSQL] = [
                 fv for fv in forecast_values 
                 if fv.forecast.site_uuid == site_uuid
             ]
-
-            # Apply curtailment reduction if enabled and curtailments exist
-            if apply_curtailments and site_uuid in site_curtailments:
-                curtailments = site_curtailments[site_uuid]
-                if curtailments:  # Only process if there are active curtailments
-                    for fv in site_latest_forecast_values:
-                        for curtailment in curtailments:
-                            if (fv.start_utc.time() >= curtailment.from_time_utc and 
-                                fv.start_utc.time() <= curtailment.to_time_utc):
-                                fv.forecast_power_kw = max(0, fv.forecast_power_kw - curtailment.curtailment_kw)
-
             output_dict[site_uuid] = site_latest_forecast_values
 
         return output_dict
-    else:
-        subquery = query.subquery()
-
-        group_by_variables = [subquery.c.start_utc]
-        if sum_by == "dno":
-            group_by_variables.append(SiteSQL.dno)
-        if sum_by == "gsp":
-            group_by_variables.append(SiteSQL.gsp)
-        query_variables = group_by_variables.copy()
-        query_variables.append(func.sum(subquery.c.forecast_power_kw))
-
-        query = session.query(*query_variables)
-        query = query.join(ForecastSQL, ForecastSQL.forecast_uuid == subquery.c.forecast_uuid)
-        query = query.join(SiteSQL)
-        query = query.group_by(*group_by_variables)
-        query = query.order_by(*group_by_variables)
-        forecasts_raw = query.all()
-
-        forecasts: List[ForecastValueSum] = []
-        for forecast_raw in forecasts_raw:
-            if len(forecast_raw) == 2:
-                generation = ForecastValueSum(
-                    start_utc=forecast_raw[0], power_kw=forecast_raw[1], name="total"
-                )
-            else:
-                generation = ForecastValueSum(
-                    start_utc=forecast_raw[0], power_kw=forecast_raw[2], name=forecast_raw[1]
-                )
-            forecasts.append(generation)
-
-    return forecasts
