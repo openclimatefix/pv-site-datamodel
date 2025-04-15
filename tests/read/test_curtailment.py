@@ -21,5 +21,10 @@ def test_get_active_curtailments(db_session, test_curtailment):
     """Test getting active curtailments."""
     target_date = date(2023, 1, 1)
     target_time = time(12, 0)
-    active = get_active_curtailments(db_session, test_curtailment.site_uuid, target_date, target_time)
+    active = get_active_curtailments(
+        db_session, 
+        test_curtailment.site_uuid, 
+        target_date, 
+        target_time
+    )
     assert len(active) == 1
