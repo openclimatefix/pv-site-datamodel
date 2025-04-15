@@ -6,7 +6,10 @@ from sqlalchemy.orm import Session
 from pvsite_datamodel.sqlmodels import CurtailmentSQL
 
 
-def get_curtailment_by_uuid(session: Session, curtailment_uuid: str) -> Optional[CurtailmentSQL]:
+def get_curtailment_by_uuid(
+    session: Session, 
+    curtailment_uuid: str
+) -> Optional[CurtailmentSQL]:
     """Get curtailment by uuid."""
     return session.query(CurtailmentSQL).filter(CurtailmentSQL.curtailment_uuid == curtailment_uuid).first()
 
