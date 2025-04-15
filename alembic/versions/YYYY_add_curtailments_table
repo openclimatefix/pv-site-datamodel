@@ -1,0 +1,41 @@
+"""Add curtailments table
+
+Revision ID: c56e3a2d7f12
+Revises: [previous revision hash - replace with your actual latest migration hash]
+Create Date: 2025-04-16 12:00:00.000000
+
+"""
+from alembic import op
+import sqlalchemy as sa
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
+
+
+# revision identifiers, used by Alembic.
+revision = 'c56e3a2d7f12'
+down_revision = '[previous revision hash - replace with your actual latest migration hash]'
+branch_labels = None
+depends_on = None
+
+
+def upgrade():
+    # Create the curtailments table
+    op.create_table(
+        'curtailments',
+        sa.Column('curtailment_uuid', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4),
+        sa.Column('site_uuid', UUID(as_uuid=True), sa.ForeignKey('sites.site_uuid'), nullable=False, index=True),
+        sa.Column('from_date', sa.Date(), nullable=False),
+        sa.Column('to_date', sa.Date(), nullable=False),
+        sa.Column('from_time_utc', sa.Time(), nullable=False),
+        sa.Column('to_time_utc', sa.Time(), nullable=False),
+        sa.Column('curtailment_kw', sa.Float(), nullable=False),
+        sa.Column('created_by', UUID(as_uuid=True), sa.ForeignKey('users.user_uuid'), nullable=True),
+        sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
+        sa.UniqueConstraint('site_uuid', 'from_date', 'to_date', 'from_time_utc', 'to_time_utc', 
+                           name='uniq_cons_site_time_range'),
+    )
+
+
+def downgrade():
+    # Drop the curtailments table
+    op.drop_table('curtailments')
