@@ -1,7 +1,6 @@
 """Get the latest forecast values."""
 from datetime import datetime, timedelta
-from typing import Optional, List, Dict, Union
-import uuid
+from typing import List, Optional, Union
 from uuid import UUID
 
 from sqlalchemy import func
@@ -9,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from pvsite_datamodel.pydantic_models import ForecastValueSum
 from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, MLModelSQL, SiteSQL
+
 
 def get_latest_forecast_values_by_site(
     session: Session,
@@ -19,9 +19,25 @@ def get_latest_forecast_values_by_site(
     day_ahead_hours: Optional[int] = None,
     day_ahead_timezone_delta_hours: Optional[float] = 0,
     model_name: Optional[str] = None,
-) -> Union[Dict[uuid.UUID, List[ForecastValueSQL]], List[ForecastValueSum]]:
+) -> Union[Dict[UUID, List[ForecastValueSQL]], List[ForecastValueSum]]:
     """Get the forecast values by input sites, get the latest value.
-
+    
+    Return the forecasts after a given date, but keeping only the latest for a given timestamp.
+    The query looks like:
+    SELECT
+    DISTINCT ON (f.site_uuid, fv.start_utc)
+        f.site_uuid,
+        fv.forecast_power_kw,
+        fv.start_utc
+    FROM forecast_values AS fv
+    JOIN forecasts AS f
+      ON f.forecast_uuid = fv.forecast_uuid
+    WHERE fv.start_utc >= <start_utc>
+    ORDER BY
+        f.site_uuid,
+        fv.start_utc,
+        f.created_utc DESC
+        
     Args:
         session: database session used for querying the database.
         site_uuids: the uuids of the sites that you want forecasts for
@@ -31,7 +47,7 @@ def get_latest_forecast_values_by_site(
         day_ahead_hours: only include forecasts made at least this many hours ahead
         day_ahead_timezone_delta_hours: timezone offset hours for day-ahead calculations
         model_name: filter forecasts to only include those from this ML model
-
+        
     Returns:
         Dict mapping site uuids to list of forecast values
     """
