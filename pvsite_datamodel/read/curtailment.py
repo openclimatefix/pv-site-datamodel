@@ -11,7 +11,9 @@ def get_curtailment_by_uuid(
     curtailment_uuid: str
 ) -> Optional[CurtailmentSQL]:
     """Get curtailment by uuid."""
-    return session.query(CurtailmentSQL).filter(CurtailmentSQL.curtailment_uuid == curtailment_uuid).first()
+    return session.query(CurtailmentSQL).filter(
+        CurtailmentSQL.curtailment_uuid == curtailment_uuid
+    ).first()
 
 
 def get_curtailments_by_site_uuid(session: Session, site_uuid: str) -> List[CurtailmentSQL]:
