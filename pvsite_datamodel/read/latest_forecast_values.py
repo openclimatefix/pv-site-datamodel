@@ -1,6 +1,6 @@
 """Get the latest forecast values."""
 from datetime import datetime, timedelta
-from typing import List, Optional, Union
+from typing import Dict, List, Optional, Union
 from uuid import UUID
 
 from sqlalchemy import func
@@ -47,7 +47,7 @@ def get_latest_forecast_values_by_site(
         day_ahead_hours: only include forecasts made at least this many hours ahead
         day_ahead_timezone_delta_hours: timezone offset hours for day-ahead calculations
         model_name: filter forecasts to only include those from this ML model
-        
+
     Returns:
         Dict mapping site uuids to list of forecast values
     """
