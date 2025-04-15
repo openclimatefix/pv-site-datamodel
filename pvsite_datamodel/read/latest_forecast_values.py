@@ -4,7 +4,6 @@ from typing import Optional, List, Dict, Union
 import uuid
 from uuid import UUID
 
-import pandas as pd
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
