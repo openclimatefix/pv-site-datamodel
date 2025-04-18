@@ -54,7 +54,6 @@ class TestInsertGenerationValues:
 
         rows = (
             db_session.query(GenerationSQL.start_utc, GenerationSQL.end_utc)
-            .order_by(GenerationSQL.start_utc)
             .all()
         )
         # Check data has been written and exists in table
