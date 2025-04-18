@@ -275,6 +275,26 @@ def generation_valid_site(sites):
 
 
 @pytest.fixture()
+def generation_valid_end_utc(sites):
+    site_uuid = sites[0].site_uuid
+
+    n_rows = 10
+    delta = 7
+
+    return {
+        "start_utc": [
+            dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(n_rows)
+        ],
+        "end_utc": [
+            dt.datetime.now(dt.timezone.utc) + dt.timedelta(minutes=delta - x)
+            for x in range(n_rows)
+        ],
+        "power_kw": [float(x) for x in range(n_rows)],
+        "site_uuid": [site_uuid for _ in range(n_rows)],
+    }
+
+
+@pytest.fixture()
 def generation_invalid_dataframe():
     return {
         "start_utc": [dt.datetime.now(dt.timezone.utc)],
