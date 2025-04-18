@@ -37,6 +37,7 @@ def insert_generation_values(
         site_uuid = row["site_uuid"]
         start_utc = row["start_utc"]
         power_kw = row["power_kw"]
+        end_utc = row.get("end_utc", default=start_utc + dt.timedelta(minutes=5))
 
         # Create a GenerationSQL object for each generation, and surface as dict
         generation = GenerationSQL(
@@ -45,7 +46,7 @@ def insert_generation_values(
             start_utc=start_utc,
             # TODO This is arbitrary and should be fixed
             # https://github.com/openclimatefix/pv-site-datamodel/issues/52
-            end_utc=start_utc + dt.timedelta(minutes=5),
+            end_utc=end_utc,
         ).__dict__
 
         generation_sqls.append(generation)

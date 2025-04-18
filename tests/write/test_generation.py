@@ -45,3 +45,23 @@ class TestInsertGenerationValues:
         insert_generation_values(db_session, df)
         db_session.commit()
         assert db_session.query(GenerationSQL).count() == 10
+
+    def tests_inserts_end_utc(self, db_session, generation_valid_end_utc):
+        """Tests end_utc handled successfully."""
+        df = pd.DataFrame(generation_valid_end_utc)
+        insert_generation_values(db_session, df)
+        db_session.commit()
+
+        rows = db_session.query(GenerationSQL.start_utc, GenerationSQL.end_utc).all()
+        # Check data has been written and exists in table
+        assert len(rows) == 10
+
+        # Check both start and end timestamps
+        for idx, (stored_start, stored_end) in enumerate(rows):
+            # Compare timestamps at the minute level to avoid timezone issues
+            assert stored_start.strftime("%Y-%m-%d %H:%M") == generation_valid_end_utc["start_utc"][
+                idx
+            ].strftime("%Y-%m-%d %H:%M")
+            assert stored_end.strftime("%Y-%m-%d %H:%M") == generation_valid_end_utc["end_utc"][
+                idx
+            ].strftime("%Y-%m-%d %H:%M")
