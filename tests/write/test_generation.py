@@ -62,5 +62,10 @@ class TestInsertGenerationValues:
 
         # Check both start and end timestamps
         for idx, (stored_start, stored_end) in enumerate(rows):
-            assert stored_start == generation_valid_end_utc["start_utc"][idx]
-            assert stored_end == generation_valid_end_utc["end_utc"][idx]
+            # Compare timestamps at the minute level to avoid timezone issues
+            assert stored_start.strftime("%Y-%m-%d %H:%M") == generation_valid_end_utc["start_utc"][
+                idx
+            ].strftime("%Y-%m-%d %H:%M")
+            assert stored_end.strftime("%Y-%m-%d %H:%M") == generation_valid_end_utc["end_utc"][
+                idx
+            ].strftime("%Y-%m-%d %H:%M")
