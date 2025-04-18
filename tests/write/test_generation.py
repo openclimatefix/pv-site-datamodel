@@ -52,10 +52,7 @@ class TestInsertGenerationValues:
         insert_generation_values(db_session, df)
         db_session.commit()
 
-        rows = (
-            db_session.query(GenerationSQL.start_utc, GenerationSQL.end_utc)
-            .all()
-        )
+        rows = db_session.query(GenerationSQL.start_utc, GenerationSQL.end_utc).all()
         # Check data has been written and exists in table
         assert len(rows) == 10
 
