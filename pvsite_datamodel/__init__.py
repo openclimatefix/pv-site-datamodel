@@ -14,4 +14,4 @@ from .sqlmodels import (
     UserSQL,
 )
 
-__version__ = "1.0.55"
+__version__ = "1.0.56"
