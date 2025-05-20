@@ -194,7 +194,7 @@ def test_remove_site_to_site_group(db_session):
 
     remove_site_to_site_group(
         session=db_session,
-        site_uuid=str(site_2.site_uui),
+        site_uuid=str(site_2.site_uuid),
         site_group_name=site_group.site_group_name,
     )
 
