@@ -235,7 +235,7 @@ def remove_site_to_site_group(session: Session, site_uuid: str, site_group_name:
     site = session.query(SiteSQL).filter(SiteSQL.site_uuid == site_uuid).one()
 
     if site in site_group.sites:
-        new_sites = [site for site in site_group.sites if site.site_uuid != site_uuid]
+        new_sites = [site for site in site_group.sites if str(site.site_uuid) != site_uuid]
         site_group.sites = new_sites
 
     session.commit()
