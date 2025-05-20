@@ -12,6 +12,7 @@ from pvsite_datamodel.write.user_and_site import (
     create_site_group,
     edit_site,
     make_fake_site,
+    remove_site_to_site_group,
 )
 
 
@@ -173,6 +174,31 @@ def test_add_site_to_site_group(db_session):
     )
 
     assert len(site_group.sites) == 3
+
+
+def test_remove_site_to_site_group(db_session):
+    site_group = create_site_group(db_session=db_session)
+    site_1 = make_fake_site(db_session=db_session, ml_id=1)
+    site_2 = make_fake_site(db_session=db_session, ml_id=2)
+    site_3 = make_fake_site(db_session=db_session, ml_id=3)
+    site_group.sites.append(site_1)
+    site_group.sites.append(site_2)
+
+    add_site_to_site_group(
+        session=db_session,
+        site_uuid=str(site_3.site_uuid),
+        site_group_name=site_group.site_group_name,
+    )
+
+    assert len(site_group.sites) == 3
+
+    remove_site_to_site_group(
+        session=db_session,
+        site_uuid=str(site_2.site_uui),
+        site_group_name=site_group.site_group_name,
+    )
+
+    assert len(site_group.sites) == 2
 
 
 # test for create_new_site to check ml_id increments

@@ -220,6 +220,29 @@ def add_site_to_site_group(session: Session, site_uuid: str, site_group_name: st
     return site_group.sites
 
 
+def remove_site_to_site_group(session: Session, site_uuid: str, site_group_name: str) -> SiteGroupSQL:
+    """Remove a site to a site group.
+
+    NB: Sites can belong to many site groups.
+    :param session: database session
+    :param site_uuid: uuid of site
+    :param site_group_name: name of site group
+    """
+    site_group = (
+        session.query(SiteGroupSQL).filter(SiteGroupSQL.site_group_name == site_group_name).first()
+    )
+
+    site = session.query(SiteSQL).filter(SiteSQL.site_uuid == site_uuid).one()
+
+    if site in site_group.sites:
+        new_sites = [site for site in site_group.sites if site.site_uuid != site_uuid]
+        site_group.sites = new_sites
+
+    session.commit()
+
+    return site_group.sites
+
+
 # change site group for user
 def change_user_site_group(session, email: str, site_group_name: str):
     """
