@@ -220,7 +220,9 @@ def add_site_to_site_group(session: Session, site_uuid: str, site_group_name: st
     return site_group.sites
 
 
-def remove_site_from_site_group(session: Session, site_uuid: str, site_group_name: str) -> [SiteSQL]:
+def remove_site_from_site_group(
+    session: Session, site_uuid: str, site_group_name: str
+) -> [SiteSQL]:
     """Remove a site to a site group.
 
     NB: Sites can belong to many site groups.
