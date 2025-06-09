@@ -1,6 +1,7 @@
 """ Tools for making fake users and sites in the database."""
 
 import json
+import logging
 from datetime import datetime, timezone
 from typing import Optional, Tuple
 from uuid import UUID
@@ -22,6 +23,8 @@ from pvsite_datamodel.sqlmodels import (
 )
 from pvsite_datamodel.write.data.dno import get_dno
 from pvsite_datamodel.write.data.gsp import get_gsp
+
+logger = logging.getLogger(__name__)
 
 
 def make_fake_site(db_session, ml_id=1):
@@ -322,6 +325,38 @@ def edit_site(
     message = f"Site with site uuid {site.site_uuid} updated successfully"
 
     return site, message
+
+
+def set_site_to_inactive_if_not_in_site_group(
+    session: Session, site_uuid: str, user_uuid: str, ignore_ocf_site_group: Optional[bool] = True
+):
+    """Set to inactive, if not in a site group.
+
+    :param session: database session
+    :param site_uuid: the site uuid
+    :param user_uuid: the UUID of the user setting the site to inactive
+    :param ignore_ocf_site_group: if True,
+        ignore the "ocf" site group when checking if the site is in a site group
+    """
+
+    set_session_user(session, user_uuid)
+
+    # get site
+    site = session.query(SiteSQL).filter(SiteSQL.site_uuid == site_uuid).first()
+
+    # check if site is in any other site group
+    site_groups: [SiteGroupSQL] = site.site_groups
+    if ignore_ocf_site_group:
+        # only look at sites groups that are not called "ocf"
+        site_groups = [sg for sg in site_groups if sg.site_group_name != "ocf"]
+
+    logger.info(f"Site {site_uuid} is in {len(site_groups)} site groups.")
+
+    if len(site_groups) == 0:
+        logger.info(f"Site {site_uuid} is not in any site group, setting it to inactive.")
+
+        site.active = False
+        session.commit()
 
 
 # delete functions for site, user, and site group
