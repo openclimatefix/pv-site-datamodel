@@ -13,6 +13,7 @@ from pvsite_datamodel.write.user_and_site import (
     edit_site,
     make_fake_site,
     remove_site_from_site_group,
+    set_site_to_inactive_if_not_in_site_group,
 )
 
 
@@ -238,3 +239,49 @@ def test_create_new_site_with_invalid_asset_type(db_session):
             capacity_kw=1.0,
             asset_type="invalid-asset",
         )
+
+
+def test_set_to_inactive_if_not_in_site_group(db_session):
+    """Test site is set to inactive if user is not in site group"""
+    site = make_fake_site(db_session=db_session, ml_id=1)
+    user = get_user_by_email(session=db_session, email="test@test.com")
+
+    set_site_to_inactive_if_not_in_site_group(
+        session=db_session,
+        site_uuid=str(site.site_uuid),
+        user_uuid=str(user.user_uuid),
+    )
+
+    assert not site.active
+
+
+def test_set_to_inactive_if_in_two_site_group(db_session):
+    """Test site is not set to inactive if user is in two site groups"""
+    site_group_1 = create_site_group(db_session=db_session)
+    site = make_fake_site(db_session=db_session, ml_id=1)
+    site_group_1.sites.append(site)
+    user = get_user_by_email(session=db_session, email="test@test.com")
+
+    set_site_to_inactive_if_not_in_site_group(
+        session=db_session,
+        site_uuid=str(site.site_uuid),
+        user_uuid=str(user.user_uuid),
+    )
+
+    assert site.active
+
+
+def test_set_to_inactive_if_in_two_site_group_but_ocf(db_session):
+    """Test site is set to inactive if user is in two site groups but one group is OCF"""
+    site_group_1 = create_site_group(db_session=db_session, site_group_name="ocf")
+    site = make_fake_site(db_session=db_session, ml_id=1)
+    site_group_1.sites.append(site)
+    user = get_user_by_email(session=db_session, email="test@test.com")
+
+    set_site_to_inactive_if_not_in_site_group(
+        session=db_session,
+        site_uuid=str(site.site_uuid),
+        user_uuid=str(user.user_uuid),
+    )
+
+    assert not site.active
