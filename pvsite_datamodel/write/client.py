@@ -7,7 +7,7 @@ from uuid import UUID
 
 from sqlalchemy.orm.session import Session
 
-from pvsite_datamodel.sqlmodels import ClientSQL, SiteSQL
+from pvsite_datamodel.sqlmodels import ClientSQL, SiteSQL, UserSQL
 
 _log = logging.getLogger(__name__)
 
@@ -61,5 +61,30 @@ def assign_site_to_client(session: Session, site_uuid: str, client_name: str) ->
     session.commit()
 
     message = f"Site with site uuid {site_uuid} successfully assigned to the client {client_name}"
+
+    return message
+
+
+def assign_user_to_client(session: Session, user_uuid: str, client_name: str) -> str:
+    """Assign user to client.
+
+    :param session: database session
+    :param user_uuid: uuid of user
+    :param client_name: name of the client the user will be assigned to.
+    """
+    client = session.query(ClientSQL).filter(ClientSQL.client_name == client_name).first()
+    if not client:
+        raise ValueError(f"Client with name {client_name} does not exist.")
+
+    user = session.query(UserSQL).filter(UserSQL.user_uuid == user_uuid).first()
+    if not user:
+        raise ValueError(f"User with uuid {user_uuid} does not exist.")
+
+    user.client_uuid = client.client_uuid
+
+    session.add(user)
+    session.commit()
+
+    message = f"User with user uuid {user_uuid} successfully assigned to the client {client_name}"
 
     return message
