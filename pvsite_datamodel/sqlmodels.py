@@ -210,6 +210,9 @@ class SiteSQL(Base, CreatedMixin):
     )
     client: Mapped[List["ClientSQL"]] = relationship("ClientSQL", back_populates="sites")
     ml_model: Mapped[Optional[MLModelSQL]] = relationship("MLModelSQL", back_populates="sites")
+    curtailments: Mapped[List["CurtailmentSQL"]] = relationship(
+        "CurtailmentSQL", back_populates="site", cascade="all, delete-orphan"
+    )
 
 
 class SiteHistorySQL(Base, CreatedMixin):
@@ -473,3 +476,66 @@ class APIRequestSQL(Base, CreatedMixin):
 
     user_uuid = sa.Column(UUID, sa.ForeignKey("users.user_uuid"), index=True)
     user = relationship("UserSQL", back_populates="api_request")
+
+
+class CurtailmentSQL(Base, CreatedMixin):
+    """Class representing curtailments for sites.
+    
+    Each curtailment row specifies a period when a site's generation
+    is being artificially limited (curtailed).
+    """
+
+    __tablename__ = "curtailments"
+    __table_args__ = (
+        UniqueConstraint(
+            "site_uuid", 
+            "from_date", 
+            "to_date", 
+            "from_time_utc", 
+            "to_time_utc",
+            name="uniq_cons_site_time_range"
+        ),
+    )
+
+    curtailment_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
+    site_uuid = sa.Column(
+        UUID(as_uuid=True),
+        sa.ForeignKey("sites.site_uuid"),
+        nullable=False,
+        index=True,
+        comment="The site being curtailed",
+    )
+    from_date = sa.Column(
+        sa.Date,
+        nullable=False,
+        comment="The start date of the curtailment period",
+    )
+    to_date = sa.Column(
+        sa.Date,
+        nullable=False,
+        comment="The end date of the curtailment period",
+    )
+    from_time_utc = sa.Column(
+        sa.Time,
+        nullable=False,
+        comment="The start time (UTC) of daily curtailment",
+    )
+    to_time_utc = sa.Column(
+        sa.Time,
+        nullable=False,
+        comment="The end time (UTC) of daily curtailment",
+    )
+    curtailment_kw = sa.Column(
+        sa.Float,
+        nullable=False,
+        comment="The maximum allowed generation during curtailment (kW)",
+    )
+    created_by = sa.Column(
+        UUID(as_uuid=True),
+        sa.ForeignKey("users.user_uuid"),
+        nullable=True,
+        comment="User who created this curtailment",
+    )
+
+    site = relationship("SiteSQL")
+    user = relationship("UserSQL")
