@@ -109,7 +109,7 @@ def get_models(
         query = query.where(SiteSQL.site_uuid == site_uuid)
 
         if start_datetime is not None:
-            query = query.where(ForecastSQL.created_utc > start_datetime)
+            query = query.where(ForecastSQL.created_utc >= start_datetime)
 
         if end_datetime is not None:
             query = query.where(ForecastSQL.created_utc < end_datetime)
