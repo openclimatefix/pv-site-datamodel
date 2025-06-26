@@ -18,6 +18,7 @@ def get_latest_forecast_values_by_site(
     end_utc: Optional[dt.datetime] = None,
     sum_by: Optional[str] = None,
     created_by: Optional[dt.datetime] = None,
+    created_after: Optional[dt.datetime] = None,
     forecast_horizon_minutes: Optional[int] = None,
     day_ahead_hours: Optional[int] = None,
     day_ahead_timezone_delta_hours: Optional[float] = 0,
@@ -49,6 +50,7 @@ def get_latest_forecast_values_by_site(
     :param start_utc: filters on forecast values target_time >= start_utc
     :param end_utc: optional, filters on forecast values target_time < end_utc
     :param created_by: filter on forecast values created time <= created_by
+    :param created_after: optional, filter on forecast values created time >= created_after
     :param sum_by: optional, sum the forecast values by this column
     :param forecast_horizon_minutes, optional, filter on forecast horizon minutes. We
         return any forecast with forecast horizon mintues >= this value.
@@ -89,6 +91,10 @@ def get_latest_forecast_values_by_site(
     if created_by is not None:
         query = query.filter(ForecastValueSQL.created_utc <= created_by)
         query = query.filter(ForecastSQL.created_utc <= created_by)
+
+    if created_after is not None:
+        query = query.filter(ForecastValueSQL.created_utc >= created_after)
+        query = query.filter(ForecastSQL.created_utc >= created_after)
 
     if forecast_horizon_minutes is not None:
         query = query.filter(ForecastValueSQL.horizon_minutes >= forecast_horizon_minutes)
