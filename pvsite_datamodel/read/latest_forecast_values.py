@@ -88,6 +88,7 @@ def get_latest_forecast_values_by_site(
 
     if created_by is not None:
         query = query.filter(ForecastValueSQL.created_utc <= created_by)
+        query = query.filter(ForecastSQL.created_utc <= created_by)
 
     if forecast_horizon_minutes is not None:
         query = query.filter(ForecastValueSQL.horizon_minutes >= forecast_horizon_minutes)
