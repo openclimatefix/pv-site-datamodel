@@ -58,10 +58,17 @@ class UserSQL(Base, CreatedMixin):
         nullable=False,
         comment="The foreign key to the site_groups table",
     )
+    client_uuid = sa.Column(
+        UUID(as_uuid=True),
+        sa.ForeignKey("clients.client_uuid"),
+        nullable=True,
+        comment="The foreign key to the clients table",
+    )
 
     # Relationships
     site_group: Mapped["SiteGroupSQL"] = relationship("SiteGroupSQL", back_populates="users")
     api_request = relationship("APIRequestSQL", back_populates="user")
+    client: Mapped[Optional["ClientSQL"]] = relationship("ClientSQL", back_populates="users")
 
 
 class SiteGroupSQL(Base, CreatedMixin):
@@ -251,6 +258,7 @@ class ClientSQL(Base, CreatedMixin):
     client_name = sa.Column(sa.String(255), nullable=False, index=True, unique=True)
 
     sites: Mapped[List[SiteSQL]] = relationship("SiteSQL", back_populates="client")
+    users: Mapped[List[UserSQL]] = relationship("UserSQL", back_populates="client")
 
 
 class GenerationSQL(Base, CreatedMixin):
