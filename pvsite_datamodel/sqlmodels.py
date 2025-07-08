@@ -237,7 +237,7 @@ class SiteSQL(Base, CreatedMixin):
 
     # n:n mapping to reference back to locations.
     # This means many site can be part of a many different region.
-
+    # TODO
 
 class SiteHistorySQL(Base, CreatedMixin):
     """Class representing the sites history table.
