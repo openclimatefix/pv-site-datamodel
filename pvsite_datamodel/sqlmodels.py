@@ -107,7 +107,7 @@ class SiteGroupSiteSQL(Base, CreatedMixin):
     )
     site_uuid = sa.Column(
         UUID(as_uuid=True),
-        sa.ForeignKey("sites.site_uuid"),
+        sa.ForeignKey("locations.site_uuid"),
         nullable=False,
         comment="The foreign key to the sites table",
     )
@@ -199,10 +199,10 @@ class SiteSQL(Base, CreatedMixin):
         nullable=False,
         server_default=LocationType.site.name,
     )
-    metadata = sa.Column(
+    location_metadata = sa.Column(
         JSONB,
         nullable=False,
-        comment="Specific properites of the location, "
+        comment="Specific properties of the location, "
         "for example for a site, the tilt and orientation of the "
         "solar panels, or for a region, the region name.",
     )
@@ -298,7 +298,7 @@ class GenerationSQL(Base, CreatedMixin):
     generation_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     site_uuid = sa.Column(
         UUID(as_uuid=True),
-        sa.ForeignKey("sites.site_uuid"),
+        sa.ForeignKey("locations.site_uuid"),
         nullable=False,
         index=True,
         comment="The site for which this geenration yield belongs to",
@@ -339,7 +339,7 @@ class ForecastSQL(Base, CreatedMixin):
     forecast_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     site_uuid = sa.Column(
         UUID(as_uuid=True),
-        sa.ForeignKey("sites.site_uuid"),
+        sa.ForeignKey("locations.site_uuid"),
         nullable=False,
         comment="The site for which the forecast sequence was generated",
     )
@@ -481,7 +481,7 @@ class InverterSQL(Base, CreatedMixin):
     inverter_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     site_uuid = sa.Column(
         UUID(as_uuid=True),
-        sa.ForeignKey("sites.site_uuid"),
+        sa.ForeignKey("locations.site_uuid"),
         nullable=False,
         index=True,
         comment="The UUID for the site that has this inverter",
