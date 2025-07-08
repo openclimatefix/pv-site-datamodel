@@ -120,18 +120,26 @@ class SiteAssetType(enum.Enum):
     wind = 2
 
 
+class LocationType(enum.Enum):
+    """Enum type representing a site's location type."""
+
+    site = 1
+    region = 2
+
+
 class SiteSQL(Base, CreatedMixin):
-    """Class representing the sites table.
+    """Class representing the locations table.
 
-    Each site row specifies a single panel or cluster of panels
-    found on a residential house or commercial building. Their
-    data is provided by a client.
+    Each location row specifies location in space. It can represent
+    - a solar single panel
+    - cluster of solar panels found on a residential house or commercial building.
+    - a large solar farm
+    - a wind farm
 
-    *Approximate size: *
-    4 clients * ~1000 sites each = ~4000 rows
+    # TODO update this to LocationSQL in future release + other renames
     """
 
-    __tablename__ = "sites"
+    __tablename__ = "locations"
 
     site_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     client_site_id = sa.Column(
@@ -144,11 +152,6 @@ class SiteSQL(Base, CreatedMixin):
     country = sa.Column(
         sa.String(255), server_default="uk", comment="The country in which the site is located"
     )
-    region = sa.Column(
-        sa.String(255), comment="The region within the country in which the site is located"
-    )
-    dno = sa.Column(sa.String(255), comment="The Distribution Node Operator that owns the site")
-    gsp = sa.Column(sa.String(255), comment="The Grid Supply Point in which the site is located")
 
     asset_type = sa.Column(
         sa.Enum(SiteAssetType, name="site_asset_type"),
@@ -156,20 +159,11 @@ class SiteSQL(Base, CreatedMixin):
         server_default=SiteAssetType.pv.name,
     )
 
-    # For metadata `NULL` means "we don't know".
-    orientation = sa.Column(
-        sa.Float, comment="The rotation of the panel in degrees. 180° points south"
-    )
-    tilt = sa.Column(
-        sa.Float, comment="The tile of the panel in degrees. 90° indicates the panel is vertical"
-    )
     latitude = sa.Column(sa.Float)
     longitude = sa.Column(sa.Float)
     capacity_kw = sa.Column(
         sa.Float, comment="The physical limit on the production capacity of the site"
     )
-    inverter_capacity_kw = sa.Column(sa.Float, comment="The inverter capacity of the site")
-    module_capacity_kw = sa.Column(sa.Float, comment="The PV module nameplate capacity of the site")
 
     ml_id = sa.Column(
         sa.Integer,
@@ -199,7 +193,37 @@ class SiteSQL(Base, CreatedMixin):
         nullable=True,
         comment="The ML Model which should be used for this site",
     )
+    # new fields
+    location_type = sa.Column(
+        sa.Enum(LocationType, name="location_type"),
+        nullable=False,
+        server_default=LocationType.site.name,
+    )
+    metadata = sa.Column(
+        JSONB,
+        nullable=False,
+        comment="Specific properites of the location, "
+        "for example for a site, the tilt and orientation of the "
+        "solar panels, or for a region, the region name.",
+    )
 
+    # legacy fields
+    region = sa.Column(
+        sa.String(255), comment="The region within the country in which the site is located"
+    )
+    dno = sa.Column(sa.String(255), comment="The Distribution Node Operator that owns the site")
+    gsp = sa.Column(sa.String(255), comment="The Grid Supply Point in which the site is located")
+    # For metadata `NULL` means "we don't know".
+    orientation = sa.Column(
+        sa.Float, comment="The rotation of the panel in degrees. 180° points south"
+    )
+    tilt = sa.Column(
+        sa.Float, comment="The tile of the panel in degrees. 90° indicates the panel is vertical"
+    )
+    inverter_capacity_kw = sa.Column(sa.Float, comment="The inverter capacity of the site")
+    module_capacity_kw = sa.Column(sa.Float, comment="The PV module nameplate capacity of the site")
+
+    # relationships
     forecasts: Mapped[List["ForecastSQL"]] = relationship("ForecastSQL", back_populates="site")
     generation: Mapped[List["GenerationSQL"]] = relationship("GenerationSQL")
     inverters: Mapped[List["InverterSQL"]] = relationship(
@@ -210,6 +234,9 @@ class SiteSQL(Base, CreatedMixin):
     )
     client: Mapped[List["ClientSQL"]] = relationship("ClientSQL", back_populates="sites")
     ml_model: Mapped[Optional[MLModelSQL]] = relationship("MLModelSQL", back_populates="sites")
+
+    # n:n mapping to reference back to locations.
+    # This means many site can be part of a many different region.
 
 
 class SiteHistorySQL(Base, CreatedMixin):
