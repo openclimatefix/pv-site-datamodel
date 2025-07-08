@@ -239,6 +239,7 @@ class SiteSQL(Base, CreatedMixin):
     # This means many site can be part of a many different region.
     # TODO
 
+
 class SiteHistorySQL(Base, CreatedMixin):
     """Class representing the sites history table.
 
