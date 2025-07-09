@@ -8,7 +8,7 @@ from sqlalchemy import func, text
 from sqlalchemy.orm import Session, contains_eager
 
 from pvsite_datamodel.pydantic_models import ForecastValueSum
-from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, MLModelSQL, SiteSQL
+from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, MLModelSQL, LocationSQL
 
 
 def get_latest_forecast_values_by_site(
@@ -157,15 +157,15 @@ def get_latest_forecast_values_by_site(
 
         group_by_variables = [subquery.c.start_utc]
         if sum_by == "dno":
-            group_by_variables.append(SiteSQL.dno)
+            group_by_variables.append(LocationSQL.dno)
         if sum_by == "gsp":
-            group_by_variables.append(SiteSQL.gsp)
+            group_by_variables.append(LocationSQL.gsp)
         query_variables = group_by_variables.copy()
         query_variables.append(func.sum(subquery.c.forecast_power_kw))
 
         query = session.query(*query_variables)
         query = query.join(ForecastSQL, ForecastSQL.forecast_uuid == subquery.c.forecast_uuid)
-        query = query.join(SiteSQL)
+        query = query.join(LocationSQL)
         query = query.group_by(*group_by_variables)
         query = query.order_by(*group_by_variables)
         forecasts_raw = query.all()

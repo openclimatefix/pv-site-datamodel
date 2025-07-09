@@ -2,7 +2,7 @@ import uuid
 
 import pytest
 
-from pvsite_datamodel import SiteGroupSQL
+from pvsite_datamodel import LocationGroupSQL
 from pvsite_datamodel.pydantic_models import LatitudeLongitudeLimits
 from pvsite_datamodel.read import (
     get_all_site_groups,
@@ -107,7 +107,7 @@ class TestGetSiteByUUID:
 
 
 def test_get_site_group_by_name(db_session):
-    site_group = SiteGroupSQL(site_group_name="test")
+    site_group = LocationGroupSQL(site_group_name="test")
     db_session.add(site_group)
     db_session.commit()
 
@@ -119,7 +119,7 @@ def test_get_site_group_by_name(db_session):
 def test_get_site_group_by_name_new_group(db_session):
     _ = get_site_group_by_name(db_session, "test")
 
-    assert len(db_session.query(SiteGroupSQL).all()) == 1
+    assert len(db_session.query(LocationGroupSQL).all()) == 1
 
 
 def test_get_all_users(db_session):

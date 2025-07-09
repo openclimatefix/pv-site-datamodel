@@ -1,7 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 
-from pvsite_datamodel import SiteGroupSQL, UserSQL
+from pvsite_datamodel import LocationGroupSQL, UserSQL
 from pvsite_datamodel.read import get_user_by_email
 from pvsite_datamodel.write.user_and_site import create_site_group, create_user
 
@@ -13,7 +13,7 @@ class TestGetUserByEmail:
         _ = create_site_group(db_session=db_session, site_group_name="site_group_for_test@test.com")
         _ = get_user_by_email(session=db_session, email="test@test.com")
         assert len(db_session.query(UserSQL).all()) == 1
-        assert len(db_session.query(SiteGroupSQL).all()) == 1
+        assert len(db_session.query(LocationGroupSQL).all()) == 1
 
     def test_get_user_by_email_no_users(self, db_session):
         user = get_user_by_email(session=db_session, email="test@test.com")

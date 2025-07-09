@@ -2,7 +2,7 @@
 
 import datetime as dt
 
-from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, SiteSQL
+from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, LocationSQL
 
 
 def _add_forecast_value(session, forecast, power: int, ts):
@@ -34,7 +34,7 @@ def test_get_latest_forecasts(db_session, engine, sites, forecast_valid_site):
       ON fv.forecast_uuid = f.forecast_uuid
     """
     # Get some sites.
-    site_uuids = [site.site_uuid for site in db_session.query(SiteSQL.site_uuid).limit(2)]
+    site_uuids = [site.site_uuid for site in db_session.query(LocationSQL.site_uuid).limit(2)]
 
     s1, s2 = site_uuids
 

@@ -14,7 +14,7 @@ from testcontainers.postgres import PostgresContainer
 
 from alembic import command
 from alembic.config import Config
-from pvsite_datamodel import ClientSQL, GenerationSQL, SiteSQL, StatusSQL
+from pvsite_datamodel import ClientSQL, GenerationSQL, LocationSQL, StatusSQL
 from pvsite_datamodel.write.user_and_site import create_site_group, create_user
 
 PROJECT_PATH = Path(__file__).parent.parent.resolve()
@@ -70,7 +70,7 @@ def sites(db_session, client):
 
     sites = []
     for i in range(0, 4):
-        site = SiteSQL(
+        site = LocationSQL(
             client_site_id=1,
             client_site_name=f"test_site_{i}",
             latitude=51,
@@ -90,7 +90,7 @@ def sites(db_session, client):
         sites.append(site)
 
     # make sure they are in order
-    sites = db_session.query(SiteSQL).order_by(SiteSQL.site_uuid).all()
+    sites = db_session.query(LocationSQL).order_by(LocationSQL.site_uuid).all()
 
     return sites
 
@@ -102,7 +102,7 @@ def make_sites_for_country(db_session):
     def _make_sites_for_country(country="uk"):
         sites = []
         for i in range(0, 4):
-            site = SiteSQL(
+            site = LocationSQL(
                 client_site_id=1,
                 client_site_name=f"test_site_{i}",
                 latitude=51,
@@ -122,7 +122,7 @@ def make_sites_for_country(db_session):
             sites.append(site)
 
         # make sure they are in order
-        sites = db_session.query(SiteSQL).order_by(SiteSQL.site_uuid).all()
+        sites = db_session.query(LocationSQL).order_by(LocationSQL.site_uuid).all()
 
         return sites
 

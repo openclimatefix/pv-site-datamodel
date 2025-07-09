@@ -4,7 +4,7 @@ import pytest
 
 from pvsite_datamodel.pydantic_models import PVSiteEditMetadata
 from pvsite_datamodel.read.user import get_user_by_email
-from pvsite_datamodel.sqlmodels import SiteHistorySQL
+from pvsite_datamodel.sqlmodels import LocationHistorySQL
 from pvsite_datamodel.write.user_and_site import (
     add_site_to_site_group,
     assign_model_name_to_site,
@@ -53,7 +53,7 @@ def test_create_new_site_with_user(db_session):
 
     # after creating there should be an entry in the history table
     h_site = (
-        db_session.query(SiteHistorySQL).filter(SiteHistorySQL.operation_type == "INSERT").first()
+        db_session.query(LocationHistorySQL).filter(LocationHistorySQL.operation_type == "INSERT").first()
     )
 
     assert h_site.site_uuid == site.site_uuid
@@ -70,8 +70,8 @@ def test_create_new_site_with_user(db_session):
     )
 
     h_site_2 = (
-        db_session.query(SiteHistorySQL)
-        .filter(SiteHistorySQL.site_uuid == site_2.site_uuid)
+        db_session.query(LocationHistorySQL)
+        .filter(LocationHistorySQL.site_uuid == site_2.site_uuid)
         .first()
     )
 
@@ -100,13 +100,13 @@ def test_create_new_site_in_specified_country(db_session):
 def test_edit_site(db_session):
     """Test the update of site metadata"""
     # history table should be empty
-    hist_size = db_session.query(SiteHistorySQL).count()
+    hist_size = db_session.query(LocationHistorySQL).count()
     assert hist_size == 0
 
     site = make_fake_site(db_session=db_session)
 
     # history table should contain a single entry
-    hist_size = db_session.query(SiteHistorySQL).count()
+    hist_size = db_session.query(LocationHistorySQL).count()
     assert hist_size == 1
 
     prev_latitude = site.latitude
@@ -126,10 +126,10 @@ def test_edit_site(db_session):
     assert site.latitude == prev_latitude
 
     # after editing there should be another entry in the history table
-    hist_size = db_session.query(SiteHistorySQL).count()
+    hist_size = db_session.query(LocationHistorySQL).count()
     assert hist_size == 2
     h_site = (
-        db_session.query(SiteHistorySQL).filter(SiteHistorySQL.operation_type == "UPDATE").first()
+        db_session.query(LocationHistorySQL).filter(LocationHistorySQL.operation_type == "UPDATE").first()
     )
 
     assert h_site.site_uuid == site.site_uuid

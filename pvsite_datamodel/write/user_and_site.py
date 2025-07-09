@@ -16,9 +16,9 @@ from pvsite_datamodel.read import get_or_create_model, get_site_by_uuid, get_use
 from pvsite_datamodel.sqlmodels import (
     ForecastSQL,
     ForecastValueSQL,
-    SiteAssetType,
-    SiteGroupSQL,
-    SiteSQL,
+    LocationAssetType,
+    LocationGroupSQL,
+    LocationSQL,
     UserSQL,
 )
 from pvsite_datamodel.write.data.dno import get_dno
@@ -33,7 +33,7 @@ def make_fake_site(db_session, ml_id=1):
     This is mainly used for testing purposes.
     """
 
-    site = SiteSQL(
+    site = LocationSQL(
         client_site_id=1,
         latitude=51,
         longitude=3,
@@ -55,7 +55,7 @@ def create_site_group(db_session, site_group_name="test_site_group"):
     This is mainly used for testing purposes.
     """
     # create site group
-    site_group = SiteGroupSQL(site_group_name=site_group_name)
+    site_group = LocationGroupSQL(site_group_name=site_group_name)
     db_session.add(site_group)
     db_session.commit()
 
@@ -74,7 +74,7 @@ def create_site(
     gsp: Optional[str] = None,
     country: Optional[str] = "uk",
     region: Optional[str] = None,
-    asset_type: Optional[str] = SiteAssetType.pv.name,
+    asset_type: Optional[str] = LocationAssetType.pv.name,
     orientation: Optional[float] = None,
     tilt: Optional[float] = None,
     inverter_capacity_kw: Optional[float] = None,
@@ -82,7 +82,7 @@ def create_site(
     client_uuid: Optional[UUID] = None,
     ml_id: Optional[int] = None,
     user_uuid: Optional[str] = None,
-) -> [SiteSQL, str]:
+) -> [LocationSQL, str]:
     """
     Create a site and adds it to the database.
 
@@ -107,7 +107,7 @@ def create_site(
     """
     set_session_user(session, user_uuid)
 
-    max_ml_id = session.query(func.max(SiteSQL.ml_id)).scalar()
+    max_ml_id = session.query(func.max(LocationSQL.ml_id)).scalar()
 
     if max_ml_id is None:
         max_ml_id = 0
@@ -118,10 +118,10 @@ def create_site(
     # if region in [None, ""]:
     #     region = "uk"
 
-    if asset_type not in SiteAssetType.__members__:
+    if asset_type not in LocationAssetType.__members__:
         raise ValueError(
             f"""Invalid asset_type. Received: {asset_type},
-            but must one of ({', '.join(map(lambda type: type.name, SiteAssetType))})"""
+            but must one of ({', '.join(map(lambda type: type.name, LocationAssetType))})"""
         )
 
     if orientation in [None, ""]:
@@ -144,7 +144,7 @@ def create_site(
         dno = get_dno(latitude=latitude, longitude=longitude)
         dno = json.dumps(dno)
 
-    site = SiteSQL(
+    site = LocationSQL(
         ml_id=ml_id if ml_id else max_ml_id + 1,
         client_site_id=client_site_id,
         client_site_name=client_site_name,
@@ -188,7 +188,7 @@ def create_user(
     """
 
     site_group = (
-        session.query(SiteGroupSQL).filter(SiteGroupSQL.site_group_name == site_group_name).first()
+        session.query(LocationGroupSQL).filter(LocationGroupSQL.site_group_name == site_group_name).first()
     )
 
     user = UserSQL(email=email, site_group_uuid=site_group.site_group_uuid)
@@ -201,7 +201,7 @@ def create_user(
 
 
 # update functions for site and site group
-def add_site_to_site_group(session: Session, site_uuid: str, site_group_name: str) -> SiteGroupSQL:
+def add_site_to_site_group(session: Session, site_uuid: str, site_group_name: str) -> LocationGroupSQL:
     """Add a site to a site group.
 
     NB: Sites can belong to many site groups.
@@ -210,10 +210,10 @@ def add_site_to_site_group(session: Session, site_uuid: str, site_group_name: st
     :param site_group_name: name of site group
     """
     site_group = (
-        session.query(SiteGroupSQL).filter(SiteGroupSQL.site_group_name == site_group_name).first()
+        session.query(LocationGroupSQL).filter(LocationGroupSQL.site_group_name == site_group_name).first()
     )
 
-    site = session.query(SiteSQL).filter(SiteSQL.site_uuid == site_uuid).one()
+    site = session.query(LocationSQL).filter(LocationSQL.site_uuid == site_uuid).one()
 
     if site not in site_group.sites:
         site_group.sites.append(site)
@@ -225,7 +225,7 @@ def add_site_to_site_group(session: Session, site_uuid: str, site_group_name: st
 
 def remove_site_from_site_group(
     session: Session, site_uuid: str, site_group_name: str
-) -> [SiteSQL]:
+) -> [LocationSQL]:
     """Remove a site to a site group.
 
     NB: Sites can belong to many site groups.
@@ -234,10 +234,10 @@ def remove_site_from_site_group(
     :param site_group_name: name of site group
     """
     site_group = (
-        session.query(SiteGroupSQL).filter(SiteGroupSQL.site_group_name == site_group_name).first()
+        session.query(LocationGroupSQL).filter(LocationGroupSQL.site_group_name == site_group_name).first()
     )
 
-    site = session.query(SiteSQL).filter(SiteSQL.site_uuid == site_uuid).one()
+    site = session.query(LocationSQL).filter(LocationSQL.site_uuid == site_uuid).one()
 
     if site in site_group.sites:
         new_sites = [site for site in site_group.sites if str(site.site_uuid) != site_uuid]
@@ -272,7 +272,7 @@ def update_user_site_group(session: Session, email: str, site_group_name: str) -
     :param site_group_name: name of site group
     """
     site_group = (
-        session.query(SiteGroupSQL).filter(SiteGroupSQL.site_group_name == site_group_name).first()
+        session.query(LocationGroupSQL).filter(LocationGroupSQL.site_group_name == site_group_name).first()
     )
 
     user = session.query(UserSQL).filter(UserSQL.email == email)
@@ -287,7 +287,7 @@ def update_user_site_group(session: Session, email: str, site_group_name: str) -
 # update site metadata
 def edit_site(
     session: Session, site_uuid: str, site_info: PVSiteEditMetadata, user_uuid: str = None
-) -> Tuple[SiteSQL, str]:
+) -> Tuple[LocationSQL, str]:
     """
     Edit an existing site. Fill in only the fields that need to be updated.
 
@@ -310,7 +310,7 @@ def edit_site(
     """
     set_session_user(session, user_uuid)
 
-    site = session.query(SiteSQL).filter(SiteSQL.site_uuid == site_uuid).first()
+    site = session.query(LocationSQL).filter(LocationSQL.site_uuid == site_uuid).first()
 
     update_data = site_info.model_dump(exclude_unset=True, exclude_none=False)
 
@@ -342,10 +342,10 @@ def set_site_to_inactive_if_not_in_site_group(
     set_session_user(session, user_uuid)
 
     # get site
-    site = session.query(SiteSQL).filter(SiteSQL.site_uuid == site_uuid).first()
+    site = session.query(LocationSQL).filter(LocationSQL.site_uuid == site_uuid).first()
 
     # check if site is in any other site group
-    site_groups: [SiteGroupSQL] = site.site_groups
+    site_groups: [LocationGroupSQL] = site.site_groups
     if ignore_ocf_site_group:
         # only look at sites groups that are not called "ocf"
         site_groups = [sg for sg in site_groups if sg.site_group_name != "ocf"]
@@ -360,7 +360,7 @@ def set_site_to_inactive_if_not_in_site_group(
 
 
 # delete functions for site, user, and site group
-def delete_site(session: Session, site_uuid: str, user_uuid: Optional[str] = None) -> SiteGroupSQL:
+def delete_site(session: Session, site_uuid: str, user_uuid: Optional[str] = None) -> LocationGroupSQL:
     """Delete a site group.
 
     :param session: database session
@@ -369,7 +369,7 @@ def delete_site(session: Session, site_uuid: str, user_uuid: Optional[str] = Non
     """
     set_session_user(session, user_uuid)
 
-    site = session.query(SiteSQL).filter(SiteSQL.site_uuid == site_uuid).first()
+    site = session.query(LocationSQL).filter(LocationSQL.site_uuid == site_uuid).first()
 
     forecast_uuids = (
         session.query(ForecastSQL.forecast_uuid).filter(ForecastSQL.site_uuid == site_uuid).all()
@@ -425,7 +425,7 @@ def delete_site_group(session: Session, site_group_name: str) -> str:
     :param site_group_name: name of site group being deleted
     """
     site_group = (
-        session.query(SiteGroupSQL).filter(SiteGroupSQL.site_group_name == site_group_name).first()
+        session.query(LocationGroupSQL).filter(LocationGroupSQL.site_group_name == site_group_name).first()
     )
 
     site_group_users = site_group.users

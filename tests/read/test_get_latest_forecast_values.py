@@ -3,7 +3,7 @@ from typing import Optional
 
 import pytest
 
-from pvsite_datamodel import ForecastSQL, ForecastValueSQL, SiteSQL
+from pvsite_datamodel import ForecastSQL, ForecastValueSQL, LocationSQL
 from pvsite_datamodel.read import get_latest_forecast_values_by_site, get_or_create_model
 
 
@@ -38,7 +38,7 @@ def _add_forecast_value(
 
 
 def test_get_latest_forecast_values(db_session, sites):
-    site_uuids = [site.site_uuid for site in db_session.query(SiteSQL.site_uuid).limit(2)]
+    site_uuids = [site.site_uuid for site in db_session.query(LocationSQL.site_uuid).limit(2)]
 
     s1, s2 = site_uuids
 
@@ -141,7 +141,7 @@ def test_get_latest_forecast_values(db_session, sites):
 
 def test_get_latest_forecast_values_with_end_utc(db_session, sites):
     # ****** setup ******
-    site_uuids = [site.site_uuid for site in db_session.query(SiteSQL.site_uuid).limit(2)]
+    site_uuids = [site.site_uuid for site in db_session.query(LocationSQL.site_uuid).limit(2)]
 
     s1, s2 = site_uuids
 
@@ -209,7 +209,7 @@ def test_get_latest_forecast_values_with_end_utc(db_session, sites):
 
 def test_get_latest_forecast_values_day_head(db_session, sites):
     """Test to get DA forecasts"""
-    site_uuids = [site.site_uuid for site in db_session.query(SiteSQL.site_uuid).limit(2)]
+    site_uuids = [site.site_uuid for site in db_session.query(LocationSQL.site_uuid).limit(2)]
 
     s1, s2 = site_uuids
 
@@ -266,7 +266,7 @@ def test_get_latest_forecast_values_day_head(db_session, sites):
 
 def test_get_latest_forecast_values_day_head_with_timezone(db_session, sites):
     """Test to get DA forecasts in a different timezone"""
-    site_uuids = [site.site_uuid for site in db_session.query(SiteSQL.site_uuid).limit(2)]
+    site_uuids = [site.site_uuid for site in db_session.query(LocationSQL.site_uuid).limit(2)]
 
     s1, s2 = site_uuids
 
@@ -326,7 +326,7 @@ def test_get_latest_forecast_values_day_head_with_timezone(db_session, sites):
 
 
 def test_get_latest_forecast_values_model_name(db_session, sites):
-    site_uuids = [site.site_uuid for site in db_session.query(SiteSQL.site_uuid).limit(2)]
+    site_uuids = [site.site_uuid for site in db_session.query(LocationSQL.site_uuid).limit(2)]
 
     s1, s2 = site_uuids
 
@@ -373,7 +373,7 @@ def test_get_latest_forecast_values_model_name(db_session, sites):
 
 def test_get_latest_forecast_values_probabilistic_value_limit2(db_session, sites):
     # Retrieve two sites for testing (limit(2))
-    site_uuids = [site.site_uuid for site in db_session.query(SiteSQL.site_uuid).limit(2)]
+    site_uuids = [site.site_uuid for site in db_session.query(LocationSQL.site_uuid).limit(2)]
     site1, site2 = site_uuids
 
     forecast_version = "123"

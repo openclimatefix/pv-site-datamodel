@@ -8,8 +8,8 @@ from .sqlmodels import (
     ForecastValueSQL,
     GenerationSQL,
     InverterSQL,
-    SiteGroupSQL,
-    SiteSQL,
+    LocationGroupSQL,
+    LocationSQL,
     StatusSQL,
     UserSQL,
 )
