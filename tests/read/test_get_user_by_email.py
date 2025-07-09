@@ -23,10 +23,14 @@ class TestGetUserByEmail:
     def test_get_user_by_email_with_users(self, db_session):
         site_group = create_site_group(db_session=db_session)
         _ = create_user(
-            session=db_session, site_group_name=site_group.site_group_name, email="test_1@test.com"
+            session=db_session,
+            site_group_name=site_group.location_group_name,
+            email="test_1@test.com",
         )
         _ = create_user(
-            session=db_session, site_group_name=site_group.site_group_name, email="test_2@test.com"
+            session=db_session,
+            site_group_name=site_group.location_group_name,
+            email="test_2@test.com",
         )
 
         user = get_user_by_email(session=db_session, email="test_1@test.com")

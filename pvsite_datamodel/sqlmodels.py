@@ -60,7 +60,9 @@ class UserSQL(Base, CreatedMixin):
     )
 
     # Relationships
-    location_group: Mapped["LocationGroupSQL"] = relationship("LocationGroupSQL", back_populates="users")
+    location_group: Mapped["LocationGroupSQL"] = relationship(
+        "LocationGroupSQL", back_populates="users"
+    )
     api_request = relationship("APIRequestSQL", back_populates="user")
 
 
@@ -96,9 +98,15 @@ class LocationGroupLocationSQL(Base, CreatedMixin):
     """
 
     __tablename__ = "location_group_locations"
-    __table_args__ = (UniqueConstraint("location_group_uuid", "location_uuid", name="idx_location_group_location"),)
+    __table_args__ = (
+        UniqueConstraint(
+            "location_group_uuid", "location_uuid", name="idx_location_group_location"
+        ),
+    )
 
-    location_group_location_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
+    location_group_location_uuid = sa.Column(
+        UUID(as_uuid=True), default=uuid.uuid4, primary_key=True
+    )
     location_group_uuid = sa.Column(
         UUID(as_uuid=True),
         sa.ForeignKey("location_groups.location_group_uuid"),
@@ -148,7 +156,9 @@ class LocationSQL(Base, CreatedMixin):
         sa.Integer, index=True, comment="The ID of the location as given by the providing client"
     )
     client_location_name = sa.Column(
-        sa.String(255), index=True, comment="The ID of the location as given by the providing client"
+        sa.String(255),
+        index=True,
+        comment="The ID of the location as given by the providing client",
     )
 
     country = sa.Column(
@@ -203,7 +213,7 @@ class LocationSQL(Base, CreatedMixin):
     )
     location_metadata = sa.Column(
         JSONB,
-        nullable=False,
+        nullable=True,
         comment="Specific properties of the location, "
         "for example for a location, the tilt and orientation of the "
         "solar panels, or for a region, the region name.",
@@ -214,7 +224,9 @@ class LocationSQL(Base, CreatedMixin):
         sa.String(255), comment="The region within the country in which the location is located"
     )
     dno = sa.Column(sa.String(255), comment="The Distribution Node Operator that owns the location")
-    gsp = sa.Column(sa.String(255), comment="The Grid Supply Point in which the location is located")
+    gsp = sa.Column(
+        sa.String(255), comment="The Grid Supply Point in which the location is located"
+    )
     # For metadata `NULL` means "we don't know".
     orientation = sa.Column(
         sa.Float, comment="The rotation of the panel in degrees. 180° points south"
@@ -223,7 +235,9 @@ class LocationSQL(Base, CreatedMixin):
         sa.Float, comment="The tile of the panel in degrees. 90° indicates the panel is vertical"
     )
     inverter_capacity_kw = sa.Column(sa.Float, comment="The inverter capacity of the location")
-    module_capacity_kw = sa.Column(sa.Float, comment="The PV module nameplate capacity of the location")
+    module_capacity_kw = sa.Column(
+        sa.Float, comment="The PV module nameplate capacity of the location"
+    )
 
     # relationships
     forecasts: Mapped[List["ForecastSQL"]] = relationship("ForecastSQL", back_populates="location")
@@ -261,7 +275,9 @@ class LocationHistorySQL(Base, CreatedMixin):
     )
 
     # JSONB column to store the snapshot of the location data
-    location_data = sa.Column(JSONB, nullable=False, comment="A snapshot of the location record as JSONB")
+    location_data = sa.Column(
+        JSONB, nullable=False, comment="A snapshot of the location record as JSONB"
+    )
 
     # Foreign key to track the user who made the change
     changed_by = sa.Column(UUID(as_uuid=True), sa.ForeignKey("users.user_uuid"), nullable=True)
@@ -295,7 +311,9 @@ class GenerationSQL(Base, CreatedMixin):
 
     __tablename__ = "generation"
     __table_args__ = (
-        UniqueConstraint("location_uuid", "start_utc", "end_utc", name="uniq_cons_location_start_end"),
+        UniqueConstraint(
+            "location_uuid", "start_utc", "end_utc", name="uniq_cons_location_start_end"
+        ),
     )
 
     generation_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)

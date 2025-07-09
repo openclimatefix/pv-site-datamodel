@@ -30,6 +30,10 @@ def insert_forecast_values(
     :param ml_model_version: version of the ML model used to generate the forecast
     """
 
+    if "site_uuid" in forecast_meta and "location_uuid" not in forecast_meta:
+        forecast_meta["location_uuid"] = forecast_meta["site_uuid"]
+        forecast_meta.pop("site_uuid")
+
     forecast = ForecastSQL(**forecast_meta)
     session.add(forecast)
 

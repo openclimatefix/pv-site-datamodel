@@ -22,9 +22,11 @@ class TestGetPVGenerationByUser:
         site: LocationSQL = db_session.query(LocationSQL).first()
         site_group = create_site_group(db_session=db_session)
         user = create_user(
-            session=db_session, site_group_name=site_group.site_group_name, email="test@test.com"
+            session=db_session,
+            site_group_name=site_group.location_group_name,
+            email="test@test.com",
         )
-        site_group.sites.append(site)
+        site_group.locations.append(site)
 
         generations = get_pv_generation_by_user_uuids(
             session=db_session, user_uuids=[user.user_uuid]
@@ -37,9 +39,11 @@ class TestGetPVGenerationByUser:
         site: LocationSQL = db_session.query(LocationSQL).first()
         site_group = create_site_group(db_session=db_session)
         user = create_user(
-            session=db_session, site_group_name=site_group.site_group_name, email="test@test.com"
+            session=db_session,
+            site_group_name=site_group.location_group_name,
+            email="test@test.com",
         )
-        site_group.sites.append(site)
+        site_group.locations.append(site)
 
         window_lower: dt.datetime = dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=7)
         window_upper: dt.datetime = dt.datetime.now(dt.timezone.utc) + dt.timedelta(minutes=8)
@@ -61,18 +65,20 @@ class TestGetPVGenerationBySites:
         query: Query = db_session.query(LocationSQL)
         site: LocationSQL = query.first()
 
-        generations = get_pv_generation_by_sites(session=db_session, site_uuids=[site.site_uuid])
+        generations = get_pv_generation_by_sites(
+            session=db_session, site_uuids=[site.location_uuid]
+        )
 
         assert len(generations) == 10
         assert generations[0].start_utc is not None
-        assert generations[0].site is not None
+        assert generations[0].location is not None
 
     def test_gets_generation_for_multiple_input_sites(self, generations, db_session):
         query: Query = db_session.query(LocationSQL)
         sites: List[LocationSQL] = query.all()
 
         generations = get_pv_generation_by_sites(
-            session=db_session, site_uuids=[site.site_uuid for site in sites]
+            session=db_session, site_uuids=[site.location_uuid for site in sites]
         )
 
         assert len(generations) == 10 * len(sites)
@@ -87,7 +93,7 @@ class TestGetPVGenerationBySites:
         sites: List[LocationSQL] = query.all()
 
         generations = get_pv_generation_by_sites(
-            session=db_session, site_uuids=[site.site_uuid for site in sites], sum_by="total"
+            session=db_session, site_uuids=[site.location_uuid for site in sites], sum_by="total"
         )
 
         assert len(generations) == 10
@@ -100,7 +106,7 @@ class TestGetPVGenerationBySites:
         sites: List[LocationSQL] = query.all()
 
         generations = get_pv_generation_by_sites(
-            session=db_session, site_uuids=[site.site_uuid for site in sites], sum_by="gsp"
+            session=db_session, site_uuids=[site.location_uuid for site in sites], sum_by="gsp"
         )
         assert len(generations) == 10 * len(sites)
 
@@ -109,7 +115,7 @@ class TestGetPVGenerationBySites:
         sites: List[LocationSQL] = query.all()
 
         generations = get_pv_generation_by_sites(
-            session=db_session, site_uuids=[site.site_uuid for site in sites], sum_by="dno"
+            session=db_session, site_uuids=[site.location_uuid for site in sites], sum_by="dno"
         )
         assert len(generations) == 10 * len(sites)
 
@@ -119,5 +125,5 @@ class TestGetPVGenerationBySites:
 
         with pytest.raises(ValueError):  # noqa
             _ = get_pv_generation_by_sites(
-                session=db_session, site_uuids=[site.site_uuid for site in sites], sum_by="blah"
+                session=db_session, site_uuids=[site.location_uuid for site in sites], sum_by="blah"
             )

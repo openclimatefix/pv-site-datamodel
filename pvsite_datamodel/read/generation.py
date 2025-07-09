@@ -56,7 +56,7 @@ def get_pv_generation_by_user_uuids(
         query = query.filter(UserSQL.user_uuid.in_(user_uuids))
 
     query = query.order_by(
-        LocationSQL.site_uuid,
+        LocationSQL.location_uuid,
         GenerationSQL.start_utc,
     )
 
@@ -101,12 +101,12 @@ def get_pv_generation_by_sites(
         )
 
     if site_uuids is not None:
-        query = query.filter(LocationSQL.site_uuid.in_(site_uuids))
+        query = query.filter(LocationSQL.location_uuid.in_(site_uuids))
 
-    query = query.order_by(LocationSQL.site_uuid, GenerationSQL.start_utc)
+    query = query.order_by(LocationSQL.location_uuid, GenerationSQL.start_utc)
 
     # make sure this is all loaded
-    query = query.options(contains_eager(GenerationSQL.site)).populate_existing()
+    query = query.options(contains_eager(GenerationSQL.location)).populate_existing()
 
     if sum_by is None:
         # get all results

@@ -8,7 +8,7 @@ from sqlalchemy import func, text
 from sqlalchemy.orm import Session, contains_eager
 
 from pvsite_datamodel.pydantic_models import ForecastValueSum
-from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, MLModelSQL, LocationSQL
+from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, LocationSQL, MLModelSQL
 
 
 def get_latest_forecast_values_by_site(
@@ -75,13 +75,13 @@ def get_latest_forecast_values_by_site(
     query = (
         session.query(ForecastValueSQL)
         .distinct(
-            ForecastSQL.site_uuid,
+            ForecastSQL.location_uuid,
             ForecastValueSQL.start_utc,
         )
         .join(ForecastSQL)
         .filter(
             ForecastValueSQL.start_utc >= start_utc,
-            ForecastSQL.site_uuid.in_(site_uuids),
+            ForecastSQL.location_uuid.in_(site_uuids),
         )
     )
 
@@ -132,7 +132,7 @@ def get_latest_forecast_values_by_site(
     query = query.options(contains_eager(ForecastValueSQL.forecast)).populate_existing()
 
     query = query.order_by(
-        ForecastSQL.site_uuid,
+        ForecastSQL.location_uuid,
         ForecastValueSQL.start_utc,
         ForecastSQL.timestamp_utc.desc(),
         ForecastSQL.created_utc.desc(),
@@ -146,7 +146,7 @@ def get_latest_forecast_values_by_site(
 
         for site_uuid in site_uuids:
             site_latest_forecast_values: list[ForecastValueSQL] = [
-                fv for fv in forecast_values if fv.forecast.site_uuid == site_uuid
+                fv for fv in forecast_values if fv.forecast.location_uuid == site_uuid
             ]
 
             output_dict[site_uuid] = site_latest_forecast_values

@@ -41,7 +41,7 @@ def insert_generation_values(
 
         # Create a GenerationSQL object for each generation, and surface as dict
         generation = GenerationSQL(
-            site_uuid=site_uuid,
+            location_uuid=site_uuid,
             generation_power_kw=power_kw,
             start_utc=start_utc,
             # TODO This is arbitrary and should be fixed

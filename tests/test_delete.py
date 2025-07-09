@@ -19,28 +19,32 @@ def test_delete_site(db_session):
 
     # history table should contain a single entry
     hist_size = (
-        db_session.query(LocationHistorySQL).filter(LocationHistorySQL.operation_type == "INSERT").count()
+        db_session.query(LocationHistorySQL)
+        .filter(LocationHistorySQL.operation_type == "INSERT")
+        .count()
     )
     assert hist_size == 1
 
     # todo add site to site group
 
     site_group = create_site_group(db_session=db_session, site_group_name="test_site_group")
-    site_group.sites.append(site_1)
+    site_group.locations.append(site_1)
 
-    site_uuid = site_1.site_uuid
+    site_uuid = site_1.location_uuid
 
     message = delete_site(session=db_session, site_uuid=site_uuid)
 
-    site = db_session.query(LocationSQL).filter(LocationSQL.site_uuid == site_uuid).first()
+    site = db_session.query(LocationSQL).filter(LocationSQL.location_uuid == site_uuid).first()
 
     assert site is None
-    assert message == f"Site with site uuid {site_uuid} deleted successfully"
+    assert message == f"Location with location uuid {site_uuid} deleted successfully"
 
     deleted_site = (
-        db_session.query(LocationHistorySQL).filter(LocationHistorySQL.operation_type == "DELETE").first()
+        db_session.query(LocationHistorySQL)
+        .filter(LocationHistorySQL.operation_type == "DELETE")
+        .first()
     )
-    assert deleted_site.site_uuid == site_uuid
+    assert deleted_site.location_uuid == site_uuid
 
 
 def test_delete_user(db_session):
@@ -51,7 +55,7 @@ def test_delete_user(db_session):
     user_1 = create_user(
         session=db_session,
         email="test_user@ocf.org",
-        site_group_name=site_group_1.site_group_name,
+        site_group_name=site_group_1.location_group_name,
     )
 
     message = delete_user(session=db_session, email=user_1.email)
@@ -60,7 +64,7 @@ def test_delete_user(db_session):
 
     assert (
         message == f"User with email {user_1.email} and "
-        f"site_group_uuid {user_1.site_group_uuid} deleted successfully"
+        f"location_group_uuid {user_1.location_group_uuid} deleted successfully"
     )
     assert user is None
 
@@ -68,11 +72,11 @@ def test_delete_user(db_session):
 def test_delete_site_group(db_session):
     site_group = create_site_group(db_session=db_session, site_group_name="test_site_group")
 
-    message = delete_site_group(session=db_session, site_group_name=site_group.site_group_name)
+    message = delete_site_group(session=db_session, site_group_name=site_group.location_group_name)
 
     assert (
-        message == f"Site group with name {site_group.site_group_name} and "
-        f"site group uuid {site_group.site_group_uuid} deleted successfully."
+        message == f"Location group with name {site_group.location_group_name} and "
+        f"location group uuid {site_group.location_group_uuid} deleted successfully."
     )
 
 
@@ -84,12 +88,14 @@ def test_delete_site_group_with_users(db_session):
     _ = create_user(
         session=db_session,
         email="test_user@gmail.com",
-        site_group_name=site_group_1.site_group_name,
+        site_group_name=site_group_1.location_group_name,
     )
 
-    message = delete_site_group(session=db_session, site_group_name=site_group_1.site_group_name)
+    message = delete_site_group(
+        session=db_session, site_group_name=site_group_1.location_group_name
+    )
 
     assert (
-        message == f"Site group with name {site_group_1.site_group_name} and "
-        f"site group uuid {site_group_1.site_group_uuid} has users and cannot be deleted."
+        message == f"Location group with name {site_group_1.location_group_name} and "
+        f"location group uuid {site_group_1.location_group_uuid} has users and cannot be deleted."
     )

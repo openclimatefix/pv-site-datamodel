@@ -6,7 +6,13 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 
 from pvsite_datamodel.pydantic_models import LatitudeLongitudeLimits
-from pvsite_datamodel.sqlmodels import ClientSQL, LocationGroupLocationSQL, LocationGroupSQL, LocationSQL, UserSQL
+from pvsite_datamodel.sqlmodels import (
+    ClientSQL,
+    LocationGroupLocationSQL,
+    LocationGroupSQL,
+    LocationSQL,
+    UserSQL,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -20,15 +26,17 @@ def get_site_by_uuid(session: Session, site_uuid: str) -> LocationSQL:
     :return: the site object
     """
     query = session.query(LocationSQL)
-    query = query.filter(LocationSQL.site_uuid == site_uuid)
+    query = query.filter(LocationSQL.location_uuid == site_uuid)
     existing_site: Optional[LocationSQL] = query.first()
     if existing_site is None:
-        raise KeyError(f"Site uuid {site_uuid} not found in sites table")
+        raise KeyError(f"Location uuid {site_uuid} not found in locations table")
 
     return existing_site
 
 
-def get_site_by_client_site_id(session: Session, client_name: str, client_site_id: int) -> LocationSQL:
+def get_site_by_client_site_id(
+    session: Session, client_name: str, client_site_id: int
+) -> LocationSQL:
     """Get site from client name and client site id.
 
     :param session: database sessions
@@ -42,16 +50,16 @@ def get_site_by_client_site_id(session: Session, client_name: str, client_site_i
     query = session.query(LocationSQL)
 
     # start main query
-    query = query.filter(LocationSQL.client_site_name == client_name)
+    query = query.filter(LocationSQL.client_location_name == client_name)
 
     # select the correct client site id
-    query = query.filter(LocationSQL.client_site_id == client_site_id)
+    query = query.filter(LocationSQL.client_location_id == client_site_id)
 
     # get first result (should only be one site)
     site: Optional[LocationSQL] = query.first()
 
     if site is None:
-        raise KeyError(f"Could not find site {client_site_id} from client {client_name}")
+        raise KeyError(f"Could not find location {client_site_id} from client {client_name}")
 
     return site
 
@@ -72,7 +80,7 @@ def get_site_by_client_site_name(
     query = session.query(LocationSQL)
 
     # select the correct client site name
-    query = query.filter(LocationSQL.client_site_name == client_site_name)
+    query = query.filter(LocationSQL.client_location_name == client_site_name)
 
     # get first result (should only be one site)
     site: Optional[LocationSQL] = query.first()
@@ -95,7 +103,7 @@ def get_all_sites(session: Session) -> List[LocationSQL]:
     query = session.query(LocationSQL)
 
     # order by uuuid
-    query = query.order_by(LocationSQL.site_uuid)
+    query = query.order_by(LocationSQL.location_uuid)
 
     # get all results
     sites = query.all()
@@ -128,10 +136,10 @@ def get_sites_by_country(
     # We could make a new Client table and join it with sites
     # https://github.com/openclimatefix/pv-site-datamodel/issues/148
     if client_name is not None:
-        query = query.filter(LocationSQL.client_site_name.like(f"%{client_name}%"))
+        query = query.filter(LocationSQL.client_location_name.like(f"%{client_name}%"))
 
     # order by uuuid
-    query = query.order_by(LocationSQL.site_uuid)
+    query = query.order_by(LocationSQL.location_uuid)
 
     # get all results
     sites = query.all()
@@ -168,7 +176,7 @@ def get_sites_from_user(session, user, lat_lon_limits: Optional[LatitudeLongitud
         sites = query.all()
 
     else:
-        sites = user.site_group.sites
+        sites = user.location_group.locations
     return sites
 
 
@@ -188,7 +196,7 @@ def get_sites_by_client_name(session: Session, client_name: str) -> List[Locatio
     query = query.join(ClientSQL)
 
     # order by uuuid
-    query = query.order_by(LocationSQL.site_uuid)
+    query = query.order_by(LocationSQL.location_uuid)
 
     # select the sites related to the client name
     query = query.filter(ClientSQL.client_name == client_name)
@@ -197,6 +205,6 @@ def get_sites_by_client_name(session: Session, client_name: str) -> List[Locatio
     sites: Optional[List[LocationSQL]] = query.all()
 
     if len(sites) == 0:
-        raise Exception(f"Could not find sites from client {client_name}")
+        raise Exception(f"Could not find locations from client {client_name}")
 
     return sites

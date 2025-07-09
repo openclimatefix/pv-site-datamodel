@@ -53,13 +53,15 @@ def assign_site_to_client(session: Session, site_uuid: str, client_name: str) ->
 
     client = session.query(ClientSQL).filter(ClientSQL.client_name == client_name).first()
 
-    site = session.query(LocationSQL).filter(LocationSQL.site_uuid == site_uuid).first()
+    site = session.query(LocationSQL).filter(LocationSQL.location_uuid == site_uuid).first()
 
     site.client_uuid = client.client_uuid
 
     session.add(site)
     session.commit()
 
-    message = f"Site with site uuid {site_uuid} successfully assigned to the client {client_name}"
+    message = (
+        f"Site with location uuid {site_uuid} successfully assigned to the client {client_name}"
+    )
 
     return message

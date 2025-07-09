@@ -28,13 +28,13 @@ def test_create_new_site(db_session):
         capacity_kw=1.0,
     )
 
-    assert site.client_site_name == "test_site_name"
+    assert site.client_location_name == "test_site_name"
     assert site.ml_id == 1
-    assert site.client_site_id == 6932
+    assert site.client_location_id == 6932
     assert site.country == "uk"
     assert (
-        message == f"Site with client site id {site.client_site_id} "
-        f"and site uuid {site.site_uuid} created successfully"
+        message == f"Site with client location id {site.client_location_id} "
+        f"and location uuid {site.location_uuid} created successfully"
     )
 
 
@@ -53,10 +53,12 @@ def test_create_new_site_with_user(db_session):
 
     # after creating there should be an entry in the history table
     h_site = (
-        db_session.query(LocationHistorySQL).filter(LocationHistorySQL.operation_type == "INSERT").first()
+        db_session.query(LocationHistorySQL)
+        .filter(LocationHistorySQL.operation_type == "INSERT")
+        .first()
     )
 
-    assert h_site.site_uuid == site.site_uuid
+    assert h_site.location_uuid == site.location_uuid
     assert h_site.changed_by == user.user_uuid
 
     # create site without setting user
@@ -71,7 +73,7 @@ def test_create_new_site_with_user(db_session):
 
     h_site_2 = (
         db_session.query(LocationHistorySQL)
-        .filter(LocationHistorySQL.site_uuid == site_2.site_uuid)
+        .filter(LocationHistorySQL.location_uuid == site_2.location_uuid)
         .first()
     )
 
@@ -92,8 +94,8 @@ def test_create_new_site_in_specified_country(db_session):
 
     assert site.country == "india"
     assert (
-        message == f"Site with client site id {site.client_site_id} "
-        f"and site uuid {site.site_uuid} created successfully"
+        message == f"Site with client location id {site.client_location_id} "
+        f"and location uuid {site.location_uuid} created successfully"
     )
 
 
@@ -116,7 +118,7 @@ def test_edit_site(db_session):
     user = get_user_by_email(session=db_session, email="test@test.com")
     site, _ = edit_site(
         session=db_session,
-        site_uuid=str(site.site_uuid),
+        site_uuid=str(site.location_uuid),
         site_info=metadata_to_update,
         user_uuid=user.user_uuid,
     )
@@ -129,10 +131,12 @@ def test_edit_site(db_session):
     hist_size = db_session.query(LocationHistorySQL).count()
     assert hist_size == 2
     h_site = (
-        db_session.query(LocationHistorySQL).filter(LocationHistorySQL.operation_type == "UPDATE").first()
+        db_session.query(LocationHistorySQL)
+        .filter(LocationHistorySQL.operation_type == "UPDATE")
+        .first()
     )
 
-    assert h_site.site_uuid == site.site_uuid
+    assert h_site.location_uuid == site.location_uuid
     assert h_site.changed_by == user.user_uuid
 
 
@@ -140,11 +144,11 @@ def test_assign_model_name_to_site(db_session):
     """Test to assign a model name to a site"""
     site = make_fake_site(db_session=db_session)
 
-    assign_model_name_to_site(db_session, site.site_uuid, "test_model")
+    assign_model_name_to_site(db_session, site.location_uuid, "test_model")
 
     assert site.ml_model.name == "test_model"
 
-    assign_model_name_to_site(db_session, site.site_uuid, "test_model_2")
+    assign_model_name_to_site(db_session, site.location_uuid, "test_model_2")
 
     assert site.ml_model.name == "test_model_2"
 
@@ -154,7 +158,7 @@ def test_assign_model_to_nonexistent_site(db_session):
     nonexistent_site_uuid = str(uuid.uuid4())
 
     with pytest.raises(
-        KeyError, match=f"Site uuid {nonexistent_site_uuid} not found in sites table"
+        KeyError, match=f"Location uuid {nonexistent_site_uuid} not found in locations table"
     ):
         assign_model_name_to_site(db_session, nonexistent_site_uuid, "test_model")
 
@@ -165,16 +169,16 @@ def test_add_site_to_site_group(db_session):
     site_1 = make_fake_site(db_session=db_session, ml_id=1)
     site_2 = make_fake_site(db_session=db_session, ml_id=2)
     site_3 = make_fake_site(db_session=db_session, ml_id=3)
-    site_group.sites.append(site_1)
-    site_group.sites.append(site_2)
+    site_group.locations.append(site_1)
+    site_group.locations.append(site_2)
 
     add_site_to_site_group(
         session=db_session,
-        site_uuid=str(site_3.site_uuid),
-        site_group_name=site_group.site_group_name,
+        site_uuid=str(site_3.location_uuid),
+        site_group_name=site_group.location_group_name,
     )
 
-    assert len(site_group.sites) == 3
+    assert len(site_group.locations) == 3
 
 
 def test_remove_site_from_site_group(db_session):
@@ -182,24 +186,24 @@ def test_remove_site_from_site_group(db_session):
     site_1 = make_fake_site(db_session=db_session, ml_id=1)
     site_2 = make_fake_site(db_session=db_session, ml_id=2)
     site_3 = make_fake_site(db_session=db_session, ml_id=3)
-    site_group.sites.append(site_1)
-    site_group.sites.append(site_2)
+    site_group.locations.append(site_1)
+    site_group.locations.append(site_2)
 
     add_site_to_site_group(
         session=db_session,
-        site_uuid=str(site_3.site_uuid),
-        site_group_name=site_group.site_group_name,
+        site_uuid=str(site_3.location_uuid),
+        site_group_name=site_group.location_group_name,
     )
 
-    assert len(site_group.sites) == 3
+    assert len(site_group.locations) == 3
 
     remove_site_from_site_group(
         session=db_session,
-        site_uuid=str(site_2.site_uuid),
-        site_group_name=site_group.site_group_name,
+        site_uuid=str(site_2.location_uuid),
+        site_group_name=site_group.location_group_name,
     )
 
-    assert len(site_group.sites) == 2
+    assert len(site_group.locations) == 2
 
 
 # test for create_new_site to check ml_id increments
@@ -248,7 +252,7 @@ def test_set_to_inactive_if_not_in_site_group(db_session):
 
     set_site_to_inactive_if_not_in_site_group(
         session=db_session,
-        site_uuid=str(site.site_uuid),
+        site_uuid=str(site.location_uuid),
         user_uuid=str(user.user_uuid),
     )
 
@@ -259,12 +263,12 @@ def test_set_to_inactive_if_in_two_site_group(db_session):
     """Test site is not set to inactive if user is in two site groups"""
     site_group_1 = create_site_group(db_session=db_session)
     site = make_fake_site(db_session=db_session, ml_id=1)
-    site_group_1.sites.append(site)
+    site_group_1.locations.append(site)
     user = get_user_by_email(session=db_session, email="test@test.com")
 
     set_site_to_inactive_if_not_in_site_group(
         session=db_session,
-        site_uuid=str(site.site_uuid),
+        site_uuid=str(site.location_uuid),
         user_uuid=str(user.user_uuid),
     )
 
@@ -275,12 +279,12 @@ def test_set_to_inactive_if_in_two_site_group_but_ocf(db_session):
     """Test site is set to inactive if user is in two site groups but one group is OCF"""
     site_group_1 = create_site_group(db_session=db_session, site_group_name="ocf")
     site = make_fake_site(db_session=db_session, ml_id=1)
-    site_group_1.sites.append(site)
+    site_group_1.locations.append(site)
     user = get_user_by_email(session=db_session, email="test@test.com")
 
     set_site_to_inactive_if_not_in_site_group(
         session=db_session,
-        site_uuid=str(site.site_uuid),
+        site_uuid=str(site.location_uuid),
         user_uuid=str(user.user_uuid),
     )
 

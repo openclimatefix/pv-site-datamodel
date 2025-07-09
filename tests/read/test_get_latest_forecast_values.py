@@ -38,7 +38,9 @@ def _add_forecast_value(
 
 
 def test_get_latest_forecast_values(db_session, sites):
-    site_uuids = [site.site_uuid for site in db_session.query(LocationSQL.site_uuid).limit(2)]
+    site_uuids = [
+        site.location_uuid for site in db_session.query(LocationSQL.location_uuid).limit(2)
+    ]
 
     s1, s2 = site_uuids
 
@@ -46,17 +48,17 @@ def test_get_latest_forecast_values(db_session, sites):
 
     # Make sure we have some forecasts in the DB
     s1_f1 = ForecastSQL(
-        site_uuid=s1,
+        location_uuid=s1,
         forecast_version=forecast_version,
         timestamp_utc=dt.datetime(2000, 1, 1),
     )
     s1_f2 = ForecastSQL(
-        site_uuid=s1,
+        location_uuid=s1,
         forecast_version=forecast_version,
         timestamp_utc=dt.datetime(2000, 1, 1, 0, 10),
     )
     s2_f1 = ForecastSQL(
-        site_uuid=s2,
+        location_uuid=s2,
         forecast_version=forecast_version,
         timestamp_utc=dt.datetime(2000, 1, 1),
     )
@@ -141,7 +143,9 @@ def test_get_latest_forecast_values(db_session, sites):
 
 def test_get_latest_forecast_values_with_end_utc(db_session, sites):
     # ****** setup ******
-    site_uuids = [site.site_uuid for site in db_session.query(LocationSQL.site_uuid).limit(2)]
+    site_uuids = [
+        site.location_uuid for site in db_session.query(LocationSQL.location_uuid).limit(2)
+    ]
 
     s1, s2 = site_uuids
 
@@ -149,17 +153,17 @@ def test_get_latest_forecast_values_with_end_utc(db_session, sites):
 
     # Make sure we have some forecasts in the DB
     s1_f1 = ForecastSQL(
-        site_uuid=s1,
+        location_uuid=s1,
         forecast_version=forecast_version,
         timestamp_utc=dt.datetime(2000, 1, 1),
     )
     s1_f2 = ForecastSQL(
-        site_uuid=s1,
+        location_uuid=s1,
         forecast_version=forecast_version,
         timestamp_utc=dt.datetime(2000, 1, 1, 0, 10),
     )
     s2_f1 = ForecastSQL(
-        site_uuid=s2,
+        location_uuid=s2,
         forecast_version=forecast_version,
         timestamp_utc=dt.datetime(2000, 1, 1),
     )
@@ -209,7 +213,9 @@ def test_get_latest_forecast_values_with_end_utc(db_session, sites):
 
 def test_get_latest_forecast_values_day_head(db_session, sites):
     """Test to get DA forecasts"""
-    site_uuids = [site.site_uuid for site in db_session.query(LocationSQL.site_uuid).limit(2)]
+    site_uuids = [
+        site.location_uuid for site in db_session.query(LocationSQL.location_uuid).limit(2)
+    ]
 
     s1, s2 = site_uuids
 
@@ -217,12 +223,12 @@ def test_get_latest_forecast_values_day_head(db_session, sites):
 
     # Make sure we have some forecasts in the DB
     s1_f1 = ForecastSQL(
-        site_uuid=s1,
+        location_uuid=s1,
         forecast_version=forecast_version,
         timestamp_utc=dt.datetime(2000, 1, 1),
     )
     s1_f2 = ForecastSQL(
-        site_uuid=s1,
+        location_uuid=s1,
         forecast_version=forecast_version,
         timestamp_utc=dt.datetime(2000, 1, 1, 0, 10),
     )
@@ -266,7 +272,9 @@ def test_get_latest_forecast_values_day_head(db_session, sites):
 
 def test_get_latest_forecast_values_day_head_with_timezone(db_session, sites):
     """Test to get DA forecasts in a different timezone"""
-    site_uuids = [site.site_uuid for site in db_session.query(LocationSQL.site_uuid).limit(2)]
+    site_uuids = [
+        site.location_uuid for site in db_session.query(LocationSQL.location_uuid).limit(2)
+    ]
 
     s1, s2 = site_uuids
 
@@ -274,12 +282,12 @@ def test_get_latest_forecast_values_day_head_with_timezone(db_session, sites):
 
     # Make sure we have some forecasts in the DB
     s1_f1 = ForecastSQL(
-        site_uuid=s1,
+        location_uuid=s1,
         forecast_version=forecast_version,
         timestamp_utc=dt.datetime(2000, 1, 1),
     )
     s1_f2 = ForecastSQL(
-        site_uuid=s1,
+        location_uuid=s1,
         forecast_version=forecast_version,
         timestamp_utc=dt.datetime(2000, 1, 1, 0, 10),
     )
@@ -326,13 +334,15 @@ def test_get_latest_forecast_values_day_head_with_timezone(db_session, sites):
 
 
 def test_get_latest_forecast_values_model_name(db_session, sites):
-    site_uuids = [site.site_uuid for site in db_session.query(LocationSQL.site_uuid).limit(2)]
+    site_uuids = [
+        site.location_uuid for site in db_session.query(LocationSQL.location_uuid).limit(2)
+    ]
 
     s1, s2 = site_uuids
 
     # Make sure we have some forecasts in the DB
     s1_f1 = ForecastSQL(
-        site_uuid=s1,
+        location_uuid=s1,
         forecast_version="123",
         timestamp_utc=dt.datetime(2000, 1, 1),
     )
@@ -373,19 +383,21 @@ def test_get_latest_forecast_values_model_name(db_session, sites):
 
 def test_get_latest_forecast_values_probabilistic_value_limit2(db_session, sites):
     # Retrieve two sites for testing (limit(2))
-    site_uuids = [site.site_uuid for site in db_session.query(LocationSQL.site_uuid).limit(2)]
+    site_uuids = [
+        site.location_uuid for site in db_session.query(LocationSQL.location_uuid).limit(2)
+    ]
     site1, site2 = site_uuids
 
     forecast_version = "123"
 
     # Create a forecast for each site
     forecast1 = ForecastSQL(
-        site_uuid=site1,
+        location_uuid=site1,
         forecast_version=forecast_version,
         timestamp_utc=dt.datetime(2000, 1, 1),
     )
     forecast2 = ForecastSQL(
-        site_uuid=site2,
+        location_uuid=site2,
         forecast_version=forecast_version,
         timestamp_utc=dt.datetime(2000, 1, 1),
     )

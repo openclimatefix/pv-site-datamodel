@@ -34,7 +34,9 @@ def test_get_latest_forecasts(db_session, engine, sites, forecast_valid_site):
       ON fv.forecast_uuid = f.forecast_uuid
     """
     # Get some sites.
-    site_uuids = [site.site_uuid for site in db_session.query(LocationSQL.site_uuid).limit(2)]
+    site_uuids = [
+        site.location_uuid for site in db_session.query(LocationSQL.location_uuid).limit(2)
+    ]
 
     s1, s2 = site_uuids
 
@@ -42,17 +44,17 @@ def test_get_latest_forecasts(db_session, engine, sites, forecast_valid_site):
 
     # Make sure we have some forecasts in the DB
     s1_f1 = ForecastSQL(
-        site_uuid=s1,
+        location_uuid=s1,
         forecast_version=forecast_version,
         timestamp_utc=dt.datetime(2000, 1, 1),
     )
     s1_f2 = ForecastSQL(
-        site_uuid=s1,
+        location_uuid=s1,
         forecast_version=forecast_version,
         timestamp_utc=dt.datetime(2000, 1, 2),
     )
     s2_f1 = ForecastSQL(
-        site_uuid=s2,
+        location_uuid=s2,
         forecast_version=forecast_version,
         timestamp_utc=dt.datetime(2000, 1, 1),
     )
@@ -77,10 +79,10 @@ def test_get_latest_forecasts(db_session, engine, sites, forecast_valid_site):
     # Subquery for the forecasts.
     subquery = (
         db_session.query(ForecastSQL)
-        .distinct(ForecastSQL.site_uuid)
-        .filter(ForecastSQL.site_uuid.in_(site_uuids))
+        .distinct(ForecastSQL.location_uuid)
+        .filter(ForecastSQL.location_uuid.in_(site_uuids))
         .order_by(
-            ForecastSQL.site_uuid,
+            ForecastSQL.location_uuid,
             ForecastSQL.timestamp_utc.desc(),
         )
     )

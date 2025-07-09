@@ -34,7 +34,9 @@ def get_user_by_email(session: Session, email: str, make_new_user_if_none: bool 
         # make a new user
         stmt = postgresql.insert(UserSQL.__table__)
         stmt = stmt.on_conflict_do_nothing()
-        session.execute(stmt, [{"site_group_uuid": site_group.site_group_uuid, "email": email}])
+        session.execute(
+            stmt, [{"location_group_uuid": site_group.location_group_uuid, "email": email}]
+        )
 
         # get a new user
         user = session.query(UserSQL).filter(UserSQL.email == email).first()
@@ -68,7 +70,9 @@ def get_site_group_by_name(session: Session, site_group_name: str, create_if_non
     """
 
     site_group = (
-        session.query(LocationGroupSQL).filter(LocationGroupSQL.site_group_name == site_group_name).first()
+        session.query(LocationGroupSQL)
+        .filter(LocationGroupSQL.location_group_name == site_group_name)
+        .first()
     )
 
     if (site_group is None) and (create_if_none is True):
@@ -76,11 +80,11 @@ def get_site_group_by_name(session: Session, site_group_name: str, create_if_non
 
         stmt = postgresql.insert(LocationGroupSQL.__table__)
         stmt = stmt.on_conflict_do_nothing()
-        session.execute(stmt, [{"site_group_name": site_group_name}])
+        session.execute(stmt, [{"location_group_name": site_group_name}])
 
         site_group = (
             session.query(LocationGroupSQL)
-            .filter(LocationGroupSQL.site_group_name == site_group_name)
+            .filter(LocationGroupSQL.location_group_name == site_group_name)
             .first()
         )
 
@@ -96,7 +100,7 @@ def get_all_site_groups(session: Session) -> List[LocationGroupSQL]:
     """
     query = session.query(LocationGroupSQL)
 
-    query = query.order_by(LocationGroupSQL.site_group_name.asc())
+    query = query.order_by(LocationGroupSQL.location_group_name.asc())
 
     site_groups = query.all()
 
