@@ -34,12 +34,11 @@ class LatitudeLongitudeLimits(BaseModel):
 
 class PVSiteEditMetadata(BaseModel):
     """Site metadata when editing a site."""
-
-    client_site_id: Optional[int] = Field(
+    client_location_id: Optional[int] = Field(
         None,
         description="The site ID as given by the providing user.",
     )
-    client_site_name: Optional[str] = Field(
+    client_location_name: Optional[str] = Field(
         None,
         description="The name of the site as given by the providing user.",
     )
