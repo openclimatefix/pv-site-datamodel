@@ -508,13 +508,8 @@ def add_child_location_to_parent_location(
     child_location = get_site_by_uuid(session=session, site_uuid=child_location_uuid)
     parent_location = get_site_by_uuid(session=session, site_uuid=parent_location_uuid)
 
-    # if child_location not in parent_location.child_locations:
-    #     child_location.parent_locations.append(parent_location)
-    #     # parent_location.child_locations.append(child_location)
-    #
-    assert child_location.location_uuid is not None
-    assert parent_location.location_uuid is not None
     if parent_location not in child_location.parent_locations:
         parent_location.child_locations.append(child_location)
+        # note this also adds the parent to the child_location.parent_locations
 
     session.commit()

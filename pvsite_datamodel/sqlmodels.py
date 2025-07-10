@@ -124,8 +124,9 @@ class LocationGroupLocationSQL(Base, CreatedMixin):
 class LocationLocationSQL(Base, CreatedMixin):
     """Class representing the location_locations table.
 
-    Each location_to_location row specifies a single location in a location. We want to to be able to
-    attaches multiple sites to several regions. E.g. pv solar sites in a GSP region, and a NG region.
+    Each location_to_location row specifies a single location in a location.
+    We want to to be able to attaches multiple sites to several regions.
+    E.g. pv solar sites in a GSP region, and a National Grid region.
     """
 
     __tablename__ = "location_locations"
