@@ -494,3 +494,27 @@ def set_session_user(session: Session, user_uuid: str):
         session.execute(text(f"SET pvsite_datamodel.current_user_uuid = '{user_uuid}'"))
     else:
         session.execute(text("RESET pvsite_datamodel.current_user_uuid"))
+
+
+def add_child_location_to_parent_location(
+    session: Session, child_location_uuid: str, parent_location_uuid: str
+) -> None:
+    """Add a child location to a parent location.
+
+    :param session: database session
+    :param child_location_uuid: the UUID of the child location
+    :param parent_location_uuid: the UUID of the parent location
+    """
+    child_location = get_site_by_uuid(session=session, site_uuid=child_location_uuid)
+    parent_location = get_site_by_uuid(session=session, site_uuid=parent_location_uuid)
+
+    # if child_location not in parent_location.child_locations:
+    #     child_location.parent_locations.append(parent_location)
+    #     # parent_location.child_locations.append(child_location)
+    #
+    assert child_location.location_uuid is not None
+    assert parent_location.location_uuid is not None
+    if parent_location not in child_location.parent_locations:
+        parent_location.child_locations.append(child_location)
+
+    session.commit()

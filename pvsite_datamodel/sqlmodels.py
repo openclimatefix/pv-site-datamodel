@@ -121,6 +121,37 @@ class LocationGroupLocationSQL(Base, CreatedMixin):
     )
 
 
+class LocationLocationSQL(Base, CreatedMixin):
+    """Class representing the location_locations table.
+
+    Each location_to_location row specifies a single location in a location. We want to to be able to
+    attaches multiple sites to several regions. E.g. pv solar sites in a GSP region, and a NG region.
+    """
+
+    __tablename__ = "location_locations"
+    __table_args__ = (
+        UniqueConstraint(
+            "location_child_uuid", "location_parent_uuid", name="idx_location_location"
+        ),
+    )
+
+    location_location_uuid = sa.Column(
+        UUID(as_uuid=True), default=uuid.uuid4, primary_key=True
+    )
+    location_parent_uuid = sa.Column(
+        UUID(as_uuid=True),
+        sa.ForeignKey("locations.location_uuid"),
+        nullable=False,
+        comment="The foreign key to the locations table",
+    )
+    location_child_uuid = sa.Column(
+        UUID(as_uuid=True),
+        sa.ForeignKey("locations.location_uuid"),
+        nullable=False,
+        comment="The foreign key to the locations table",
+    )
+
+
 class LocationAssetType(enum.Enum):
     """Enum type representing a location's asset type."""
 
@@ -149,9 +180,7 @@ class LocationSQL(Base, CreatedMixin):
 
     __tablename__ = "locations"
 
-    # TODO change this to location_uuid in future release
     location_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    # TODO change this to client_location_id in future release
     client_location_id = sa.Column(
         sa.Integer, index=True, comment="The ID of the location as given by the providing client"
     )
@@ -252,8 +281,14 @@ class LocationSQL(Base, CreatedMixin):
     ml_model: Mapped[Optional[MLModelSQL]] = relationship("MLModelSQL", back_populates="locations")
 
     # n:n mapping to reference back to locations.
-    # This means many location can be part of a many different region.
-    # TODO
+    # This means many site can be part of a many different regions.
+    child_locations: Mapped[List["LocationSQL"]] = relationship(
+        "LocationSQL",
+        secondary="location_locations",
+        primaryjoin='LocationSQL.location_uuid == LocationLocationSQL.location_child_uuid',
+        secondaryjoin='LocationSQL.location_uuid == LocationLocationSQL.location_parent_uuid',
+        backref = 'parent_locations',
+    )
 
 
 class LocationHistorySQL(Base, CreatedMixin):
