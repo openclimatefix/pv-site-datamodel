@@ -6,6 +6,7 @@ from pvsite_datamodel.pydantic_models import PVSiteEditMetadata
 from pvsite_datamodel.read.user import get_user_by_email
 from pvsite_datamodel.sqlmodels import LocationHistorySQL
 from pvsite_datamodel.write.user_and_site import (
+    add_child_location_to_parent_location,
     add_site_to_site_group,
     assign_model_name_to_site,
     create_site,
@@ -14,7 +15,6 @@ from pvsite_datamodel.write.user_and_site import (
     make_fake_site,
     remove_site_from_site_group,
     set_site_to_inactive_if_not_in_site_group,
-    add_child_location_to_parent_location,
 )
 
 
