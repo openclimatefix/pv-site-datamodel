@@ -158,6 +158,7 @@ def get_api_requests_for_one_user(
     """
 
     query = session.query(APIRequestSQL)
+    query = query.join(UserSQL).filter(UserSQL.email == email)
 
     if include_in_url is not None:
         query = query.filter(APIRequestSQL.url.like(f"%{include_in_url}%"))
