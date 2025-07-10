@@ -14,7 +14,7 @@ from pvsite_datamodel.write.user_and_site import (
     make_fake_site,
     remove_site_from_site_group,
     set_site_to_inactive_if_not_in_site_group,
-    add_child_location_to_parent_location
+    add_child_location_to_parent_location,
 )
 
 
@@ -301,14 +301,17 @@ def test_add_single_child_location_to_parent_location(db_session):
     assert len(location_parent.child_locations) == 0
     assert len(location_parent.parent_locations) == 0
 
-    add_child_location_to_parent_location(session=db_session,
-                                          child_location_uuid=location_child.location_uuid,
-                                          parent_location_uuid=location_parent.location_uuid)
+    add_child_location_to_parent_location(
+        session=db_session,
+        child_location_uuid=location_child.location_uuid,
+        parent_location_uuid=location_parent.location_uuid,
+    )
 
     assert len(location_child.child_locations) == 0
     assert len(location_child.parent_locations) == 1
     assert len(location_parent.child_locations) == 1
     assert len(location_parent.parent_locations) == 0
+
 
 def test_add_multiple_child_location_to_parent_location(db_session):
     location_child_1 = make_fake_site(db_session=db_session, ml_id=1)
@@ -326,9 +329,11 @@ def test_add_multiple_child_location_to_parent_location(db_session):
     assert len(location_parent_2.parent_locations) == 0
 
     # add child 1 to parent 1
-    add_child_location_to_parent_location(session=db_session,
-                                          child_location_uuid=location_child_1.location_uuid,
-                                          parent_location_uuid=location_parent_1.location_uuid)
+    add_child_location_to_parent_location(
+        session=db_session,
+        child_location_uuid=location_child_1.location_uuid,
+        parent_location_uuid=location_parent_1.location_uuid,
+    )
 
     assert len(location_child_1.child_locations) == 0
     assert len(location_child_1.parent_locations) == 1
@@ -340,9 +345,11 @@ def test_add_multiple_child_location_to_parent_location(db_session):
     assert len(location_parent_2.parent_locations) == 0
 
     # add child 2 to parent 1
-    add_child_location_to_parent_location(session=db_session,
-                                          child_location_uuid=location_child_2.location_uuid,
-                                          parent_location_uuid=location_parent_1.location_uuid)
+    add_child_location_to_parent_location(
+        session=db_session,
+        child_location_uuid=location_child_2.location_uuid,
+        parent_location_uuid=location_parent_1.location_uuid,
+    )
 
     assert len(location_child_1.child_locations) == 0
     assert len(location_child_1.parent_locations) == 1
@@ -354,9 +361,11 @@ def test_add_multiple_child_location_to_parent_location(db_session):
     assert len(location_parent_2.parent_locations) == 0
 
     # add child 1 to parent 2
-    add_child_location_to_parent_location(session=db_session,
-                                          child_location_uuid=location_child_1.location_uuid,
-                                          parent_location_uuid=location_parent_2.location_uuid)
+    add_child_location_to_parent_location(
+        session=db_session,
+        child_location_uuid=location_child_1.location_uuid,
+        parent_location_uuid=location_parent_2.location_uuid,
+    )
 
     assert len(location_child_1.child_locations) == 0
     assert len(location_child_1.parent_locations) == 2

@@ -136,9 +136,7 @@ class LocationLocationSQL(Base, CreatedMixin):
         ),
     )
 
-    location_location_uuid = sa.Column(
-        UUID(as_uuid=True), default=uuid.uuid4, primary_key=True
-    )
+    location_location_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     location_parent_uuid = sa.Column(
         UUID(as_uuid=True),
         sa.ForeignKey("locations.location_uuid"),
@@ -286,9 +284,9 @@ class LocationSQL(Base, CreatedMixin):
     child_locations: Mapped[List["LocationSQL"]] = relationship(
         "LocationSQL",
         secondary="location_locations",
-        primaryjoin='LocationSQL.location_uuid == LocationLocationSQL.location_child_uuid',
-        secondaryjoin='LocationSQL.location_uuid == LocationLocationSQL.location_parent_uuid',
-        backref = 'parent_locations',
+        primaryjoin="LocationSQL.location_uuid == LocationLocationSQL.location_child_uuid",
+        secondaryjoin="LocationSQL.location_uuid == LocationLocationSQL.location_parent_uuid",
+        backref="parent_locations",
     )
 
 
