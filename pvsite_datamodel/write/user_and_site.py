@@ -324,6 +324,11 @@ def edit_site(
 
     update_data = site_info.model_dump(exclude_unset=True, exclude_none=False)
 
+    if "client_site_name" in update_data:
+        site.client_location_name = update_data.pop("client_site_name")
+    if "client_site_id" in update_data:
+        site.client_location_id = update_data.pop("client_site_id")
+
     # Update model class variable from requested fields
     for var, value in update_data.items():
         setattr(site, var, value)
