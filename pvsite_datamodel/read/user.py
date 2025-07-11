@@ -7,7 +7,7 @@ from typing import List, Optional
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Session, contains_eager
 
-from pvsite_datamodel.sqlmodels import APIRequestSQL, SiteGroupSQL, UserSQL
+from pvsite_datamodel.sqlmodels import APIRequestSQL, LocationGroupSQL, UserSQL
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +34,9 @@ def get_user_by_email(session: Session, email: str, make_new_user_if_none: bool 
         # make a new user
         stmt = postgresql.insert(UserSQL.__table__)
         stmt = stmt.on_conflict_do_nothing()
-        session.execute(stmt, [{"site_group_uuid": site_group.site_group_uuid, "email": email}])
+        session.execute(
+            stmt, [{"location_group_uuid": site_group.location_group_uuid, "email": email}]
+        )
 
         # get a new user
         user = session.query(UserSQL).filter(UserSQL.email == email).first()
@@ -68,19 +70,21 @@ def get_site_group_by_name(session: Session, site_group_name: str, create_if_non
     """
 
     site_group = (
-        session.query(SiteGroupSQL).filter(SiteGroupSQL.site_group_name == site_group_name).first()
+        session.query(LocationGroupSQL)
+        .filter(LocationGroupSQL.location_group_name == site_group_name)
+        .first()
     )
 
     if (site_group is None) and (create_if_none is True):
         logger.info(f"Site group with name {site_group_name} not found, so making one")
 
-        stmt = postgresql.insert(SiteGroupSQL.__table__)
+        stmt = postgresql.insert(LocationGroupSQL.__table__)
         stmt = stmt.on_conflict_do_nothing()
-        session.execute(stmt, [{"site_group_name": site_group_name}])
+        session.execute(stmt, [{"location_group_name": site_group_name}])
 
         site_group = (
-            session.query(SiteGroupSQL)
-            .filter(SiteGroupSQL.site_group_name == site_group_name)
+            session.query(LocationGroupSQL)
+            .filter(LocationGroupSQL.location_group_name == site_group_name)
             .first()
         )
 
@@ -88,15 +92,15 @@ def get_site_group_by_name(session: Session, site_group_name: str, create_if_non
 
 
 # get all site groups
-def get_all_site_groups(session: Session) -> List[SiteGroupSQL]:
+def get_all_site_groups(session: Session) -> List[LocationGroupSQL]:
     """
     Get all site groups from the database.
 
     :param session: database session
     """
-    query = session.query(SiteGroupSQL)
+    query = session.query(LocationGroupSQL)
 
-    query = query.order_by(SiteGroupSQL.site_group_name.asc())
+    query = query.order_by(LocationGroupSQL.location_group_name.asc())
 
     site_groups = query.all()
 

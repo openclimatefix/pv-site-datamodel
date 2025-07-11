@@ -11,9 +11,9 @@ from sqlalchemy.orm import Session, contains_eager
 from pvsite_datamodel.pydantic_models import GenerationSum
 from pvsite_datamodel.sqlmodels import (
     GenerationSQL,
-    SiteGroupSiteSQL,
-    SiteGroupSQL,
-    SiteSQL,
+    LocationGroupLocationSQL,
+    LocationGroupSQL,
+    LocationSQL,
     UserSQL,
 )
 
@@ -36,7 +36,7 @@ def get_pv_generation_by_user_uuids(
     """
     # start main query
     query = session.query(GenerationSQL)
-    query = query.join(SiteSQL)
+    query = query.join(LocationSQL)
 
     # Filter by time interval
     if start_utc is not None:
@@ -50,13 +50,13 @@ def get_pv_generation_by_user_uuids(
         )
 
     if user_uuids is not None:
-        query = query.join(SiteGroupSiteSQL)
-        query = query.join(SiteGroupSQL)
+        query = query.join(LocationGroupLocationSQL)
+        query = query.join(LocationGroupSQL)
         query = query.join(UserSQL)
         query = query.filter(UserSQL.user_uuid.in_(user_uuids))
 
     query = query.order_by(
-        SiteSQL.site_uuid,
+        LocationSQL.location_uuid,
         GenerationSQL.start_utc,
     )
 
@@ -87,7 +87,7 @@ def get_pv_generation_by_sites(
         raise ValueError(f"sum_by must be one of ['total', 'dno', 'gsp'], not {sum_by}")
 
     query = session.query(GenerationSQL)
-    query = query.join(SiteSQL)
+    query = query.join(LocationSQL)
 
     # Filter by time interval
     if start_utc is not None:
@@ -101,12 +101,12 @@ def get_pv_generation_by_sites(
         )
 
     if site_uuids is not None:
-        query = query.filter(SiteSQL.site_uuid.in_(site_uuids))
+        query = query.filter(LocationSQL.location_uuid.in_(site_uuids))
 
-    query = query.order_by(SiteSQL.site_uuid, GenerationSQL.start_utc)
+    query = query.order_by(LocationSQL.location_uuid, GenerationSQL.start_utc)
 
     # make sure this is all loaded
-    query = query.options(contains_eager(GenerationSQL.site)).populate_existing()
+    query = query.options(contains_eager(GenerationSQL.location)).populate_existing()
 
     if sum_by is None:
         # get all results
@@ -116,14 +116,14 @@ def get_pv_generation_by_sites(
 
         group_by_variables = [subquery.c.start_utc]
         if sum_by == "dno":
-            group_by_variables.append(SiteSQL.dno)
+            group_by_variables.append(LocationSQL.dno)
         if sum_by == "gsp":
-            group_by_variables.append(SiteSQL.gsp)
+            group_by_variables.append(LocationSQL.gsp)
         query_variables = group_by_variables.copy()
         query_variables.append(func.sum(subquery.c.generation_power_kw))
 
         query = session.query(*query_variables)
-        query = query.join(SiteSQL)
+        query = query.join(LocationSQL)
         query = query.group_by(*group_by_variables)
         query = query.order_by(*group_by_variables)
         generations_raw = query.all()

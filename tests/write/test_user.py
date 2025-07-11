@@ -13,12 +13,12 @@ def test_create_user(db_session):
     user_1 = create_user(
         session=db_session,
         email="test_user@test.org",
-        site_group_name=site_group_1.site_group_name,
+        site_group_name=site_group_1.location_group_name,
     )
 
     assert user_1.email == "test_user@test.org"
-    assert user_1.site_group.site_group_name == "test_site_group"
-    assert user_1.site_group_uuid == site_group_1.site_group_uuid
+    assert user_1.location_group.location_group_name == "test_site_group"
+    assert user_1.location_group_uuid == site_group_1.location_group_uuid
 
 
 # test change user site group
@@ -27,14 +27,16 @@ def test_change_user_site_group(db_session):
     :param db_session: the database session"""
     site_group = create_site_group(db_session=db_session)
     user = create_user(
-        session=db_session, email="test_user@gmail.com", site_group_name=site_group.site_group_name
+        session=db_session,
+        email="test_user@gmail.com",
+        site_group_name=site_group.location_group_name,
     )
     site_group2 = create_site_group(db_session=db_session, site_group_name="test_site_group2")
     user, user_site_group = change_user_site_group(
         session=db_session,
         email="test_user@gmail.com",
-        site_group_name=site_group2.site_group_name,
+        site_group_name=site_group2.location_group_name,
     )
 
-    assert user_site_group == site_group2.site_group_name
+    assert user_site_group == site_group2.location_group_name
     assert user == "test_user@gmail.com"

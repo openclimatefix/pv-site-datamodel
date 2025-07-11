@@ -27,11 +27,11 @@ def test_assign_site_to_client(db_session):
     site = make_fake_site(db_session=db_session)
     client = create_client(session=db_session, client_name="Test Client")
 
-    message = assign_site_to_client(db_session, site.site_uuid, client.client_name)
+    message = assign_site_to_client(db_session, site.location_uuid, client.client_name)
 
     assert site.client_uuid == client.client_uuid
     assert message == (
-        f"Site with site uuid {site.site_uuid} successfully assigned "
+        f"Site with location uuid {site.location_uuid} successfully assigned "
         f"to the client {client.client_name}"
     )
 

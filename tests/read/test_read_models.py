@@ -79,7 +79,7 @@ def test_get_models_with_datetimes_with_sites(db_session, forecast_valid_input):
     models = get_models(
         session=db_session,
         start_datetime=dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=1),
-        site_uuid=forecast_valid_meta_input["site_uuid"],
+        site_uuid=forecast_valid_meta_input["location_uuid"],
     )
     assert len(models) == 1
 

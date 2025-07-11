@@ -5,7 +5,7 @@ from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
-from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, MLModelSQL, SiteSQL
+from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, LocationSQL, MLModelSQL
 
 logger = logging.getLogger(__name__)
 
@@ -105,8 +105,8 @@ def get_models(
 
     if site_uuid is not None:
         query = query.join(ForecastSQL)
-        query = query.join(SiteSQL)
-        query = query.where(SiteSQL.site_uuid == site_uuid)
+        query = query.join(LocationSQL)
+        query = query.where(LocationSQL.location_uuid == site_uuid)
 
         if start_datetime is not None:
             query = query.where(ForecastSQL.created_utc >= start_datetime)

@@ -2,7 +2,7 @@ import uuid
 
 import pytest
 
-from pvsite_datamodel import SiteGroupSQL
+from pvsite_datamodel import LocationGroupSQL
 from pvsite_datamodel.pydantic_models import LatitudeLongitudeLimits
 from pvsite_datamodel.read import (
     get_all_site_groups,
@@ -26,18 +26,18 @@ class TestGetAllSites:
 
         assert len(out) == len(sites)
 
-        site = [s for s in sites if s.site_uuid == out[0].site_uuid][0]
+        site = [s for s in sites if s.location_uuid == out[0].location_uuid][0]
         assert out[0] == site
 
         # check uuid is in order
-        assert out[1].site_uuid > out[0].site_uuid
-        assert out[2].site_uuid > out[1].site_uuid
-        assert out[3].site_uuid > out[2].site_uuid
+        assert out[1].location_uuid > out[0].location_uuid
+        assert out[2].location_uuid > out[1].location_uuid
+        assert out[3].location_uuid > out[2].location_uuid
 
         # check uuid is in order
-        assert out[1].site_uuid > out[0].site_uuid
-        assert out[2].site_uuid > out[1].site_uuid
-        assert out[3].site_uuid > out[2].site_uuid
+        assert out[1].location_uuid > out[0].location_uuid
+        assert out[2].location_uuid > out[1].location_uuid
+        assert out[3].location_uuid > out[2].location_uuid
 
 
 class TestGetSitesByCountry:
@@ -79,7 +79,7 @@ class TestGetSiteByUUID:
     """Tests for the get_site_by_uuid function."""
 
     def tests_gets_site_for_existing_uuid(self, sites, db_session):
-        site = get_site_by_uuid(session=db_session, site_uuid=sites[0].site_uuid)
+        site = get_site_by_uuid(session=db_session, site_uuid=sites[0].location_uuid)
 
         assert site == sites[0]
 
@@ -90,8 +90,8 @@ class TestGetSiteByUUID:
     def test_get_site_by_client_site_id(self, sites, db_session):
         site = get_site_by_client_site_id(
             session=db_session,
-            client_name=sites[0].client_site_name,
-            client_site_id=sites[0].client_site_id,
+            client_name=sites[0].client_location_name,
+            client_site_id=sites[0].client_location_id,
         )
 
         assert site == sites[0]
@@ -100,14 +100,14 @@ class TestGetSiteByUUID:
         site = get_site_by_client_site_name(
             session=db_session,
             client_name="test_client",
-            client_site_name=sites[0].client_site_name,
+            client_site_name=sites[0].client_location_name,
         )
 
         assert site == sites[0]
 
 
 def test_get_site_group_by_name(db_session):
-    site_group = SiteGroupSQL(site_group_name="test")
+    site_group = LocationGroupSQL(location_group_name="test")
     db_session.add(site_group)
     db_session.commit()
 
@@ -119,7 +119,7 @@ def test_get_site_group_by_name(db_session):
 def test_get_site_group_by_name_new_group(db_session):
     _ = get_site_group_by_name(db_session, "test")
 
-    assert len(db_session.query(SiteGroupSQL).all()) == 1
+    assert len(db_session.query(LocationGroupSQL).all()) == 1
 
 
 def test_get_all_users(db_session):
@@ -177,8 +177,8 @@ class TestGetSitesByClientName:
         out = get_sites_by_client_name(session=db_session, client_name=client_name)
 
         assert len(out) == len(sites)
-        assert out[0].site_uuid == sites[0].site_uuid
+        assert out[0].location_uuid == sites[0].location_uuid
 
     def test_raises_error_for_empty_site_list(self, sites, db_session):
-        with pytest.raises(Exception, match="Could not find sites from client _"):
+        with pytest.raises(Exception, match="Could not find locations from client _"):
             _ = get_sites_by_client_name(session=db_session, client_name="_")

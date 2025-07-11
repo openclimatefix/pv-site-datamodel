@@ -16,9 +16,9 @@ from pvsite_datamodel.read import get_or_create_model, get_site_by_uuid, get_use
 from pvsite_datamodel.sqlmodels import (
     ForecastSQL,
     ForecastValueSQL,
-    SiteAssetType,
-    SiteGroupSQL,
-    SiteSQL,
+    LocationAssetType,
+    LocationGroupSQL,
+    LocationSQL,
     UserSQL,
 )
 from pvsite_datamodel.write.data.dno import get_dno
@@ -33,8 +33,8 @@ def make_fake_site(db_session, ml_id=1):
     This is mainly used for testing purposes.
     """
 
-    site = SiteSQL(
-        client_site_id=1,
+    site = LocationSQL(
+        client_location_id=1,
         latitude=51,
         longitude=3,
         capacity_kw=4,
@@ -55,7 +55,7 @@ def create_site_group(db_session, site_group_name="test_site_group"):
     This is mainly used for testing purposes.
     """
     # create site group
-    site_group = SiteGroupSQL(site_group_name=site_group_name)
+    site_group = LocationGroupSQL(location_group_name=site_group_name)
     db_session.add(site_group)
     db_session.commit()
 
@@ -74,7 +74,7 @@ def create_site(
     gsp: Optional[str] = None,
     country: Optional[str] = "uk",
     region: Optional[str] = None,
-    asset_type: Optional[str] = SiteAssetType.pv.name,
+    asset_type: Optional[str] = LocationAssetType.pv.name,
     orientation: Optional[float] = None,
     tilt: Optional[float] = None,
     inverter_capacity_kw: Optional[float] = None,
@@ -82,7 +82,7 @@ def create_site(
     client_uuid: Optional[UUID] = None,
     ml_id: Optional[int] = None,
     user_uuid: Optional[str] = None,
-) -> [SiteSQL, str]:
+) -> [LocationSQL, str]:
     """
     Create a site and adds it to the database.
 
@@ -107,7 +107,7 @@ def create_site(
     """
     set_session_user(session, user_uuid)
 
-    max_ml_id = session.query(func.max(SiteSQL.ml_id)).scalar()
+    max_ml_id = session.query(func.max(LocationSQL.ml_id)).scalar()
 
     if max_ml_id is None:
         max_ml_id = 0
@@ -118,10 +118,10 @@ def create_site(
     # if region in [None, ""]:
     #     region = "uk"
 
-    if asset_type not in SiteAssetType.__members__:
+    if asset_type not in LocationAssetType.__members__:
         raise ValueError(
             f"""Invalid asset_type. Received: {asset_type},
-            but must one of ({', '.join(map(lambda type: type.name, SiteAssetType))})"""
+            but must one of ({', '.join(map(lambda type: type.name, LocationAssetType))})"""
         )
 
     if orientation in [None, ""]:
@@ -144,10 +144,10 @@ def create_site(
         dno = get_dno(latitude=latitude, longitude=longitude)
         dno = json.dumps(dno)
 
-    site = SiteSQL(
+    site = LocationSQL(
         ml_id=ml_id if ml_id else max_ml_id + 1,
-        client_site_id=client_site_id,
-        client_site_name=client_site_name,
+        client_location_id=client_site_id,
+        client_location_name=client_site_name,
         latitude=latitude,
         longitude=longitude,
         capacity_kw=capacity_kw,
@@ -168,8 +168,8 @@ def create_site(
     session.commit()
 
     message = (
-        f"Site with client site id {site.client_site_id} "
-        f"and site uuid {site.site_uuid} created successfully"
+        f"Site with client location id {site.client_location_id} "
+        f"and location uuid {site.location_uuid} created successfully"
     )
 
     return site, message
@@ -188,10 +188,12 @@ def create_user(
     """
 
     site_group = (
-        session.query(SiteGroupSQL).filter(SiteGroupSQL.site_group_name == site_group_name).first()
+        session.query(LocationGroupSQL)
+        .filter(LocationGroupSQL.location_group_name == site_group_name)
+        .first()
     )
 
-    user = UserSQL(email=email, site_group_uuid=site_group.site_group_uuid)
+    user = UserSQL(email=email, location_group_uuid=site_group.location_group_uuid)
 
     session.add(user)
     site_group.users.append(user)
@@ -201,7 +203,9 @@ def create_user(
 
 
 # update functions for site and site group
-def add_site_to_site_group(session: Session, site_uuid: str, site_group_name: str) -> SiteGroupSQL:
+def add_site_to_site_group(
+    session: Session, site_uuid: str, site_group_name: str
+) -> LocationGroupSQL:
     """Add a site to a site group.
 
     NB: Sites can belong to many site groups.
@@ -210,22 +214,24 @@ def add_site_to_site_group(session: Session, site_uuid: str, site_group_name: st
     :param site_group_name: name of site group
     """
     site_group = (
-        session.query(SiteGroupSQL).filter(SiteGroupSQL.site_group_name == site_group_name).first()
+        session.query(LocationGroupSQL)
+        .filter(LocationGroupSQL.location_group_name == site_group_name)
+        .first()
     )
 
-    site = session.query(SiteSQL).filter(SiteSQL.site_uuid == site_uuid).one()
+    site = session.query(LocationSQL).filter(LocationSQL.location_uuid == site_uuid).one()
 
-    if site not in site_group.sites:
-        site_group.sites.append(site)
+    if site not in site_group.locations:
+        site_group.locations.append(site)
 
     session.commit()
 
-    return site_group.sites
+    return site_group.locations
 
 
 def remove_site_from_site_group(
     session: Session, site_uuid: str, site_group_name: str
-) -> [SiteSQL]:
+) -> [LocationSQL]:
     """Remove a site to a site group.
 
     NB: Sites can belong to many site groups.
@@ -234,18 +240,20 @@ def remove_site_from_site_group(
     :param site_group_name: name of site group
     """
     site_group = (
-        session.query(SiteGroupSQL).filter(SiteGroupSQL.site_group_name == site_group_name).first()
+        session.query(LocationGroupSQL)
+        .filter(LocationGroupSQL.location_group_name == site_group_name)
+        .first()
     )
 
-    site = session.query(SiteSQL).filter(SiteSQL.site_uuid == site_uuid).one()
+    site = session.query(LocationSQL).filter(LocationSQL.location_uuid == site_uuid).one()
 
-    if site in site_group.sites:
-        new_sites = [site for site in site_group.sites if str(site.site_uuid) != site_uuid]
-        site_group.sites = new_sites
+    if site in site_group.locations:
+        new_sites = [site for site in site_group.locations if str(site.location_uuid) != site_uuid]
+        site_group.locations = new_sites
 
     session.commit()
 
-    return site_group.sites
+    return site_group.locations
 
 
 # change site group for user
@@ -259,7 +267,7 @@ def change_user_site_group(session, email: str, site_group_name: str):
     """
     update_user_site_group(session=session, email=email, site_group_name=site_group_name)
     user = get_user_by_email(session=session, email=email)
-    user_site_group = user.site_group.site_group_name
+    user_site_group = user.location_group.location_group_name
     user = user.email
     return user, user_site_group
 
@@ -272,12 +280,14 @@ def update_user_site_group(session: Session, email: str, site_group_name: str) -
     :param site_group_name: name of site group
     """
     site_group = (
-        session.query(SiteGroupSQL).filter(SiteGroupSQL.site_group_name == site_group_name).first()
+        session.query(LocationGroupSQL)
+        .filter(LocationGroupSQL.location_group_name == site_group_name)
+        .first()
     )
 
     user = session.query(UserSQL).filter(UserSQL.email == email)
 
-    user = user.update({"site_group_uuid": site_group.site_group_uuid})
+    user = user.update({"location_group_uuid": site_group.location_group_uuid})
 
     session.commit()
 
@@ -287,7 +297,7 @@ def update_user_site_group(session: Session, email: str, site_group_name: str) -
 # update site metadata
 def edit_site(
     session: Session, site_uuid: str, site_info: PVSiteEditMetadata, user_uuid: str = None
-) -> Tuple[SiteSQL, str]:
+) -> Tuple[LocationSQL, str]:
     """
     Edit an existing site. Fill in only the fields that need to be updated.
 
@@ -310,9 +320,14 @@ def edit_site(
     """
     set_session_user(session, user_uuid)
 
-    site = session.query(SiteSQL).filter(SiteSQL.site_uuid == site_uuid).first()
+    site = session.query(LocationSQL).filter(LocationSQL.location_uuid == site_uuid).first()
 
     update_data = site_info.model_dump(exclude_unset=True, exclude_none=False)
+
+    if "client_site_name" in update_data:
+        site.client_location_name = update_data.pop("client_site_name")
+    if "client_site_id" in update_data:
+        site.client_location_id = update_data.pop("client_site_id")
 
     # Update model class variable from requested fields
     for var, value in update_data.items():
@@ -322,7 +337,7 @@ def edit_site(
     session.commit()
     session.refresh(site)
 
-    message = f"Site with site uuid {site.site_uuid} updated successfully"
+    message = f"Location with location uuid {site.location_uuid} updated successfully"
 
     return site, message
 
@@ -342,13 +357,13 @@ def set_site_to_inactive_if_not_in_site_group(
     set_session_user(session, user_uuid)
 
     # get site
-    site = session.query(SiteSQL).filter(SiteSQL.site_uuid == site_uuid).first()
+    site = session.query(LocationSQL).filter(LocationSQL.location_uuid == site_uuid).first()
 
     # check if site is in any other site group
-    site_groups: [SiteGroupSQL] = site.site_groups
+    site_groups: [LocationGroupSQL] = site.location_groups
     if ignore_ocf_site_group:
         # only look at sites groups that are not called "ocf"
-        site_groups = [sg for sg in site_groups if sg.site_group_name != "ocf"]
+        site_groups = [sg for sg in site_groups if sg.location_group_name != "ocf"]
 
     logger.info(f"Site {site_uuid} is in {len(site_groups)} site groups.")
 
@@ -360,7 +375,9 @@ def set_site_to_inactive_if_not_in_site_group(
 
 
 # delete functions for site, user, and site group
-def delete_site(session: Session, site_uuid: str, user_uuid: Optional[str] = None) -> SiteGroupSQL:
+def delete_site(
+    session: Session, site_uuid: str, user_uuid: Optional[str] = None
+) -> LocationGroupSQL:
     """Delete a site group.
 
     :param session: database session
@@ -369,10 +386,12 @@ def delete_site(session: Session, site_uuid: str, user_uuid: Optional[str] = Non
     """
     set_session_user(session, user_uuid)
 
-    site = session.query(SiteSQL).filter(SiteSQL.site_uuid == site_uuid).first()
+    site = session.query(LocationSQL).filter(LocationSQL.location_uuid == site_uuid).first()
 
     forecast_uuids = (
-        session.query(ForecastSQL.forecast_uuid).filter(ForecastSQL.site_uuid == site_uuid).all()
+        session.query(ForecastSQL.forecast_uuid)
+        .filter(ForecastSQL.location_uuid == site_uuid)
+        .all()
     )
 
     forecast_uuids = [str(forecast_uuid[0]) for forecast_uuid in forecast_uuids]
@@ -389,7 +408,7 @@ def delete_site(session: Session, site_uuid: str, user_uuid: Optional[str] = Non
 
     session.delete(site)
 
-    message = f"Site with site uuid {site.site_uuid} deleted successfully"
+    message = f"Location with location uuid {site.location_uuid} deleted successfully"
 
     session.commit()
 
@@ -408,8 +427,8 @@ def delete_user(session: Session, email: str) -> str:
     session.delete(user)
 
     message = (
-        f"User with email {user.email} and site_group_uuid "
-        f"{user.site_group_uuid} deleted successfully"
+        f"User with email {user.email} and location_group_uuid "
+        f"{user.location_group_uuid} deleted successfully"
     )
 
     session.commit()
@@ -425,23 +444,25 @@ def delete_site_group(session: Session, site_group_name: str) -> str:
     :param site_group_name: name of site group being deleted
     """
     site_group = (
-        session.query(SiteGroupSQL).filter(SiteGroupSQL.site_group_name == site_group_name).first()
+        session.query(LocationGroupSQL)
+        .filter(LocationGroupSQL.location_group_name == site_group_name)
+        .first()
     )
 
     site_group_users = site_group.users
 
     if len(site_group_users) > 0:
         message = (
-            f"Site group with name {site_group.site_group_name} and "
-            f"site group uuid {site_group.site_group_uuid} has users and cannot be deleted."
+            f"Location group with name {site_group.location_group_name} and "
+            f"location group uuid {site_group.location_group_uuid} has users and cannot be deleted."
         )
         return message
 
     session.delete(site_group)
 
     message = (
-        f"Site group with name {site_group.site_group_name} "
-        f"and site group uuid {site_group.site_group_uuid} deleted successfully."
+        f"Location group with name {site_group.location_group_name} "
+        f"and location group uuid {site_group.location_group_uuid} deleted successfully."
     )
 
     session.commit()
@@ -478,3 +499,22 @@ def set_session_user(session: Session, user_uuid: str):
         session.execute(text(f"SET pvsite_datamodel.current_user_uuid = '{user_uuid}'"))
     else:
         session.execute(text("RESET pvsite_datamodel.current_user_uuid"))
+
+
+def add_child_location_to_parent_location(
+    session: Session, child_location_uuid: str, parent_location_uuid: str
+) -> None:
+    """Add a child location to a parent location.
+
+    :param session: database session
+    :param child_location_uuid: the UUID of the child location
+    :param parent_location_uuid: the UUID of the parent location
+    """
+    child_location = get_site_by_uuid(session=session, site_uuid=child_location_uuid)
+    parent_location = get_site_by_uuid(session=session, site_uuid=parent_location_uuid)
+
+    if parent_location not in child_location.parent_locations:
+        parent_location.child_locations.append(child_location)
+        # note this also adds the parent to the child_location.parent_locations
+
+    session.commit()

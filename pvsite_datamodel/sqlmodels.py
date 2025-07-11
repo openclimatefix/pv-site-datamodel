@@ -38,7 +38,7 @@ class MLModelSQL(Base, CreatedMixin):
         "ForecastValueSQL", back_populates="ml_model"
     )
 
-    sites: Mapped[List["SiteSQL"]] = relationship("SiteSQL", back_populates="ml_model")
+    locations: Mapped[List["LocationSQL"]] = relationship("LocationSQL", back_populates="ml_model")
 
 
 class UserSQL(Base, CreatedMixin):
@@ -52,137 +52,171 @@ class UserSQL(Base, CreatedMixin):
 
     user_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     email = sa.Column(sa.String(255), index=True, unique=True)
-    site_group_uuid = sa.Column(
+    location_group_uuid = sa.Column(
         UUID(as_uuid=True),
-        sa.ForeignKey("site_groups.site_group_uuid"),
+        sa.ForeignKey("location_groups.location_group_uuid"),
         nullable=False,
-        comment="The foreign key to the site_groups table",
+        comment="The foreign key to the location_groups table",
     )
 
     # Relationships
-    site_group: Mapped["SiteGroupSQL"] = relationship("SiteGroupSQL", back_populates="users")
+    location_group: Mapped["LocationGroupSQL"] = relationship(
+        "LocationGroupSQL", back_populates="users"
+    )
     api_request = relationship("APIRequestSQL", back_populates="user")
 
 
-class SiteGroupSQL(Base, CreatedMixin):
-    """Class representing the site_groups table.
+class LocationGroupSQL(Base, CreatedMixin):
+    """Class representing the location_groups table.
 
-    Each site_group row specifies a single group of sites.
+    Each location_group row specifies a single group of locations.
     """
 
-    __tablename__ = "site_groups"
+    __tablename__ = "location_groups"
 
-    site_group_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    site_group_name = sa.Column(sa.String(255), index=True, unique=True)
+    location_group_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
+    location_group_name = sa.Column(sa.String(255), index=True, unique=True)
     service_level = sa.Column(
         sa.Integer,
         default=0,
-        comment="The service level of the site group. 0 is free, 1 is paid.",
+        comment="The service level of the location group. 0 is free, 1 is paid.",
     )
 
     # Relationships
     # N-N
-    sites: Mapped[List["SiteSQL"]] = relationship(
-        "SiteSQL", secondary="site_group_sites", back_populates="site_groups"
+    locations: Mapped[List["LocationSQL"]] = relationship(
+        "LocationSQL", secondary="location_group_locations", back_populates="location_groups"
     )
-    # 1-N, one site group can have many users
-    users: Mapped[List[UserSQL]] = relationship("UserSQL", back_populates="site_group")
+    # 1-N, one location group can have many users
+    users: Mapped[List[UserSQL]] = relationship("UserSQL", back_populates="location_group")
 
 
-class SiteGroupSiteSQL(Base, CreatedMixin):
-    """Class representing the site_group_sites table.
+class LocationGroupLocationSQL(Base, CreatedMixin):
+    """Class representing the location_group_locations table.
 
-    Each site_group_site row specifies a single site in a site group.
+    Each location_group_location row specifies a single location in a location group.
     """
 
-    __tablename__ = "site_group_sites"
-    __table_args__ = (UniqueConstraint("site_group_uuid", "site_uuid", name="idx_site_group_site"),)
-
-    site_group_site_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    site_group_uuid = sa.Column(
-        UUID(as_uuid=True),
-        sa.ForeignKey("site_groups.site_group_uuid"),
-        nullable=False,
-        comment="The foreign key to the site_groups table",
-    )
-    site_uuid = sa.Column(
-        UUID(as_uuid=True),
-        sa.ForeignKey("sites.site_uuid"),
-        nullable=False,
-        comment="The foreign key to the sites table",
+    __tablename__ = "location_group_locations"
+    __table_args__ = (
+        UniqueConstraint(
+            "location_group_uuid", "location_uuid", name="idx_location_group_location"
+        ),
     )
 
+    location_group_location_uuid = sa.Column(
+        UUID(as_uuid=True), default=uuid.uuid4, primary_key=True
+    )
+    location_group_uuid = sa.Column(
+        UUID(as_uuid=True),
+        sa.ForeignKey("location_groups.location_group_uuid"),
+        nullable=False,
+        comment="The foreign key to the location_groups table",
+    )
+    location_uuid = sa.Column(
+        UUID(as_uuid=True),
+        sa.ForeignKey("locations.location_uuid"),
+        nullable=False,
+        comment="The foreign key to the locations table",
+    )
 
-class SiteAssetType(enum.Enum):
-    """Enum type representing a site's asset type."""
+
+class LocationLocationSQL(Base, CreatedMixin):
+    """Class representing the location_locations table.
+
+    Each location_to_location row specifies a single location in a location.
+    We want to to be able to attaches multiple sites to several regions.
+    E.g. pv solar sites in a GSP region, and a National Grid region.
+    """
+
+    __tablename__ = "location_locations"
+    __table_args__ = (
+        UniqueConstraint(
+            "location_child_uuid", "location_parent_uuid", name="idx_location_location"
+        ),
+    )
+
+    location_location_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
+    location_parent_uuid = sa.Column(
+        UUID(as_uuid=True),
+        sa.ForeignKey("locations.location_uuid"),
+        nullable=False,
+        comment="The foreign key to the locations table",
+    )
+    location_child_uuid = sa.Column(
+        UUID(as_uuid=True),
+        sa.ForeignKey("locations.location_uuid"),
+        nullable=False,
+        comment="The foreign key to the locations table",
+    )
+
+
+class LocationAssetType(enum.Enum):
+    """Enum type representing a location's asset type."""
 
     pv = 1
     wind = 2
 
 
-class SiteSQL(Base, CreatedMixin):
-    """Class representing the sites table.
+class LocationType(enum.Enum):
+    """Enum type representing a location's location type."""
 
-    Each site row specifies a single panel or cluster of panels
-    found on a residential house or commercial building. Their
-    data is provided by a client.
+    site = 1
+    region = 2
 
-    *Approximate size: *
-    4 clients * ~1000 sites each = ~4000 rows
+
+class LocationSQL(Base, CreatedMixin):
+    """Class representing the locations table.
+
+    Each location row specifies location in space. It can represent
+    - a solar single panel
+    - cluster of solar panels found on a residential house or commercial building.
+    - a large solar farm
+    - a wind farm
+
+    # TODO update this to LocationSQL in future release + other renames
     """
 
-    __tablename__ = "sites"
+    __tablename__ = "locations"
 
-    site_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    client_site_id = sa.Column(
-        sa.Integer, index=True, comment="The ID of the site as given by the providing client"
+    location_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
+    client_location_id = sa.Column(
+        sa.Integer, index=True, comment="The ID of the location as given by the providing client"
     )
-    client_site_name = sa.Column(
-        sa.String(255), index=True, comment="The ID of the site as given by the providing client"
+    client_location_name = sa.Column(
+        sa.String(255),
+        index=True,
+        comment="The ID of the location as given by the providing client",
     )
 
     country = sa.Column(
-        sa.String(255), server_default="uk", comment="The country in which the site is located"
+        sa.String(255), server_default="uk", comment="The country in which the location is located"
     )
-    region = sa.Column(
-        sa.String(255), comment="The region within the country in which the site is located"
-    )
-    dno = sa.Column(sa.String(255), comment="The Distribution Node Operator that owns the site")
-    gsp = sa.Column(sa.String(255), comment="The Grid Supply Point in which the site is located")
 
     asset_type = sa.Column(
-        sa.Enum(SiteAssetType, name="site_asset_type"),
+        sa.Enum(LocationAssetType, name="site_asset_type"),
         nullable=False,
-        server_default=SiteAssetType.pv.name,
+        server_default=LocationAssetType.pv.name,
     )
 
-    # For metadata `NULL` means "we don't know".
-    orientation = sa.Column(
-        sa.Float, comment="The rotation of the panel in degrees. 180° points south"
-    )
-    tilt = sa.Column(
-        sa.Float, comment="The tile of the panel in degrees. 90° indicates the panel is vertical"
-    )
     latitude = sa.Column(sa.Float)
     longitude = sa.Column(sa.Float)
     capacity_kw = sa.Column(
-        sa.Float, comment="The physical limit on the production capacity of the site"
+        sa.Float, comment="The physical limit on the production capacity of the location"
     )
-    inverter_capacity_kw = sa.Column(sa.Float, comment="The inverter capacity of the site")
-    module_capacity_kw = sa.Column(sa.Float, comment="The PV module nameplate capacity of the site")
 
     ml_id = sa.Column(
         sa.Integer,
         autoincrement=True,
         nullable=False,
-        comment="Auto-incrementing integer ID of the site for use in ML training",
+        comment="Auto-incrementing integer ID of the location for use in ML training",
     )
 
     active = sa.Column(
         sa.Boolean,
         default=True,
         unique=False,
-        comment="Indicates if site is active",
+        comment="Indicates if location is active",
     )
 
     client_uuid = sa.Column(
@@ -190,48 +224,94 @@ class SiteSQL(Base, CreatedMixin):
         sa.ForeignKey("clients.client_uuid"),
         nullable=True,
         index=True,
-        comment="The UUID of the client this site belongs to",
+        comment="The UUID of the client this location belongs to",
     )
 
     ml_model_uuid = sa.Column(
         UUID(as_uuid=True),
         sa.ForeignKey("ml_model.model_uuid"),
         nullable=True,
-        comment="The ML Model which should be used for this site",
+        comment="The ML Model which should be used for this location",
+    )
+    # new fields
+    location_type = sa.Column(
+        sa.Enum(LocationType, name="location_type"),
+        nullable=False,
+        server_default=LocationType.site.name,
+    )
+    location_metadata = sa.Column(
+        JSONB,
+        nullable=True,
+        comment="Specific properties of the location, "
+        "for example for a location, the tilt and orientation of the "
+        "solar panels, or for a region, the region name.",
     )
 
-    forecasts: Mapped[List["ForecastSQL"]] = relationship("ForecastSQL", back_populates="site")
+    # legacy fields
+    region = sa.Column(
+        sa.String(255), comment="The region within the country in which the location is located"
+    )
+    dno = sa.Column(sa.String(255), comment="The Distribution Node Operator that owns the location")
+    gsp = sa.Column(
+        sa.String(255), comment="The Grid Supply Point in which the location is located"
+    )
+    # For metadata `NULL` means "we don't know".
+    orientation = sa.Column(
+        sa.Float, comment="The rotation of the panel in degrees. 180° points south"
+    )
+    tilt = sa.Column(
+        sa.Float, comment="The tile of the panel in degrees. 90° indicates the panel is vertical"
+    )
+    inverter_capacity_kw = sa.Column(sa.Float, comment="The inverter capacity of the location")
+    module_capacity_kw = sa.Column(
+        sa.Float, comment="The PV module nameplate capacity of the location"
+    )
+
+    # relationships
+    forecasts: Mapped[List["ForecastSQL"]] = relationship("ForecastSQL", back_populates="location")
     generation: Mapped[List["GenerationSQL"]] = relationship("GenerationSQL")
     inverters: Mapped[List["InverterSQL"]] = relationship(
-        "InverterSQL", back_populates="site", cascade="all, delete-orphan"
+        "InverterSQL", back_populates="location", cascade="all, delete-orphan"
     )
-    site_groups: Mapped[List["SiteGroupSQL"]] = relationship(
-        "SiteGroupSQL", secondary="site_group_sites", back_populates="sites"
+    location_groups: Mapped[List["LocationGroupSQL"]] = relationship(
+        "LocationGroupSQL", secondary="location_group_locations", back_populates="locations"
     )
-    client: Mapped[List["ClientSQL"]] = relationship("ClientSQL", back_populates="sites")
-    ml_model: Mapped[Optional[MLModelSQL]] = relationship("MLModelSQL", back_populates="sites")
+    client: Mapped[List["ClientSQL"]] = relationship("ClientSQL", back_populates="locations")
+    ml_model: Mapped[Optional[MLModelSQL]] = relationship("MLModelSQL", back_populates="locations")
+
+    # n:n mapping to reference back to locations.
+    # This means many site can be part of a many different regions.
+    child_locations: Mapped[List["LocationSQL"]] = relationship(
+        "LocationSQL",
+        secondary="location_locations",
+        primaryjoin="LocationSQL.location_uuid == LocationLocationSQL.location_child_uuid",
+        secondaryjoin="LocationSQL.location_uuid == LocationLocationSQL.location_parent_uuid",
+        backref="parent_locations",
+    )
 
 
-class SiteHistorySQL(Base, CreatedMixin):
-    """Class representing the sites history table.
+class LocationHistorySQL(Base, CreatedMixin):
+    """Class representing the locations history table.
 
-    Stores a history of changes to sites over time. Uses JSONB so that schema changes to the
-    site table do not affect the history table.
+    Stores a history of changes to locatios over time. Uses JSONB so that schema changes to the
+    location table do not affect the history table.
     """
 
-    __tablename__ = "sites_history"
+    __tablename__ = "locations_history"
 
-    site_history_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
+    location_history_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
 
-    site_uuid = sa.Column(
+    location_uuid = sa.Column(
         UUID(as_uuid=True),
         nullable=False,
         index=True,
-        comment="The site which this history record relates to",
+        comment="The location which this history record relates to",
     )
 
-    # JSONB column to store the snapshot of the site data
-    site_data = sa.Column(JSONB, nullable=False, comment="A snapshot of the site record as JSONB")
+    # JSONB column to store the snapshot of the location data
+    location_data = sa.Column(
+        JSONB, nullable=False, comment="A snapshot of the location record as JSONB"
+    )
 
     # Foreign key to track the user who made the change
     changed_by = sa.Column(UUID(as_uuid=True), sa.ForeignKey("users.user_uuid"), nullable=True)
@@ -250,36 +330,38 @@ class ClientSQL(Base, CreatedMixin):
     client_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     client_name = sa.Column(sa.String(255), nullable=False, index=True, unique=True)
 
-    sites: Mapped[List[SiteSQL]] = relationship("SiteSQL", back_populates="client")
+    locations: Mapped[List[LocationSQL]] = relationship("LocationSQL", back_populates="client")
 
 
 class GenerationSQL(Base, CreatedMixin):
     """Class representing the generation table.
 
     Each generation row specifies a generated power output over a
-    given time range for a site.
+    given time range for a location.
 
     *Approximate size: *
-    Generation populated every 5 minutes per site * 4000 sites = ~1,125,000 rows per day
+    Generation populated every 5 minutes per location * 4000 locations = ~1,125,000 rows per day
     """
 
     __tablename__ = "generation"
     __table_args__ = (
-        UniqueConstraint("site_uuid", "start_utc", "end_utc", name="uniq_cons_site_start_end"),
+        UniqueConstraint(
+            "location_uuid", "start_utc", "end_utc", name="uniq_cons_location_start_end"
+        ),
     )
 
     generation_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    site_uuid = sa.Column(
+    location_uuid = sa.Column(
         UUID(as_uuid=True),
-        sa.ForeignKey("sites.site_uuid"),
+        sa.ForeignKey("locations.location_uuid"),
         nullable=False,
         index=True,
-        comment="The site for which this geenration yield belongs to",
+        comment="The location for which this generation yield belongs to",
     )
     generation_power_kw = sa.Column(
         sa.Float,
         nullable=False,
-        comment="The actual generated power in kW at this site for this datetime interval",
+        comment="The actual generated power in kW at this location for this datetime interval",
     )
 
     start_utc = sa.Column(
@@ -294,27 +376,27 @@ class GenerationSQL(Base, CreatedMixin):
         comment="The end of the time interval over which this generated power value applies",
     )
 
-    site: Mapped["SiteSQL"] = relationship("SiteSQL", back_populates="generation")
+    location: Mapped["LocationSQL"] = relationship("LocationSQL", back_populates="generation")
 
 
 class ForecastSQL(Base, CreatedMixin):
     """Class representing the forecasts table.
 
     Each forecast row refers to a sequence of predicted solar generation values
-    over a set of target times for one site.
+    over a set of target times for one location.
 
     *Approximate size: *
-    One forecast per site every 5 minutes = ~1,125,000 rows per day
+    One forecast per location every 5 minutes = ~1,125,000 rows per day
     """
 
     __tablename__ = "forecasts"
 
     forecast_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    site_uuid = sa.Column(
+    location_uuid = sa.Column(
         UUID(as_uuid=True),
-        sa.ForeignKey("sites.site_uuid"),
+        sa.ForeignKey("locations.location_uuid"),
         nullable=False,
-        comment="The site for which the forecast sequence was generated",
+        comment="The location for which the forecast sequence was generated",
     )
 
     # The timestamp at which we are making the forecast. This is often referred as "now" in the
@@ -335,12 +417,12 @@ class ForecastSQL(Base, CreatedMixin):
 
     # one (forecasts) to many (forecast_values)
     forecast_values: Mapped["ForecastValueSQL"] = relationship("ForecastValueSQL")
-    site = relationship("SiteSQL", back_populates="forecasts")
+    location = relationship("LocationSQL", back_populates="forecasts")
 
     __table_args__ = (
         # With this index, we are assuming that it doesn't make sense to do a query solely on
-        # `timestamp_utc`: we always also filter by site_uuid.
-        sa.Index("ix_forecasts_site_uuid_timestamp_utc", "site_uuid", "timestamp_utc"),
+        # `timestamp_utc`: we always also filter by location_uuid.
+        sa.Index("ix_forecasts_location_uuid_timestamp_utc", "location_uuid", "timestamp_utc"),
     )
 
 
@@ -348,11 +430,11 @@ class ForecastValueSQL(Base, CreatedMixin):
     """Class representing the forecast_values table.
 
     Each forecast_value row is a prediction for the power output
-    of a site over a target datetime interval. Many predictions
-    are made for each site at each target interval.
+    of a location over a target datetime interval. Many predictions
+    are made for each location at each target interval.
 
     *Approximate size: *
-    One forecast value every 5 minutes per site per forecast.
+    One forecast value every 5 minutes per location per forecast.
     Each forecast's prediction sequence covers 24 hours of target
     intervals = ~324,000,000 rows per day
     """
@@ -375,7 +457,7 @@ class ForecastValueSQL(Base, CreatedMixin):
     forecast_power_kw = sa.Column(
         sa.Float,
         nullable=False,
-        comment="The predicted power generation of this site for the given time interval",
+        comment="The predicted power generation of this location for the given time interval",
     )
 
     # This is the different between `start_utc` and the `forecast`'s `timestamp_utc`, in minutes.
@@ -443,24 +525,24 @@ class StatusSQL(Base, CreatedMixin):
 class InverterSQL(Base, CreatedMixin):
     """Class representing the inverters table.
 
-    Each InverterSQL row represents an inverter tied to a SiteSQL row.
+    Each InverterSQL row represents an inverter tied to a LocationSQL row.
 
     *Approximate size: *
-    4 clients * ~1000 sites each * ~1 inverter each = ~4000 rows
+    4 clients * ~1000 locations each * ~1 inverter each = ~4000 rows
     """
 
     __tablename__ = "inverters"
 
     inverter_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
-    site_uuid = sa.Column(
+    location_uuid = sa.Column(
         UUID(as_uuid=True),
-        sa.ForeignKey("sites.site_uuid"),
+        sa.ForeignKey("locations.location_uuid"),
         nullable=False,
         index=True,
-        comment="The UUID for the site that has this inverter",
+        comment="The UUID for the location that has this inverter",
     )
 
-    site: Mapped["SiteSQL"] = relationship("SiteSQL", back_populates="inverters")
+    location: Mapped["LocationSQL"] = relationship("LocationSQL", back_populates="inverters")
 
 
 class APIRequestSQL(Base, CreatedMixin):

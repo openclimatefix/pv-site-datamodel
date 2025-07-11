@@ -14,7 +14,7 @@ from testcontainers.postgres import PostgresContainer
 
 from alembic import command
 from alembic.config import Config
-from pvsite_datamodel import ClientSQL, GenerationSQL, SiteSQL, StatusSQL
+from pvsite_datamodel import ClientSQL, GenerationSQL, LocationSQL, StatusSQL
 from pvsite_datamodel.write.user_and_site import create_site_group, create_user
 
 PROJECT_PATH = Path(__file__).parent.parent.resolve()
@@ -70,9 +70,9 @@ def sites(db_session, client):
 
     sites = []
     for i in range(0, 4):
-        site = SiteSQL(
-            client_site_id=1,
-            client_site_name=f"test_site_{i}",
+        site = LocationSQL(
+            client_location_id=1,
+            client_location_name=f"test_site_{i}",
             latitude=51,
             longitude=3,
             capacity_kw=4,
@@ -90,7 +90,7 @@ def sites(db_session, client):
         sites.append(site)
 
     # make sure they are in order
-    sites = db_session.query(SiteSQL).order_by(SiteSQL.site_uuid).all()
+    sites = db_session.query(LocationSQL).order_by(LocationSQL.location_uuid).all()
 
     return sites
 
@@ -102,9 +102,9 @@ def make_sites_for_country(db_session):
     def _make_sites_for_country(country="uk"):
         sites = []
         for i in range(0, 4):
-            site = SiteSQL(
-                client_site_id=1,
-                client_site_name=f"test_site_{i}",
+            site = LocationSQL(
+                client_location_id=1,
+                client_location_name=f"test_site_{i}",
                 latitude=51,
                 longitude=3,
                 capacity_kw=4,
@@ -122,7 +122,7 @@ def make_sites_for_country(db_session):
             sites.append(site)
 
         # make sure they are in order
-        sites = db_session.query(SiteSQL).order_by(SiteSQL.site_uuid).all()
+        sites = db_session.query(LocationSQL).order_by(LocationSQL.location_uuid).all()
 
         return sites
 
@@ -135,10 +135,12 @@ def user_with_sites(db_session, sites):
 
     site_group = create_site_group(db_session=db_session)
     user = create_user(
-        session=db_session, email="test_user@gmail.com", site_group_name=site_group.site_group_name
+        session=db_session,
+        email="test_user@gmail.com",
+        site_group_name=site_group.location_group_name,
     )
 
-    site_group.sites = sites
+    site_group.locations = sites
     return user
 
 
@@ -152,7 +154,7 @@ def generations(db_session, sites):
     for site in sites:
         for i in range(0, 10):
             generation = GenerationSQL(
-                site_uuid=site.site_uuid,
+                location_uuid=site.location_uuid,
                 generation_power_kw=10 - i,
                 start_utc=start_times[i],
                 end_utc=start_times[i] + dt.timedelta(minutes=5),
@@ -171,7 +173,7 @@ def test_time():
 @pytest.fixture()
 def forecast_valid_meta_input(sites):
     forecast_meta = {
-        "site_uuid": sites[0].site_uuid,
+        "site_uuid": sites[0].location_uuid,
         "timestamp_utc": dt.datetime.now(tz=dt.UTC),
         "forecast_version": "0.0.0",
     }
@@ -221,7 +223,7 @@ def forecast_with_invalid_values_input(forecast_valid_meta_input, forecast_valid
 
 @pytest.fixture()
 def forecast_valid_site(sites):
-    site_uuid = sites[0].site_uuid
+    site_uuid = sites[0].location_uuid
 
     start_utc = [dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)]
     end_utc = [d + dt.timedelta(minutes=10) for d in start_utc]
@@ -261,7 +263,7 @@ def forecast_invalid_meta():
 
 @pytest.fixture()
 def generation_valid_site(sites):
-    site_uuid = sites[0].site_uuid
+    site_uuid = sites[0].location_uuid
 
     n_rows = 10
 
@@ -276,7 +278,7 @@ def generation_valid_site(sites):
 
 @pytest.fixture()
 def generation_valid_end_utc(sites):
-    site_uuid = sites[0].site_uuid
+    site_uuid = sites[0].location_uuid
 
     n_rows = 10
     delta = 7

@@ -8,7 +8,7 @@ from sqlalchemy import func, text
 from sqlalchemy.orm import Session, contains_eager
 
 from pvsite_datamodel.pydantic_models import ForecastValueSum
-from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, MLModelSQL, SiteSQL
+from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, LocationSQL, MLModelSQL
 
 
 def get_latest_forecast_values_by_site(
@@ -75,13 +75,13 @@ def get_latest_forecast_values_by_site(
     query = (
         session.query(ForecastValueSQL)
         .distinct(
-            ForecastSQL.site_uuid,
+            ForecastSQL.location_uuid,
             ForecastValueSQL.start_utc,
         )
         .join(ForecastSQL)
         .filter(
             ForecastValueSQL.start_utc >= start_utc,
-            ForecastSQL.site_uuid.in_(site_uuids),
+            ForecastSQL.location_uuid.in_(site_uuids),
         )
     )
 
@@ -132,7 +132,7 @@ def get_latest_forecast_values_by_site(
     query = query.options(contains_eager(ForecastValueSQL.forecast)).populate_existing()
 
     query = query.order_by(
-        ForecastSQL.site_uuid,
+        ForecastSQL.location_uuid,
         ForecastValueSQL.start_utc,
         ForecastSQL.timestamp_utc.desc(),
         ForecastSQL.created_utc.desc(),
@@ -146,7 +146,7 @@ def get_latest_forecast_values_by_site(
 
         for site_uuid in site_uuids:
             site_latest_forecast_values: list[ForecastValueSQL] = [
-                fv for fv in forecast_values if fv.forecast.site_uuid == site_uuid
+                fv for fv in forecast_values if fv.forecast.location_uuid == site_uuid
             ]
 
             output_dict[site_uuid] = site_latest_forecast_values
@@ -157,15 +157,15 @@ def get_latest_forecast_values_by_site(
 
         group_by_variables = [subquery.c.start_utc]
         if sum_by == "dno":
-            group_by_variables.append(SiteSQL.dno)
+            group_by_variables.append(LocationSQL.dno)
         if sum_by == "gsp":
-            group_by_variables.append(SiteSQL.gsp)
+            group_by_variables.append(LocationSQL.gsp)
         query_variables = group_by_variables.copy()
         query_variables.append(func.sum(subquery.c.forecast_power_kw))
 
         query = session.query(*query_variables)
         query = query.join(ForecastSQL, ForecastSQL.forecast_uuid == subquery.c.forecast_uuid)
-        query = query.join(SiteSQL)
+        query = query.join(LocationSQL)
         query = query.group_by(*group_by_variables)
         query = query.order_by(*group_by_variables)
         forecasts_raw = query.all()
