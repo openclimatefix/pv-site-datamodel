@@ -30,8 +30,8 @@ def insert_generation_values(
 
     # Check for duplicated (site_uuid, start_utc) entries.
     # TODO Should we have a unique constraint on those in the Database instead?
-    sites_with_duplicate_times \
-        = df[df.duplicated(["location_uuid", "start_utc"])]["location_uuid"].unique()
+    duplicates = df[df.duplicated(["location_uuid", "start_utc"])]
+    sites_with_duplicate_times = duplicates["location_uuid"].unique()
     if len(sites_with_duplicate_times) > 0:
         for site_uuid in sites_with_duplicate_times:
             _log.warning(f'duplicate target datetimes for site "{site_uuid}"')
