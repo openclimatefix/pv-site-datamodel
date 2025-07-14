@@ -38,8 +38,8 @@ Classes specifying table schemas:
 - ForecastValueSQL
 - MLModelSQL
 - UserSQL
-- SiteSQL
-- SiteGroupSQL
+- LocationSQL
+- LocationGroupSQL
 - StatusSQL
 - ClientSQL
 
@@ -51,6 +51,7 @@ Database connection objects:
 
 - Read function currently accessible via `from pvsite_datamodel.read import <func>`.
 - Write function Currently accessible via `from pvsite_datamodels.write import <func>`.
+
 
 | **Read Package Functions**           | **Write Package Functions** |
 | ------------------------------------ | --------------------------- |
@@ -70,6 +71,7 @@ Database connection objects:
 |                                      | `delete_site`               |
 |                                      | `delete_user`               |
 |                                      | `delete_site_group`         |
+TODO update table
 
 ## Local Repository Setup(Linux)
 
@@ -202,28 +204,36 @@ classDiagram
     class UserSQL{
         + user_uuid : UUID ≪ PK ≫
         + email : String(255) ≪ U ≫
-        + site_group_uuid : UUID ≪ FK ≫
+        + location_group_uuid : UUID ≪ FK ≫
     }
-        class SiteGroupSQL{
-        + site_group_uuid : UUID ≪ PK ≫
-        + site_group_name : String(255) ≪ U ≫
+        class LocationGroupSQL{
+        + location_group_uuid : UUID ≪ PK ≫
+        + location_group_name : String ≪ U ≫
         + service_level : Integer ≪ U ≫
     }
 
-    class SiteGroupSiteSQL{
-        + site_group_site_uuid : UUID ≪ PK ≫
-        + site_group_uuid : UUID ≪ FK ≫
-        + site_uuid : UUID ≪ FK ≫
+    class LocationGroupLocationSQL{
+        + location_group_location_uuid : UUID ≪ PK ≫
+        + location_group_uuid : UUID ≪ FK ≫
+        + location_uuid : UUID ≪ FK ≫
+    }
+    
+    class LocationLocationSQL{
+        + location_location_uuid : UUID ≪ PK ≫
+        + location_parent_uuid : UUID ≪ FK ≫
+        + location_child_uuid : UUID ≪ FK ≫
     }
 
-    class SiteSQL{
-        + site_uuid : UUID ≪ PK ≫
-        + client_site_id : Integer
-        + client_site_name : String(255)
-        + country : String(255) ≪ D ≫
-        + region : String(255)
-        + dno : String(255)
-        + gsp : String(255)
+    class LocationSQL{
+        + location_uuid : UUID ≪ PK ≫
+        + client_location_id : Integer
+        + client_location_name : String
+        + country : String ≪ D ≫
+        + region : String
+        + location_type: Enum ≪ D ≫
+        + location_metadata : String
+        + dno : String
+        + gsp : String
         + asset_type : Enum ≪ D ≫
         + orientation : Float
         + tilt : Float
@@ -239,12 +249,12 @@ classDiagram
 
     class ClientSQL{
         + client_uuid : UUID ≪ PK ≫
-        + client_name : String(255)
+        + client_name : String
     }
 
     class GenerationSQL{
         + generation_uuid : UUID ≪ PK ≫
-        + site_uuid : UUID ≪ FK ≫
+        + location_uuid : UUID ≪ FK ≫
         + generation_power_kw : Float
         + start_utc : DateTime
         + end_utc : DateTime
@@ -252,9 +262,9 @@ classDiagram
 
     class ForecastSQL{
         + forecast_uuid : UUID ≪ PK ≫
-        + site_uuid : UUID ≪ FK ≫
+        + location_uuid : UUID ≪ FK ≫
         + timestamp_utc : DateTime
-        + forecast_version : String(32)
+        + forecast_version : String
     }
 
     class ForecastValueSQL{
@@ -268,8 +278,8 @@ classDiagram
 
     class StatusSQL{
         + status_uuid : UUID ≪ PK ≫
-        + status : String(255)
-        + message : String(255)
+        + status : String
+        + message : String
     }
 
     class InverterSQL{
@@ -289,17 +299,20 @@ classDiagram
         + model_version : UUID ≪ FK ≫
     }
 
-    UserSQL "1" -- "N" SiteGroupSQL : belongs_to
-    SiteGroupSQL "N" -- "N" SiteSQL : contains
-    SiteGroupSQL "1" -- "N" SiteGroupSiteSQL : contains
-    SiteSQL "1" -- "N" GenerationSQL : generates
-    SiteSQL "1" -- "N" ForecastSQL : forecasts
-    SiteSQL "N" -- "0" MLModelSQL : ml_model
+    UserSQL "1" -- "N" LocationGroupSQL : belongs_to
+    LocationGroupLocationSQL "N" -- "1" LocationSQL : contains
+    LocationGroupSQL "1" -- "N" LocationGroupLocationSQL : contains
+    LocationSQL "1" -- "N" GenerationSQL : generates
+    LocationSQL "1" -- "N" ForecastSQL : forecasts
+    LocationSQL "N" -- "0" MLModelSQL : ml_model
     ForecastSQL "1" -- "N" ForecastValueSQL : contains
     MLModelSQL "1" -- "N" ForecastValueSQL : forecasts
-    SiteSQL "1" -- "N" InverterSQL : contains
+    LocationSQL "1" -- "N" InverterSQL : contains
     UserSQL "1" -- "N" APIRequestSQL : performs_request
-    ClientSQL "1" -- "N" SiteSQL : owns
+    ClientSQL "1" -- "N" LocationSQL : owns
+    LocationSQL "1" -- "N" LocationLocationSQL : contains
+    LocationLocationSQL "N" -- "1" LocationSQL : contains
+    
     class Legend{
     UUID: Universally Unique Identifier
     PK: Primary Key
@@ -322,20 +335,22 @@ We have the ability to have these different scenarios
 
 ### Solution
 
+Location can mean site or region.
+
 ```mermaid
   graph TD;
-      User-- N:1 -->SiteGroup;
-      SiteGroup-- N:N -->Site;
+      User-- N:1 -->LocationGroup;
+      LocationGroup-- N:N -->Location;
 ```
 
-- One `user` is in one `sitegroup`. Each site group can have multiple users.
-- Each `sitegroup` contains multiple `sites`. One `site` can be in multiple `sitegroups`
+- One `user` is in one `loationgroup`. Each location group can have multiple users.
+- Each `locationroup` contains multiple `locations`. One `location` can be in multiple `locationgroups`
 
 ### 1. one user - one site
 
 ```mermaid
   graph TD;
-      A(User=Alice)-->B(SiteGroup=Alice1);
+      A(User=Alice)-->B(LocationGroup=Alice1);
       B --> C(Site);
 ```
 
@@ -343,7 +358,7 @@ We have the ability to have these different scenarios
 
 ```mermaid
   graph TD;
-      A(User=Alice)-->B(SiteGroup=Alice1);
+      A(User=Alice)-->B(LocationGroup=Alice1);
       B --> C1(Site1);
 B --> C2(Site2);
 ```
@@ -352,8 +367,8 @@ B --> C2(Site2);
 
 ```mermaid
   graph TD;
-      A1(User=Alice)-->B(SiteGroup);
-A2(User=Bob)-->B(SiteGroup);
+      A1(User=Alice)-->B(LocationGroup);
+A2(User=Bob)-->B(LocationGroup);
       B --> C1(Site1);
 ```
 
@@ -361,8 +376,8 @@ A2(User=Bob)-->B(SiteGroup);
 
 ```mermaid
   graph TD;
-      A1(User=Alice)-->B(SiteGroup);
-A2(User=Bob)-->B(SiteGroup);
+      A1(User=Alice)-->B(LocationGroup);
+A2(User=Bob)-->B(LocationGroup);
       B --> C1(Site1);
 B --> C2(Site2);
 ```
@@ -371,9 +386,9 @@ B --> C2(Site2);
 
 ```mermaid
   graph TD;
-      A1(User=Alice)-->B(SiteGroup1);
-A2(User=Bob)-->B(SiteGroup1);
-A3(User=OCF)-->B2(SiteGroup2);
+      A1(User=Alice)-->B(LocationGroup1);
+A2(User=Bob)-->B(LocationGroup1);
+A3(User=OCF)-->B2(LocationGroup2);
       B --> C1(Site1);
 B --> C2(Site2);
       B2 --> C1(Site1);
