@@ -115,7 +115,7 @@ def get_all_last_api_request(
     end_datetime: Optional[datetime] = None,
 ) -> List[APIRequestSQL]:
     """
-    Get all last api requests for all users
+    Get all last api requests for all users.
 
     :param session: database session
     :param include_in_url: Optional filter to include only URLs containing this string
