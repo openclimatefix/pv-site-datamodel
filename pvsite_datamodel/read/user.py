@@ -111,33 +111,42 @@ def get_all_last_api_request(
     session: Session,
     include_in_url: Optional[str] = None,
     exclude_in_url: Optional[str] = None,
+    start_datetime: Optional[datetime] = None,
+    end_datetime: Optional[datetime] = None,
 ) -> List[APIRequestSQL]:
     """
     Get all last api requests for all users.
 
     :param session: database session
-    :return:
+    :param include_in_url: Optional filter to include only URLs containing this string
+    :param exclude_in_url: Optional filter to exclude URLs containing this string
+    :param start_datetime: only get api requests after start datetime
+    :param end_datetime: only get api requests before end datetime
+    :return: List of last API requests
     """
 
-    query = session.query(APIRequestSQL)
-
-    if include_in_url is not None:
-        query = query.filter(APIRequestSQL.url.like(f"%{include_in_url}%"))
-
-    if exclude_in_url is not None:
-        query = query.filter(~APIRequestSQL.url.like(f"%{exclude_in_url}%"))
-
-    last_requests_sql: [APIRequestSQL] = (
+    query = (
         session.query(APIRequestSQL)
         .distinct(APIRequestSQL.user_uuid)
         .join(UserSQL)
         .options(contains_eager(APIRequestSQL.user))
         .populate_existing()
         .order_by(APIRequestSQL.user_uuid, APIRequestSQL.created_utc.desc())
-        .all()
     )
+    # Apply URL filtering if specified
+    if include_in_url is not None:
+        query = query.filter(APIRequestSQL.url.like(f"%{include_in_url}%"))
 
-    return last_requests_sql
+    if exclude_in_url is not None:
+        query = query.filter(~APIRequestSQL.url.like(f"%{exclude_in_url}%"))
+
+    if start_datetime is not None:
+        query = query.filter(APIRequestSQL.created_utc >= start_datetime)
+
+    if end_datetime is not None:
+        query = query.filter(APIRequestSQL.created_utc <= end_datetime)
+
+    return query.all()
 
 
 def get_api_requests_for_one_user(
