@@ -5,7 +5,7 @@ from __future__ import annotations
 # This means we can use Typing of objects that have jet to be defined
 import enum
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import JSONB, UUID
@@ -18,7 +18,7 @@ Base = declarative_base()
 class CreatedMixin:
     """Mixin to add created datetime to model."""
 
-    created_utc = sa.Column(sa.DateTime, default=lambda: datetime.now(tz=datetime.timezone.utc))
+    created_utc = sa.Column(sa.DateTime, default=lambda: datetime.now(tz=timezone.utc))
 
 
 class MLModelSQL(Base, CreatedMixin):
