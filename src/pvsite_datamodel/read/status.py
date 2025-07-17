@@ -1,13 +1,11 @@
 """Functions to read from the Status table."""
 
-from typing import Optional
-
 from sqlalchemy.orm import Session
 
 from pvsite_datamodel.sqlmodels import StatusSQL
 
 
-def get_latest_status(session: Session) -> Optional[StatusSQL]:
+def get_latest_status(session: Session) -> StatusSQL | None:
     """Get the latest entry in the status table.
 
     Return None if there are no entries.

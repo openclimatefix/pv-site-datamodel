@@ -1,4 +1,4 @@
-""" Script us used to download DNO and GSP data from NG. """
+"""Script us used to download DNO and GSP data from NG."""
 import logging
 import os
 import ssl
@@ -20,10 +20,9 @@ gsp_names = pd.read_csv(f"{dir_path}/gsp_new_ids_and_names-edited.csv")
 
 def download_dno():
     """Download DNO data from NG."""
-
     logger.debug("Getting dno file")
     ssl._create_default_https_context = ssl._create_unverified_context
-    url = "https://data.nationalgrideso.com/backend/dataset/0e377f16-95e9-4c15-a1fc-49e06a39cfa0/resource/e96db306-aaa8-45be-aecd-65b34d38923a/download/dno_license_areas_20200506.geojson"  # noqa
+    url = "https://data.nationalgrideso.com/backend/dataset/0e377f16-95e9-4c15-a1fc-49e06a39cfa0/resource/e96db306-aaa8-45be-aecd-65b34d38923a/download/dno_license_areas_20200506.geojson"
     dno_shapes = gpd.read_file(url)
 
     logger.debug("Saving dno file")
@@ -32,7 +31,6 @@ def download_dno():
 
 def download_gsp():
     """Down GSP data from NG."""
-
     logger.debug("Getting gsp file")
 
     url = (

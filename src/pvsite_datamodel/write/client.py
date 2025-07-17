@@ -1,6 +1,4 @@
-"""
-Tools for making clients in the database.
-"""
+"""Tools for making clients in the database."""
 
 import logging
 from uuid import UUID
@@ -50,7 +48,6 @@ def assign_site_to_client(session: Session, site_uuid: str, client_name: str) ->
     :param site_uuid: uuid of site
     :param client_name: name of the client the site will be assigned to.
     """
-
     client = session.query(ClientSQL).filter(ClientSQL.client_name == client_name).first()
 
     site = session.query(LocationSQL).filter(LocationSQL.location_uuid == site_uuid).first()

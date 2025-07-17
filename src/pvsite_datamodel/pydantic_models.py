@@ -1,7 +1,6 @@
-""" Pydantic models."""
+"""Pydantic models."""
 
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -35,35 +34,38 @@ class LatitudeLongitudeLimits(BaseModel):
 class PVSiteEditMetadata(BaseModel):
     """Site metadata when editing a site."""
 
-    client_site_id: Optional[int] = Field(
+    client_site_id: int | None = Field(
         None,
         description="The site ID as given by the providing user.",
     )
-    client_site_name: Optional[str] = Field(
+    client_site_name: str | None = Field(
         None,
         description="The name of the site as given by the providing user.",
     )
-    orientation: Optional[float] = Field(
+    orientation: float | None = Field(
         None,
         description="The rotation of the panel in degrees. 180° points south",
     )
-    tilt: Optional[float] = Field(
+    tilt: float | None = Field(
         None,
         description="The tile of the panel in degrees. 90° indicates the panel is vertical.",
     )
-    latitude: Optional[float] = Field(None, description="The site's latitude", ge=-90, le=90)
-    longitude: Optional[float] = Field(None, description="The site's longitude", ge=-180, le=180)
-    inverter_capacity_kw: Optional[float] = Field(
-        None, description="The site's inverter capacity in kw", ge=0
+    latitude: float | None = Field(None, description="The site's latitude", ge=-90, le=90)
+    longitude: float | None = Field(None, description="The site's longitude", ge=-180, le=180)
+    inverter_capacity_kw: float | None = Field(
+        None,
+        description="The site's inverter capacity in kw",
+        ge=0,
     )
-    module_capacity_kw: Optional[float] = Field(
+    module_capacity_kw: float | None = Field(
         None,
         description="The site's PV module nameplate capacity in kw",
         ge=0,
     )
-    capacity_kw: Optional[float] = Field(None, description="The site's total capacity in kw", ge=0)
-    dno: Optional[str] = Field(None, description="The site's DNO")
-    gsp: Optional[str] = Field(None, description="The site's GSP")
-    client_uuid: Optional[UUID] = Field(
-        None, description="The UUID of the client this site belongs to"
+    capacity_kw: float | None = Field(None, description="The site's total capacity in kw", ge=0)
+    dno: str | None = Field(None, description="The site's DNO")
+    gsp: str | None = Field(None, description="The site's GSP")
+    client_uuid: UUID | None = Field(
+        None,
+        description="The UUID of the client this site belongs to",
     )

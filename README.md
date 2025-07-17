@@ -78,7 +78,7 @@ TODO update table
 This guide walks you through setting up the repository locally, installing dependencies. Follow the steps carefully to get your development environment up and running.
 
 **Pre-requisite:** 
-- Install [Poetry][poetry] for dependency management
+Use `uv` for virtual environment management.
 
 - Install Pgadmin4 for database management
 
@@ -126,7 +126,7 @@ export DB_URL="postgresql://<username>:<password>@<your_ip>:5432/<your_database>
 7. **Run the migrations:**
 ```bash
 
-poetry run alembic upgrade head
+uv run alembic upgrade head
 ```
 
 
@@ -146,7 +146,7 @@ cd pv-site-datamodel
 
 3. **Install Dependencies:**
 ```bash
-poetry install
+uv sync
 ```
 
 
@@ -399,8 +399,6 @@ B2 --> C3(Site3);
 ## Database migrations using alembic
 
 [./alembic](./alembic)
-
-[poetry]: https://python-poetry.org/
 
 ## Contributors ✨
 

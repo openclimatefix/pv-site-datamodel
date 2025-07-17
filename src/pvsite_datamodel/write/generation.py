@@ -1,6 +1,4 @@
-"""
-Write helpers for the Generation table.
-"""
+"""Write helpers for the Generation table."""
 
 import datetime as dt
 import logging
@@ -23,7 +21,6 @@ def insert_generation_values(
     :param session: sqlalchemy session for interacting with the database
     :param df: dataframe with the data to insert
     """
-
     # rename site_uuid to location_uuid
     if "site_uuid" in df.columns and "location_uuid" not in df.columns:
         df.rename(columns={"site_uuid": "location_uuid"}, inplace=True)

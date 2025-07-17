@@ -1,8 +1,7 @@
-""" Functions for reading user data from the database. """
+"""Functions for reading user data from the database."""
 
 import logging
 from datetime import datetime
-from typing import List, Optional
 
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Session, contains_eager
@@ -13,15 +12,13 @@ logger = logging.getLogger(__name__)
 
 
 def get_user_by_email(session: Session, email: str, make_new_user_if_none: bool = True) -> UserSQL:
-    """
-    Get user by email. If user does not exist, make one.
+    """Get user by email. If user does not exist, make one.
 
     :param session: database session
     :param email: email of user
     :param make_new_user_if_none: make user with email if doesn't exist
     :return: user object
     """
-
     user = session.query(UserSQL).filter(UserSQL.email == email).first()
 
     if user is None and make_new_user_if_none is True:
@@ -35,7 +32,8 @@ def get_user_by_email(session: Session, email: str, make_new_user_if_none: bool 
         stmt = postgresql.insert(UserSQL.__table__)
         stmt = stmt.on_conflict_do_nothing()
         session.execute(
-            stmt, [{"location_group_uuid": site_group.location_group_uuid, "email": email}]
+            stmt,
+            [{"location_group_uuid": site_group.location_group_uuid, "email": email}],
         )
 
         # get a new user
@@ -45,9 +43,8 @@ def get_user_by_email(session: Session, email: str, make_new_user_if_none: bool 
 
 
 # get all users
-def get_all_users(session: Session) -> List[UserSQL]:
-    """
-    Get all users from the database.
+def get_all_users(session: Session) -> list[UserSQL]:
+    """Get all users from the database.
 
     :param session: database session
     """
@@ -60,15 +57,17 @@ def get_all_users(session: Session) -> List[UserSQL]:
     return users
 
 
-def get_site_group_by_name(session: Session, site_group_name: str, create_if_none: bool = True):
-    """
-    Get site group by name. If site group does not exist, make one.
+def get_site_group_by_name(
+    session: Session,
+    site_group_name: str,
+    create_if_none: bool = True,
+) -> LocationGroupSQL:
+    """Get site group by name. If site group does not exist, make one.
 
     :param session: database session
     :param site_group_name: name of site group
     :return: site group object
     """
-
     site_group = (
         session.query(LocationGroupSQL)
         .filter(LocationGroupSQL.location_group_name == site_group_name)
@@ -92,9 +91,8 @@ def get_site_group_by_name(session: Session, site_group_name: str, create_if_non
 
 
 # get all site groups
-def get_all_site_groups(session: Session) -> List[LocationGroupSQL]:
-    """
-    Get all site groups from the database.
+def get_all_site_groups(session: Session) -> list[LocationGroupSQL]:
+    """Get all site groups from the database.
 
     :param session: database session
     """
@@ -109,13 +107,12 @@ def get_all_site_groups(session: Session) -> List[LocationGroupSQL]:
 
 def get_all_last_api_request(
     session: Session,
-    include_in_url: Optional[str] = None,
-    exclude_in_url: Optional[str] = None,
-    start_datetime: Optional[datetime] = None,
-    end_datetime: Optional[datetime] = None,
-) -> List[APIRequestSQL]:
-    """
-    Get all last api requests for all users.
+    include_in_url: str | None = None,
+    exclude_in_url: str | None = None,
+    start_datetime: datetime | None = None,
+    end_datetime: datetime | None = None,
+) -> list[APIRequestSQL]:
+    """Get all last api requests for all users.
 
     :param session: database session
     :param include_in_url: Optional filter to include only URLs containing this string
@@ -124,7 +121,6 @@ def get_all_last_api_request(
     :param end_datetime: only get api requests before end datetime
     :return: List of last API requests
     """
-
     query = (
         session.query(APIRequestSQL)
         .distinct(APIRequestSQL.user_uuid)
@@ -152,20 +148,18 @@ def get_all_last_api_request(
 def get_api_requests_for_one_user(
     session: Session,
     email: str,
-    start_datetime: Optional[datetime] = None,
-    end_datetime: Optional[datetime] = None,
-    include_in_url: Optional[str] = None,
-    exclude_in_url: Optional[str] = None,
-) -> List[APIRequestSQL]:
-    """
-    Get all api requests for one user.
+    start_datetime: datetime | None = None,
+    end_datetime: datetime | None = None,
+    include_in_url: str | None = None,
+    exclude_in_url: str | None = None,
+) -> list[APIRequestSQL]:
+    """Get all api requests for one user.
 
     :param session: database session
     :param email: user email
     :param start_datetime: only get api requests after start datetime
     :param end_datetime: only get api requests before end datetime
     """
-
     query = session.query(APIRequestSQL)
     query = query.join(UserSQL).filter(UserSQL.email == email)
 

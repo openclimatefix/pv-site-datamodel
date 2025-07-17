@@ -1,9 +1,6 @@
-"""
-Write helpers for the Forecast and ForecastValues table.
-"""
+"""Write helpers for the Forecast and ForecastValues table."""
 
 import logging
-from typing import Optional
 
 import pandas as pd
 from sqlalchemy.orm import Session
@@ -18,8 +15,8 @@ def insert_forecast_values(
     session: Session,
     forecast_meta: dict,
     forecast_values_df: pd.DataFrame,
-    ml_model_name: Optional[str] = None,
-    ml_model_version: Optional[str] = None,
+    ml_model_name: str | None = None,
+    ml_model_version: str | None = None,
 ):
     """Insert a dataframe of forecast values and forecast meta info into the database.
 
@@ -29,7 +26,6 @@ def insert_forecast_values(
     :param ml_model_name: name of the ML model used to generate the forecast
     :param ml_model_version: version of the ML model used to generate the forecast
     """
-
     if "site_uuid" in forecast_meta and "location_uuid" not in forecast_meta:
         forecast_meta["location_uuid"] = forecast_meta["site_uuid"]
         forecast_meta.pop("site_uuid")
@@ -55,6 +51,6 @@ def insert_forecast_values(
                 ml_model_uuid=ml_model_uuid,
             )
             for row in rows
-        ]
+        ],
     )
     session.commit()

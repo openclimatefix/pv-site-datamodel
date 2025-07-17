@@ -92,7 +92,8 @@ def test_delete_site_group_with_users(db_session):
     )
 
     message = delete_site_group(
-        session=db_session, site_group_name=site_group_1.location_group_name
+        session=db_session,
+        site_group_name=site_group_1.location_group_name,
     )
 
     assert (

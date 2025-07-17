@@ -1,4 +1,4 @@
-""" Functions for reading user data from the database. """
+"""Functions for reading user data from the database."""
 
 import logging
 
@@ -10,17 +10,17 @@ logger = logging.getLogger(__name__)
 
 
 def get_client_by_name(
-    session: Session, name: str, make_new_client_if_none: bool = True
+    session: Session,
+    name: str,
+    make_new_client_if_none: bool = True,
 ) -> ClientSQL:
-    """
-    Get client by name. If client does not exist, make one.
+    """Get client by name. If client does not exist, make one.
 
     :param session: database session
     :param name: name of the client
     :param make_new_client_if_none: make client with name if doesn't exist
     :return: client object
     """
-
     client = session.query(ClientSQL).filter(ClientSQL.client_name == name).first()
 
     if client is None:

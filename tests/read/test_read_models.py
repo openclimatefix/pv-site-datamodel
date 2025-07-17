@@ -1,4 +1,5 @@
-""" test get models"""
+"""test get models"""
+
 import datetime as dt
 from uuid import uuid4
 
@@ -11,7 +12,10 @@ from pvsite_datamodel.write.forecast import insert_forecast_values
 
 def test_get_model(db_session):
     model_read_1 = get_or_create_model(
-        session=db_session, name="test_name", version="9.9.9", description="test_desc"
+        session=db_session,
+        name="test_name",
+        version="9.9.9",
+        description="test_desc",
     )
     model_read_2 = get_or_create_model(session=db_session, name="test_name", version="9.9.9")
 
@@ -53,7 +57,7 @@ def test_get_models_with_datetimes(db_session, forecast_valid_input):
         ml_model_version=model.version,
     )
 
-    now = dt.datetime.now(dt.timezone.utc)
+    now = dt.datetime.now(dt.UTC)
     models = get_models(session=db_session, start_datetime=now)
     assert len(models) == 1
 
@@ -78,12 +82,14 @@ def test_get_models_with_datetimes_with_sites(db_session, forecast_valid_input):
 
     models = get_models(
         session=db_session,
-        start_datetime=dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=1),
+        start_datetime=dt.datetime.now(dt.UTC) - dt.timedelta(minutes=1),
         site_uuid=forecast_valid_meta_input["location_uuid"],
     )
     assert len(models) == 1
 
     models = get_models(
-        session=db_session, start_datetime=dt.datetime.now(dt.timezone.utc), site_uuid=str(uuid4())
+        session=db_session,
+        start_datetime=dt.datetime.now(dt.UTC),
+        site_uuid=str(uuid4()),
     )
     assert len(models) == 0

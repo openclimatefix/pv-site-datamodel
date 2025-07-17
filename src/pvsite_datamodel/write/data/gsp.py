@@ -1,4 +1,4 @@
-""" GSP functions for UK regions. """
+"""GSP functions for UK regions."""
 
 import logging
 import os
@@ -20,16 +20,14 @@ gsp_local_file = f"{dir_path}/gsp"
 gsp_names = pd.read_csv(f"{dir_path}/gsp_new_ids_and_names-edited.csv")
 
 
-def get_gsp(latitude, longitude) -> dict:
-    """
-    Get a DNO from latitude and longitude.
+def get_gsp(latitude: float, longitude: float) -> dict:
+    """Get a DNO from latitude and longitude.
 
     :param latitude:
     :param longitude:
 
     :return: dno is this format {"dno_id": dno_id, "name": dno_name, "long_name": dno_long_name}=
     """
-
     # load file
     gsp = gpd.read_file(gsp_local_file)
 

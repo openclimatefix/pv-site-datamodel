@@ -1,37 +1,40 @@
+[build-system]
+requires = ["setuptools>=67", "wheel", "setuptools-git-versioning>=2.0,<3"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "pvsite-datamodel"
 dynamic = [ "version" ]
 description = "SDK for interacting with the PVSite database"
 authors = [{ name = "Open Climate Fix team", email = "info@openclimatefix.org" }]
 readme = "README.md"
+requires-python = ">=3.11.0"
+dependencies = [
+    "sqlalchemy>=2.0,<3.0",
+    "psycopg2-binary>=2.9.5,<3.0",
+    "pandas>=2.2.3,<3.0",
+    "pydantic>=2.3.0,<3.0",
+    "alembic>=1.16.4",
+]
 
-[tool.poetry]
-name = "pvsite-datamodel"
-version = "1.2.3"
-description = "SDK for interacting with the PVSite database"
-authors = ["Open Climate Fix"]
-readme = "README.md"
-
-[tool.poetry.dependencies]
-python = "^3.11"
-sqlalchemy = "^2.0"
-psycopg2-binary = "^2.9.5"
-pandas = "^2.2.3"
-pydantic = "^2.3.0"
-
-[tool.poetry.group.dev.dependencies]
-ruff = "^0.0.249"
-pytest = "^7.2.1"
-testcontainers = "^3.7.1"
-black = "^23.1.0"
-isort = "^5.12.0"
-pytest-cov = "^4.0.0"
-alembic = "^1.9.4"
-geopandas = "^0.14.2"
+[dependency-groups]
+dev = [
+    "ruff",
+    "pytest",
+    "testcontainers",
+    "black",
+    "isort",
+    "pytest-cov",
+    "alembic",
+    "geopandas"
+]
 
 [project.urls]
-"GitHub" = "https://github.com/openclimatefix/pvsite-datamodel"
+repository = "https://github.com/openclimatefix/pvsite-datamodel"
 
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["test*"]
 
 [tool.mypy]
 python_version = "3.10"
@@ -42,7 +45,15 @@ exclude = [
     "^gen/*$", # TOML basic string (double-quotes, backslash and other characters need escaping)
 ]
 
+
+# Ruff configuration
+# * See https://beta.ruff.rs/docs/
 [tool.ruff]
+line-length = 100
+indent-width = 4
+exclude = ["__init__.py"]
+
+[tool.ruff.lint]
 select = [
     "E", # pycodestyle
     "W", # newline at end of files
@@ -56,29 +67,24 @@ select = [
     "T20", # flake8-print
     "PT" # flake8-print
 ]
-fixable = ['E']
-line-length = 100
+fixable = ["ALL"]
 ignore = ["D203", "D213", "D200" ,"D202", "D210", "D212", "D415", "D105"]
-exclude = ["__init__.py"]
 
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["E402"]
-"tests/*" = ["S101", "D", "PT004", "PT012"]
-"setup.py" = ["D100"]
-"alembic/versions/*" = ["D"]
+[tool.ruff.lint.per-file-ignores]
+"*test*" = ["D", "ANN", "S101"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+docstring-code-format = true
+docstring-code-line-length = 100
 
 [tool.pytest.ini_options]
 addopts = [
     "--import-mode=importlib",
 ]
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.isort]
-profile = "black"
-line_length = 100
-
-[tool.black]
-line-length = 100

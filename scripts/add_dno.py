@@ -1,4 +1,4 @@
-""" This script adds the relevant GSP to the sites
+"""This script adds the relevant GSP to the sites
 
 Might need to install nowcasting_dataset
 

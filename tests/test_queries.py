@@ -12,7 +12,7 @@ def _add_forecast_value(session, forecast, power: int, ts):
             forecast_power_kw=power,
             start_utc=ts,
             end_utc=ts + dt.timedelta(minutes=5),
-        )
+        ),
     )
 
 

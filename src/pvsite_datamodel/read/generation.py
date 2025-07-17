@@ -3,7 +3,6 @@
 import logging
 import uuid
 from datetime import datetime
-from typing import List, Optional, Union
 
 from sqlalchemy import func
 from sqlalchemy.orm import Session, contains_eager
@@ -22,10 +21,10 @@ logger = logging.getLogger(__name__)
 
 def get_pv_generation_by_user_uuids(
     session: Session,
-    start_utc: Optional[datetime] = None,
-    end_utc: Optional[datetime] = None,
-    user_uuids: Optional[List[str]] = None,
-) -> List[GenerationSQL]:
+    start_utc: datetime | None = None,
+    end_utc: datetime | None = None,
+    user_uuids: list[str] | None = None,
+) -> list[GenerationSQL]:
     """Get the generation data by user uuids.
 
     :param session: database session
@@ -61,18 +60,18 @@ def get_pv_generation_by_user_uuids(
     )
 
     # get all results
-    generations: List[GenerationSQL] = query.all()
+    generations: list[GenerationSQL] = query.all()
 
     return generations
 
 
 def get_pv_generation_by_sites(
     session: Session,
-    start_utc: Optional[datetime] = None,
-    end_utc: Optional[datetime] = None,
-    site_uuids: Optional[List[uuid.UUID]] = None,
-    sum_by: Optional[str] = None,
-) -> Union[List[GenerationSQL], List[GenerationSum]]:
+    start_utc: datetime | None = None,
+    end_utc: datetime | None = None,
+    site_uuids: list[uuid.UUID] | None = None,
+    sum_by: str | None = None,
+) -> list[GenerationSQL] | list[GenerationSum]:
     """Get the generation data by site.
 
     :param session: database session
@@ -82,7 +81,6 @@ def get_pv_generation_by_sites(
     :param sum_by: optional string to sum by. Must be one of ['total', 'dno', 'gsp']
     :return: list of pv yields
     """
-
     if sum_by not in ["total", "dno", "gsp", None]:
         raise ValueError(f"sum_by must be one of ['total', 'dno', 'gsp'], not {sum_by}")
 
@@ -110,7 +108,7 @@ def get_pv_generation_by_sites(
 
     if sum_by is None:
         # get all results
-        generations: List[GenerationSQL] = query.all()
+        generations: list[GenerationSQL] = query.all()
     else:
         subquery = query.subquery()
 
@@ -128,15 +126,19 @@ def get_pv_generation_by_sites(
         query = query.order_by(*group_by_variables)
         generations_raw = query.all()
 
-        generations: List[GenerationSum] = []
+        generations: list[GenerationSum] = []
         for generation_raw in generations_raw:
             if len(generation_raw) == 2:
                 generation = GenerationSum(
-                    start_utc=generation_raw[0], power_kw=generation_raw[1], name="total"
+                    start_utc=generation_raw[0],
+                    power_kw=generation_raw[1],
+                    name="total",
                 )
             else:
                 generation = GenerationSum(
-                    start_utc=generation_raw[0], power_kw=generation_raw[2], name=generation_raw[1]
+                    start_utc=generation_raw[0],
+                    power_kw=generation_raw[2],
+                    name=generation_raw[1],
                 )
             generations.append(generation)
 
