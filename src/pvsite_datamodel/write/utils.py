@@ -1,6 +1,4 @@
-"""
-Useful functions for write operations.
-"""
+"""Useful functions for write operations."""
 
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Session

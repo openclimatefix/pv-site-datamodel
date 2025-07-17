@@ -1,4 +1,4 @@
-""" Utils for GSP and DNO. """
+"""Utils for GSP and DNO."""
 
 try:
     import pyproj
@@ -20,8 +20,7 @@ WGS84_CRS = f"EPSG:{WGS84}"
 
 
 def lat_lon_to_osgb(lat: float, lon: float) -> [float, float]:
-    """
-    Change lat, lon to a OSGB coordinates.
+    """Change lat, lon to a OSGB coordinates.
 
     lat: latitude
     lon: longitude
@@ -33,25 +32,23 @@ def lat_lon_to_osgb(lat: float, lon: float) -> [float, float]:
 
 
 class Transformers:
-    """
-    Class to store transformation from one Grid to another.
+    """Class to store transformation from one Grid to another.
 
     Its good to make this only once, but need the
     option of updating them, due to out of data grids.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Init."""
         self._osgb_to_lat_lon = None
         self._lat_lon_to_osgb = None
         self._osgb_to_geostationary = None
         self.make_transformers()
 
-    def make_transformers(self):
-        """
-        Make transformers.
+    def make_transformers(self) -> None:
+        """Make transformers.
 
-         Nice to only make these once, as it makes calling the functions below quicker
+        Nice to only make these once, as it makes calling the functions below quicker
         """
         self._lat_lon_to_osgb = pyproj.Transformer.from_crs(crs_from=WGS84, crs_to=OSGB)
 

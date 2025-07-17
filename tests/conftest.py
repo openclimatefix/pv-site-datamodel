@@ -5,7 +5,6 @@ import json
 import os.path
 import uuid
 from pathlib import Path
-from typing import List
 
 import pytest
 from sqlalchemy import create_engine
@@ -67,7 +66,6 @@ def db_session(engine):
 @pytest.fixture()
 def sites(db_session, client):
     """Create some fake sites."""
-
     sites = []
     for i in range(0, 4):
         site = LocationSQL(
@@ -78,7 +76,7 @@ def sites(db_session, client):
             capacity_kw=4,
             inverter_capacity_kw=4,
             module_capacity_kw=4.3,
-            created_utc=dt.datetime.now(dt.timezone.utc),
+            created_utc=dt.datetime.now(dt.UTC),
             ml_id=i,
             dno=json.dumps({"dno_id": str(i), "name": "unknown", "long_name": "unknown"}),
             gsp=json.dumps({"gsp_id": str(i), "name": "unknown"}),
@@ -97,7 +95,7 @@ def sites(db_session, client):
 
 @pytest.fixture()
 def make_sites_for_country(db_session):
-    """Create some fake sites for specfic country"""
+    """Create some fake sites for specfic country."""
 
     def _make_sites_for_country(country="uk"):
         sites = []
@@ -110,7 +108,7 @@ def make_sites_for_country(db_session):
                 capacity_kw=4,
                 inverter_capacity_kw=4,
                 module_capacity_kw=4.3,
-                created_utc=dt.datetime.now(dt.timezone.utc),
+                created_utc=dt.datetime.now(dt.UTC),
                 ml_id=i,
                 dno=json.dumps({"dno_id": str(i), "name": "unknown", "long_name": "unknown"}),
                 gsp=json.dumps({"gsp_id": str(i), "name": "unknown"}),
@@ -131,8 +129,7 @@ def make_sites_for_country(db_session):
 
 @pytest.fixture()
 def user_with_sites(db_session, sites):
-    """Create a user with sites"""
-
+    """Create a user with sites."""
     site_group = create_site_group(db_session=db_session)
     user = create_user(
         session=db_session,
@@ -147,7 +144,7 @@ def user_with_sites(db_session, sites):
 @pytest.fixture()
 def generations(db_session, sites):
     """Create some fake generations."""
-    now = dt.datetime.now(dt.timezone.utc)
+    now = dt.datetime.now(dt.UTC)
     start_times = [now - dt.timedelta(minutes=x) for x in range(10)]
 
     all_generations = []
@@ -167,7 +164,7 @@ def generations(db_session, sites):
 
 @pytest.fixture()
 def test_time():
-    return dt.datetime(2022, 7, 25, 0, 0, 0, 0, dt.timezone.utc)
+    return dt.datetime(2022, 7, 25, 0, 0, 0, 0, dt.UTC)
 
 
 @pytest.fixture()
@@ -185,7 +182,7 @@ def forecast_valid_meta_input(sites):
 def forecast_valid_values_input():
     n = 10  # number of forecast values
     step = 15  # in minutes
-    init_utc = dt.datetime.now(dt.timezone.utc)
+    init_utc = dt.datetime.now(dt.UTC)
     start_utc = [init_utc + dt.timedelta(minutes=i * step) for i in range(n)]
     end_utc = [d + dt.timedelta(minutes=step) for d in start_utc]
     forecast_power_kw = [i * 10 for i in range(n)]
@@ -225,7 +222,7 @@ def forecast_with_invalid_values_input(forecast_valid_meta_input, forecast_valid
 def forecast_valid_site(sites):
     site_uuid = sites[0].location_uuid
 
-    start_utc = [dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(10)]
+    start_utc = [dt.datetime.now(dt.UTC) - dt.timedelta(minutes=x) for x in range(10)]
     end_utc = [d + dt.timedelta(minutes=10) for d in start_utc]
 
     return {
@@ -238,7 +235,7 @@ def forecast_valid_site(sites):
 
 @pytest.fixture()
 def forecast_invalid_site():
-    now = dt.datetime.now(dt.timezone.utc)
+    now = dt.datetime.now(dt.UTC)
     return {
         "target_start_utc": [now],
         "target_end_utc": [now + dt.timedelta(minutes=10)],
@@ -250,7 +247,7 @@ def forecast_invalid_site():
 @pytest.fixture()
 def forecast_invalid_dataframe():
     return {
-        "target_datetime_utc": [dt.datetime.now(dt.timezone.utc).isoformat()],
+        "target_datetime_utc": [dt.datetime.now(dt.UTC).isoformat()],
         "forecast_Mw": [1.0],
         "site_uuid": ["not a uuid"],
     }
@@ -268,9 +265,7 @@ def generation_valid_site(sites):
     n_rows = 10
 
     return {
-        "start_utc": [
-            dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=x) for x in range(n_rows)
-        ],
+        "start_utc": [dt.datetime.now(dt.UTC) - dt.timedelta(minutes=x) for x in range(n_rows)],
         "power_kw": [float(x) for x in range(n_rows)],
         "site_uuid": [site_uuid for _ in range(n_rows)],
     }
@@ -282,7 +277,7 @@ def generation_valid_end_utc(sites):
 
     n_rows = 10
     delta = 7
-    time_now = dt.datetime.now(dt.timezone.utc)
+    time_now = dt.datetime.now(dt.UTC)
 
     return {
         "start_utc": [time_now - dt.timedelta(minutes=x) for x in range(n_rows)],
@@ -295,16 +290,16 @@ def generation_valid_end_utc(sites):
 @pytest.fixture()
 def generation_invalid_dataframe():
     return {
-        "start_utc": [dt.datetime.now(dt.timezone.utc)],
+        "start_utc": [dt.datetime.now(dt.UTC)],
         "power_kw": [1.0],
         "site_uuid": ["ahsjdkri48ggfhdu47fyajs837ghv612"],
     }
 
 
 @pytest.fixture()
-def statuses(db_session) -> List[StatusSQL]:
+def statuses(db_session) -> list[StatusSQL]:
     """Create some fake statuses."""
-    statuses: List[StatusSQL] = []
+    statuses: list[StatusSQL] = []
     for i in range(0, 4):
         status = StatusSQL(
             status="OK",

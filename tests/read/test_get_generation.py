@@ -1,5 +1,4 @@
 import datetime as dt
-from typing import List
 
 import pytest
 from sqlalchemy.orm import Query
@@ -29,7 +28,8 @@ class TestGetPVGenerationByUser:
         site_group.locations.append(site)
 
         generations = get_pv_generation_by_user_uuids(
-            session=db_session, user_uuids=[user.user_uuid]
+            session=db_session,
+            user_uuids=[user.user_uuid],
         )
 
         assert len(generations) == 10
@@ -45,8 +45,8 @@ class TestGetPVGenerationByUser:
         )
         site_group.locations.append(site)
 
-        window_lower: dt.datetime = dt.datetime.now(dt.timezone.utc) - dt.timedelta(minutes=7)
-        window_upper: dt.datetime = dt.datetime.now(dt.timezone.utc) + dt.timedelta(minutes=8)
+        window_lower: dt.datetime = dt.datetime.now(dt.UTC) - dt.timedelta(minutes=7)
+        window_upper: dt.datetime = dt.datetime.now(dt.UTC) + dt.timedelta(minutes=8)
 
         generations = get_pv_generation_by_user_uuids(
             session=db_session,
@@ -66,7 +66,8 @@ class TestGetPVGenerationBySites:
         site: LocationSQL = query.first()
 
         generations = get_pv_generation_by_sites(
-            session=db_session, site_uuids=[site.location_uuid]
+            session=db_session,
+            site_uuids=[site.location_uuid],
         )
 
         assert len(generations) == 10
@@ -75,10 +76,11 @@ class TestGetPVGenerationBySites:
 
     def test_gets_generation_for_multiple_input_sites(self, generations, db_session):
         query: Query = db_session.query(LocationSQL)
-        sites: List[LocationSQL] = query.all()
+        sites: list[LocationSQL] = query.all()
 
         generations = get_pv_generation_by_sites(
-            session=db_session, site_uuids=[site.location_uuid for site in sites]
+            session=db_session,
+            site_uuids=[site.location_uuid for site in sites],
         )
 
         assert len(generations) == 10 * len(sites)
@@ -90,10 +92,12 @@ class TestGetPVGenerationBySites:
 
     def test_gets_generation_for_multiple_sum_total(self, generations, db_session):
         query: Query = db_session.query(LocationSQL)
-        sites: List[LocationSQL] = query.all()
+        sites: list[LocationSQL] = query.all()
 
         generations = get_pv_generation_by_sites(
-            session=db_session, site_uuids=[site.location_uuid for site in sites], sum_by="total"
+            session=db_session,
+            site_uuids=[site.location_uuid for site in sites],
+            sum_by="total",
         )
 
         assert len(generations) == 10
@@ -103,27 +107,33 @@ class TestGetPVGenerationBySites:
 
     def test_gets_generation_for_multiple_sum_gsp(self, generations, db_session):
         query: Query = db_session.query(LocationSQL)
-        sites: List[LocationSQL] = query.all()
+        sites: list[LocationSQL] = query.all()
 
         generations = get_pv_generation_by_sites(
-            session=db_session, site_uuids=[site.location_uuid for site in sites], sum_by="gsp"
+            session=db_session,
+            site_uuids=[site.location_uuid for site in sites],
+            sum_by="gsp",
         )
         assert len(generations) == 10 * len(sites)
 
     def test_gets_generation_for_multiple_sum_dno(self, generations, db_session):
         query: Query = db_session.query(LocationSQL)
-        sites: List[LocationSQL] = query.all()
+        sites: list[LocationSQL] = query.all()
 
         generations = get_pv_generation_by_sites(
-            session=db_session, site_uuids=[site.location_uuid for site in sites], sum_by="dno"
+            session=db_session,
+            site_uuids=[site.location_uuid for site in sites],
+            sum_by="dno",
         )
         assert len(generations) == 10 * len(sites)
 
     def test_gets_generation_for_multiple_sum_error(self, generations, db_session):
         query: Query = db_session.query(LocationSQL)
-        sites: List[LocationSQL] = query.all()
+        sites: list[LocationSQL] = query.all()
 
-        with pytest.raises(ValueError):  # noqa
+        with pytest.raises(ValueError): # noqa: PT011
             _ = get_pv_generation_by_sites(
-                session=db_session, site_uuids=[site.location_uuid for site in sites], sum_by="blah"
+                session=db_session,
+                site_uuids=[site.location_uuid for site in sites],
+                sum_by="blah",
             )

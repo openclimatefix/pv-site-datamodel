@@ -39,7 +39,9 @@ class TestGetUserByEmail:
 
     def test_get_user_by_email_no_user_maker_user_false(self, db_session):
         user = get_user_by_email(
-            session=db_session, email="test@test.com", make_new_user_if_none=False
+            session=db_session,
+            email="test@test.com",
+            make_new_user_if_none=False,
         )
         assert user is None
         assert len(db_session.query(UserSQL).all()) == 0

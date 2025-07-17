@@ -47,7 +47,7 @@ def test_get_api_requests_for_one_user_end_datetime(db_session):
     requests_sql = get_api_requests_for_one_user(
         session=db_session,
         email=user.email,
-        end_datetime=dt.datetime.now(tz=dt.timezone.utc) - dt.timedelta(hours=1),
+        end_datetime=dt.datetime.now(tz=dt.UTC) - dt.timedelta(hours=1),
     )
     assert len(requests_sql) == 0
 

@@ -63,7 +63,9 @@ class TestInsertForecastValues:
             insert_forecast_values(db_session, forecast_meta, forecast_values_df)
 
     def test_invalid_forecast_values_dataframe(
-        self, db_session, forecast_with_invalid_values_input
+        self,
+        db_session,
+        forecast_with_invalid_values_input,
     ):
         """test function errors on invalid forecast values dataframe"""
         forecast_meta, forecast_values = forecast_with_invalid_values_input

@@ -1,7 +1,7 @@
-""" Read functions for getting ML models. """
+"""Read functions for getting ML models."""
+
 import logging
 from datetime import datetime
-from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
@@ -11,10 +11,12 @@ logger = logging.getLogger(__name__)
 
 
 def get_or_create_model(
-    session: Session, name: str, version: Optional[str] = None, description: Optional[str] = None
+    session: Session,
+    name: str,
+    version: str | None = None,
+    description: str | None = None,
 ) -> MLModelSQL:
-    """
-    Get model object from name and version.
+    """Get model object from name and version.
 
     A new model is made if it doesn't not exists
 
@@ -26,7 +28,6 @@ def get_or_create_model(
     return: Model object
 
     """
-
     # start main query
     query = session.query(MLModelSQL)
 
@@ -43,7 +44,7 @@ def get_or_create_model(
 
     if len(models) == 0:
         logger.debug(
-            f"Model for name {name} and version {version} does not exist so going to add it"
+            f"Model for name {name} and version {version} does not exist so going to add it",
         )
         model = MLModelSQL(name=name, version=version)
 
@@ -73,12 +74,11 @@ def get_or_create_model(
 
 def get_models(
     session: Session,
-    start_datetime: Optional[datetime] = None,
-    end_datetime: Optional[datetime] = None,
-    site_uuid: Optional[str] = None,
-) -> List[MLModelSQL]:
-    """
-    Get model names from forecast values.
+    start_datetime: datetime | None = None,
+    end_datetime: datetime | None = None,
+    site_uuid: str | None = None,
+) -> list[MLModelSQL]:
+    """Get model names from forecast values.
 
     They are distinct on model name
     By adding start and end datetimes, we only look at forecast values in that time range.

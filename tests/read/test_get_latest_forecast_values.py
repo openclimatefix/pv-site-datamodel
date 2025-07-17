@@ -1,5 +1,4 @@
 import datetime as dt
-from typing import Optional
 
 import pytest
 
@@ -12,10 +11,10 @@ def _add_forecast_value(
     forecast,
     power: int,
     ts,
-    horizon_minutes: Optional[int] = None,
-    created_utc: Optional[dt.datetime] = None,
-    model_name: Optional[str] = None,
-    probabilistic_values: Optional[dict] = None,
+    horizon_minutes: int | None = None,
+    created_utc: dt.datetime | None = None,
+    model_name: str | None = None,
+    probabilistic_values: dict | None = None,
 ):
     fv = ForecastValueSQL(
         forecast_uuid=forecast.forecast_uuid,
@@ -66,11 +65,11 @@ def test_get_latest_forecast_values(db_session, sites):
     db_session.add_all([s1_f1, s1_f2, s2_f1])
     db_session.commit()
 
-    d0 = dt.datetime(2000, 1, 1, 0, tzinfo=dt.timezone.utc)
-    d1 = dt.datetime(2000, 1, 1, 1, tzinfo=dt.timezone.utc)
-    d2 = dt.datetime(2000, 1, 1, 2, tzinfo=dt.timezone.utc)
-    d3 = dt.datetime(2000, 1, 1, 3, tzinfo=dt.timezone.utc)
-    d4 = dt.datetime(2000, 1, 1, 4, tzinfo=dt.timezone.utc)
+    d0 = dt.datetime(2000, 1, 1, 0, tzinfo=dt.UTC)
+    d1 = dt.datetime(2000, 1, 1, 1, tzinfo=dt.UTC)
+    d2 = dt.datetime(2000, 1, 1, 2, tzinfo=dt.UTC)
+    d3 = dt.datetime(2000, 1, 1, 3, tzinfo=dt.UTC)
+    d4 = dt.datetime(2000, 1, 1, 4, tzinfo=dt.UTC)
 
     # site 1 forecast 1
     _add_forecast_value(db_session, s1_f1, 1.0, d0, horizon_minutes=0)
@@ -95,13 +94,12 @@ def test_get_latest_forecast_values(db_session, sites):
         s2: [(d1, 8), (d2, 9)],
     }
 
-    assert list(sorted(latest_forecast.keys())) == list(sorted(expected.keys()))
+    assert sorted(latest_forecast.keys()) == sorted(expected.keys())
 
     for site_uuid, forecast_values in latest_forecast.items():
         # Format the values in a way that we can compare them.
         values_as_tuple = [
-            (v.start_utc.replace(tzinfo=dt.timezone.utc), v.forecast_power_kw)
-            for v in forecast_values
+            (v.start_utc.replace(tzinfo=dt.UTC), v.forecast_power_kw) for v in forecast_values
         ]
 
         assert values_as_tuple == expected[site_uuid]
@@ -111,33 +109,48 @@ def test_get_latest_forecast_values(db_session, sites):
         site_uuids=site_uuids,
         start_utc=d1,
         sum_by="total",
-        created_by=dt.datetime.now(tz=dt.timezone.utc) - dt.timedelta(hours=3),
+        created_by=dt.datetime.now(tz=dt.UTC) - dt.timedelta(hours=3),
     )
     assert len(latest_forecast) == 0
 
     latest_forecast = get_latest_forecast_values_by_site(
-        session=db_session, site_uuids=site_uuids, start_utc=d1, sum_by="total"
+        session=db_session,
+        site_uuids=site_uuids,
+        start_utc=d1,
+        sum_by="total",
     )
     assert len(latest_forecast) == 4
 
     latest_forecast = get_latest_forecast_values_by_site(
-        session=db_session, site_uuids=site_uuids, start_utc=d1, sum_by="dno"
+        session=db_session,
+        site_uuids=site_uuids,
+        start_utc=d1,
+        sum_by="dno",
     )
     assert len(latest_forecast) == 4 + 2  # 4 from site 1, 2 from site 2
 
     latest_forecast = get_latest_forecast_values_by_site(
-        session=db_session, site_uuids=site_uuids, start_utc=d2, sum_by="gsp"
+        session=db_session,
+        site_uuids=site_uuids,
+        start_utc=d2,
+        sum_by="gsp",
     )
     assert len(latest_forecast) == 3 + 1  # 3 from site 1, 1 from site 2
 
     latest_forecast = get_latest_forecast_values_by_site(
-        session=db_session, site_uuids=site_uuids, start_utc=d2, forecast_horizon_minutes=60
+        session=db_session,
+        site_uuids=site_uuids,
+        start_utc=d2,
+        forecast_horizon_minutes=60,
     )
     assert len(latest_forecast) == 2
 
-    with pytest.raises(ValueError):  # noqa
+    with pytest.raises(ValueError): # noqa: PT011
         _ = get_latest_forecast_values_by_site(
-            session=db_session, site_uuids=site_uuids, start_utc=d2, sum_by="bla"
+            session=db_session,
+            site_uuids=site_uuids,
+            start_utc=d2,
+            sum_by="bla",
         )
 
 
@@ -202,7 +215,7 @@ def test_get_latest_forecast_values_with_end_utc(db_session, sites):
         s2: [(d1, 8)],
     }
 
-    assert list(sorted(latest_forecast.keys())) == list(sorted(expected.keys()))
+    assert sorted(latest_forecast.keys()) == sorted(expected.keys())
 
     for site_uuid, forecast_values in latest_forecast.items():
         # Format the values in a way that we can compare them.
@@ -253,20 +266,23 @@ def test_get_latest_forecast_values_day_head(db_session, sites):
     _add_forecast_value(db_session, s1_f2, 6.0, d2, horizon_minutes=180, created_utc=cr2)
 
     latest_forecast = get_latest_forecast_values_by_site(
-        session=db_session, site_uuids=site_uuids, start_utc=d0, day_ahead_hours=9
+        session=db_session,
+        site_uuids=site_uuids,
+        start_utc=d0,
+        day_ahead_hours=9,
     )
 
     expected = {s1: [(d0, 1), (d1, 2), (d2, 3)], s2: []}
 
-    assert list(sorted(latest_forecast.keys())) == list(sorted(expected.keys()))
+    assert sorted(latest_forecast.keys()) == sorted(expected.keys())
 
     for site_uuid, forecast_values in latest_forecast.items():
         # Format the values in a way that we can compare them.
         values_as_tuple = [(v.start_utc, v.forecast_power_kw) for v in forecast_values]
 
-        assert len(values_as_tuple) == len(
-            expected[site_uuid]
-        ), f"{len(values_as_tuple)=}, {len(expected[site_uuid])=}"
+        assert len(values_as_tuple) == len(expected[site_uuid]), (
+            f"{len(values_as_tuple)=}, {len(expected[site_uuid])=}"
+        )
         assert values_as_tuple == expected[site_uuid], f"{values_as_tuple=}, {expected[site_uuid]=}"
 
 
@@ -321,15 +337,15 @@ def test_get_latest_forecast_values_day_head_with_timezone(db_session, sites):
 
     expected = {s1: [(d0, 1), (d1, 5), (d2, 6)], s2: []}
 
-    assert list(sorted(latest_forecast.keys())) == list(sorted(expected.keys()))
+    assert sorted(latest_forecast.keys()) == sorted(expected.keys())
 
     for site_uuid, forecast_values in latest_forecast.items():
         # Format the values in a way that we can compare them.
         values_as_tuple = [(v.start_utc, v.forecast_power_kw) for v in forecast_values]
 
-        assert len(values_as_tuple) == len(
-            expected[site_uuid]
-        ), f"{len(values_as_tuple)=}, {len(expected[site_uuid])=}"
+        assert len(values_as_tuple) == len(expected[site_uuid]), (
+            f"{len(values_as_tuple)=}, {len(expected[site_uuid])=}"
+        )
         assert values_as_tuple == expected[site_uuid], f"{values_as_tuple=}, {expected[site_uuid]=}"
 
 
@@ -350,9 +366,9 @@ def test_get_latest_forecast_values_model_name(db_session, sites):
     db_session.add_all([s1_f1])
     db_session.commit()
 
-    d0 = dt.datetime(2000, 1, 1, 0, tzinfo=dt.timezone.utc)
-    d1 = dt.datetime(2000, 1, 1, 1, tzinfo=dt.timezone.utc)
-    d2 = dt.datetime(2000, 1, 1, 2, tzinfo=dt.timezone.utc)
+    d0 = dt.datetime(2000, 1, 1, 0, tzinfo=dt.UTC)
+    d1 = dt.datetime(2000, 1, 1, 1, tzinfo=dt.UTC)
+    d2 = dt.datetime(2000, 1, 1, 2, tzinfo=dt.UTC)
 
     # site 1 forecast 1
     _add_forecast_value(db_session, s1_f1, 1.0, d0, horizon_minutes=0, model_name="test_1")
@@ -369,13 +385,19 @@ def test_get_latest_forecast_values_model_name(db_session, sites):
     assert len(latest_forecast[s1]) == 3
 
     latest_forecast = get_latest_forecast_values_by_site(
-        session=db_session, site_uuids=site_uuids, start_utc=d0, model_name="test_1"
+        session=db_session,
+        site_uuids=site_uuids,
+        start_utc=d0,
+        model_name="test_1",
     )
     assert len(latest_forecast) == 2
     assert len(latest_forecast[s1]) == 2
 
     latest_forecast = get_latest_forecast_values_by_site(
-        session=db_session, site_uuids=site_uuids, start_utc=d0, model_name="test_x"
+        session=db_session,
+        site_uuids=site_uuids,
+        start_utc=d0,
+        model_name="test_x",
     )
     assert len(latest_forecast) == 2
     assert len(latest_forecast[s1]) == 0
@@ -404,12 +426,17 @@ def test_get_latest_forecast_values_probabilistic_value_limit2(db_session, sites
     db_session.add_all([forecast1, forecast2])
     db_session.commit()
 
-    d0 = dt.datetime(2000, 1, 1, 0, tzinfo=dt.timezone.utc)
+    d0 = dt.datetime(2000, 1, 1, 0, tzinfo=dt.UTC)
 
     # For site1: Add a forecast value with explicit probabilistic_values provided
     prob_values = {"p10": 10, "p50": 50, "p90": 90}
     _add_forecast_value(
-        db_session, forecast1, power=1.0, ts=d0, horizon_minutes=0, probabilistic_values=prob_values
+        db_session,
+        forecast1,
+        power=1.0,
+        ts=d0,
+        horizon_minutes=0,
+        probabilistic_values=prob_values,
     )
 
     # For site2: Add a forecast value without providing probabilistic_values (defaults to {})

@@ -159,7 +159,8 @@ def test_assign_model_to_nonexistent_site(db_session):
     nonexistent_site_uuid = str(uuid.uuid4())
 
     with pytest.raises(
-        KeyError, match=f"Location uuid {nonexistent_site_uuid} not found in locations table"
+        KeyError,
+        match=f"Location uuid {nonexistent_site_uuid} not found in locations table",
     ):
         assign_model_name_to_site(db_session, nonexistent_site_uuid, "test_model")
 

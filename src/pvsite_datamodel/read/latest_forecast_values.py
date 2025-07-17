@@ -2,7 +2,6 @@
 
 import datetime as dt
 import uuid
-from typing import List, Optional, Union
 
 from sqlalchemy import func, text
 from sqlalchemy.orm import Session, contains_eager
@@ -15,15 +14,15 @@ def get_latest_forecast_values_by_site(
     session: Session,
     site_uuids: list[uuid.UUID],
     start_utc: dt.datetime,
-    end_utc: Optional[dt.datetime] = None,
-    sum_by: Optional[str] = None,
-    created_by: Optional[dt.datetime] = None,
-    created_after: Optional[dt.datetime] = None,
-    forecast_horizon_minutes: Optional[int] = None,
-    day_ahead_hours: Optional[int] = None,
-    day_ahead_timezone_delta_hours: Optional[float] = 0,
-    model_name: Optional[str] = None,
-) -> Union[dict[uuid.UUID, list[ForecastValueSQL]], List[ForecastValueSum]]:
+    end_utc: dt.datetime | None = None,
+    sum_by: str | None = None,
+    created_by: dt.datetime | None = None,
+    created_after: dt.datetime | None = None,
+    forecast_horizon_minutes: int | None = None,
+    day_ahead_hours: int | None = None,
+    day_ahead_timezone_delta_hours: float | None = 0,
+    model_name: str | None = None,
+) -> dict[uuid.UUID, list[ForecastValueSQL]] | list[ForecastValueSum]:
     """Get the forecast values by input sites, get the latest value.
 
     Return the forecasts after a given date, but keeping only the latest for a given timestamp.
@@ -64,7 +63,6 @@ def get_latest_forecast_values_by_site(
         is actually a day ahead forcast, as India is 5.5 hours ahead on UTC
     :param model_name: optional, filter on forecast values with this model name
     """
-
     if sum_by not in ["total", "dno", "gsp", None]:
         raise ValueError(f"sum_by must be one of ['total', 'dno', 'gsp'], not {sum_by}")
 
@@ -119,8 +117,8 @@ def get_latest_forecast_values_by_site(
             <= text(
                 f"date(start_utc + interval '{day_ahead_timezone_delta_minute}' minute "
                 f"- interval '1' day) + interval '{day_ahead_hours}' hour "
-                f"- interval '{day_ahead_timezone_delta_minute}' minute"
-            )
+                f"- interval '{day_ahead_timezone_delta_minute}' minute",
+            ),
         )
 
     if model_name is not None:
@@ -170,15 +168,19 @@ def get_latest_forecast_values_by_site(
         query = query.order_by(*group_by_variables)
         forecasts_raw = query.all()
 
-        forecasts: List[ForecastValueSum] = []
+        forecasts: list[ForecastValueSum] = []
         for forecast_raw in forecasts_raw:
             if len(forecast_raw) == 2:
                 generation = ForecastValueSum(
-                    start_utc=forecast_raw[0], power_kw=forecast_raw[1], name="total"
+                    start_utc=forecast_raw[0],
+                    power_kw=forecast_raw[1],
+                    name="total",
                 )
             else:
                 generation = ForecastValueSum(
-                    start_utc=forecast_raw[0], power_kw=forecast_raw[2], name=forecast_raw[1]
+                    start_utc=forecast_raw[0],
+                    power_kw=forecast_raw[2],
+                    name=forecast_raw[1],
                 )
             forecasts.append(generation)
 

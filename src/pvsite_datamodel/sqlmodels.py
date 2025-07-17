@@ -6,7 +6,6 @@ from __future__ import annotations
 import enum
 import uuid
 from datetime import datetime
-from typing import List, Optional
 
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import JSONB, UUID
@@ -19,7 +18,7 @@ Base = declarative_base()
 class CreatedMixin:
     """Mixin to add created datetime to model."""
 
-    created_utc = sa.Column(sa.DateTime, default=lambda: datetime.utcnow())
+    created_utc = sa.Column(sa.DateTime, default=lambda: datetime.now(tz=datetime.timezone.utc))
 
 
 class MLModelSQL(Base, CreatedMixin):
@@ -34,11 +33,12 @@ class MLModelSQL(Base, CreatedMixin):
     # Add description with default message
     description = sa.Column(sa.String, nullable=True, server_default="No description provided.")
 
-    forecast_values: Mapped[List["ForecastValueSQL"]] = relationship(
-        "ForecastValueSQL", back_populates="ml_model"
+    forecast_values: Mapped[list[ForecastValueSQL]] = relationship(
+        "ForecastValueSQL",
+        back_populates="ml_model",
     )
 
-    locations: Mapped[List["LocationSQL"]] = relationship("LocationSQL", back_populates="ml_model")
+    locations: Mapped[list[LocationSQL]] = relationship("LocationSQL", back_populates="ml_model")
 
 
 class UserSQL(Base, CreatedMixin):
@@ -60,8 +60,9 @@ class UserSQL(Base, CreatedMixin):
     )
 
     # Relationships
-    location_group: Mapped["LocationGroupSQL"] = relationship(
-        "LocationGroupSQL", back_populates="users"
+    location_group: Mapped[LocationGroupSQL] = relationship(
+        "LocationGroupSQL",
+        back_populates="users",
     )
     api_request = relationship("APIRequestSQL", back_populates="user")
 
@@ -84,11 +85,13 @@ class LocationGroupSQL(Base, CreatedMixin):
 
     # Relationships
     # N-N
-    locations: Mapped[List["LocationSQL"]] = relationship(
-        "LocationSQL", secondary="location_group_locations", back_populates="location_groups"
+    locations: Mapped[list[LocationSQL]] = relationship(
+        "LocationSQL",
+        secondary="location_group_locations",
+        back_populates="location_groups",
     )
     # 1-N, one location group can have many users
-    users: Mapped[List[UserSQL]] = relationship("UserSQL", back_populates="location_group")
+    users: Mapped[list[UserSQL]] = relationship("UserSQL", back_populates="location_group")
 
 
 class LocationGroupLocationSQL(Base, CreatedMixin):
@@ -100,12 +103,16 @@ class LocationGroupLocationSQL(Base, CreatedMixin):
     __tablename__ = "location_group_locations"
     __table_args__ = (
         UniqueConstraint(
-            "location_group_uuid", "location_uuid", name="idx_location_group_location"
+            "location_group_uuid",
+            "location_uuid",
+            name="idx_location_group_location",
         ),
     )
 
     location_group_location_uuid = sa.Column(
-        UUID(as_uuid=True), default=uuid.uuid4, primary_key=True
+        UUID(as_uuid=True),
+        default=uuid.uuid4,
+        primary_key=True,
     )
     location_group_uuid = sa.Column(
         UUID(as_uuid=True),
@@ -132,7 +139,9 @@ class LocationLocationSQL(Base, CreatedMixin):
     __tablename__ = "location_locations"
     __table_args__ = (
         UniqueConstraint(
-            "location_child_uuid", "location_parent_uuid", name="idx_location_location"
+            "location_child_uuid",
+            "location_parent_uuid",
+            name="idx_location_location",
         ),
     )
 
@@ -181,7 +190,9 @@ class LocationSQL(Base, CreatedMixin):
 
     location_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     client_location_id = sa.Column(
-        sa.Integer, index=True, comment="The ID of the location as given by the providing client"
+        sa.Integer,
+        index=True,
+        comment="The ID of the location as given by the providing client",
     )
     client_location_name = sa.Column(
         sa.String(255),
@@ -190,7 +201,9 @@ class LocationSQL(Base, CreatedMixin):
     )
 
     country = sa.Column(
-        sa.String(255), server_default="uk", comment="The country in which the location is located"
+        sa.String(255),
+        server_default="uk",
+        comment="The country in which the location is located",
     )
 
     asset_type = sa.Column(
@@ -202,7 +215,8 @@ class LocationSQL(Base, CreatedMixin):
     latitude = sa.Column(sa.Float)
     longitude = sa.Column(sa.Float)
     capacity_kw = sa.Column(
-        sa.Float, comment="The physical limit on the production capacity of the location"
+        sa.Float,
+        comment="The physical limit on the production capacity of the location",
     )
 
     ml_id = sa.Column(
@@ -249,39 +263,48 @@ class LocationSQL(Base, CreatedMixin):
 
     # legacy fields
     region = sa.Column(
-        sa.String(255), comment="The region within the country in which the location is located"
+        sa.String(255),
+        comment="The region within the country in which the location is located",
     )
     dno = sa.Column(sa.String(255), comment="The Distribution Node Operator that owns the location")
     gsp = sa.Column(
-        sa.String(255), comment="The Grid Supply Point in which the location is located"
+        sa.String(255),
+        comment="The Grid Supply Point in which the location is located",
     )
     # For metadata `NULL` means "we don't know".
     orientation = sa.Column(
-        sa.Float, comment="The rotation of the panel in degrees. 180° points south"
+        sa.Float,
+        comment="The rotation of the panel in degrees. 180° points south",
     )
     tilt = sa.Column(
-        sa.Float, comment="The tile of the panel in degrees. 90° indicates the panel is vertical"
+        sa.Float,
+        comment="The tile of the panel in degrees. 90° indicates the panel is vertical",
     )
     inverter_capacity_kw = sa.Column(sa.Float, comment="The inverter capacity of the location")
     module_capacity_kw = sa.Column(
-        sa.Float, comment="The PV module nameplate capacity of the location"
+        sa.Float,
+        comment="The PV module nameplate capacity of the location",
     )
 
     # relationships
-    forecasts: Mapped[List["ForecastSQL"]] = relationship("ForecastSQL", back_populates="location")
-    generation: Mapped[List["GenerationSQL"]] = relationship("GenerationSQL")
-    inverters: Mapped[List["InverterSQL"]] = relationship(
-        "InverterSQL", back_populates="location", cascade="all, delete-orphan"
+    forecasts: Mapped[list[ForecastSQL]] = relationship("ForecastSQL", back_populates="location")
+    generation: Mapped[list[GenerationSQL]] = relationship("GenerationSQL")
+    inverters: Mapped[list[InverterSQL]] = relationship(
+        "InverterSQL",
+        back_populates="location",
+        cascade="all, delete-orphan",
     )
-    location_groups: Mapped[List["LocationGroupSQL"]] = relationship(
-        "LocationGroupSQL", secondary="location_group_locations", back_populates="locations"
+    location_groups: Mapped[list[LocationGroupSQL]] = relationship(
+        "LocationGroupSQL",
+        secondary="location_group_locations",
+        back_populates="locations",
     )
-    client: Mapped[List["ClientSQL"]] = relationship("ClientSQL", back_populates="locations")
-    ml_model: Mapped[Optional[MLModelSQL]] = relationship("MLModelSQL", back_populates="locations")
+    client: Mapped[list[ClientSQL]] = relationship("ClientSQL", back_populates="locations")
+    ml_model: Mapped[MLModelSQL | None] = relationship("MLModelSQL", back_populates="locations")
 
     # n:n mapping to reference back to locations.
     # This means many site can be part of a many different regions.
-    child_locations: Mapped[List["LocationSQL"]] = relationship(
+    child_locations: Mapped[list[LocationSQL]] = relationship(
         "LocationSQL",
         secondary="location_locations",
         primaryjoin="LocationSQL.location_uuid == LocationLocationSQL.location_child_uuid",
@@ -310,7 +333,9 @@ class LocationHistorySQL(Base, CreatedMixin):
 
     # JSONB column to store the snapshot of the location data
     location_data = sa.Column(
-        JSONB, nullable=False, comment="A snapshot of the location record as JSONB"
+        JSONB,
+        nullable=False,
+        comment="A snapshot of the location record as JSONB",
     )
 
     # Foreign key to track the user who made the change
@@ -330,7 +355,7 @@ class ClientSQL(Base, CreatedMixin):
     client_uuid = sa.Column(UUID(as_uuid=True), default=uuid.uuid4, primary_key=True)
     client_name = sa.Column(sa.String(255), nullable=False, index=True, unique=True)
 
-    locations: Mapped[List[LocationSQL]] = relationship("LocationSQL", back_populates="client")
+    locations: Mapped[list[LocationSQL]] = relationship("LocationSQL", back_populates="client")
 
 
 class GenerationSQL(Base, CreatedMixin):
@@ -346,7 +371,10 @@ class GenerationSQL(Base, CreatedMixin):
     __tablename__ = "generation"
     __table_args__ = (
         UniqueConstraint(
-            "location_uuid", "start_utc", "end_utc", name="uniq_cons_location_start_end"
+            "location_uuid",
+            "start_utc",
+            "end_utc",
+            name="uniq_cons_location_start_end",
         ),
     )
 
@@ -376,7 +404,7 @@ class GenerationSQL(Base, CreatedMixin):
         comment="The end of the time interval over which this generated power value applies",
     )
 
-    location: Mapped["LocationSQL"] = relationship("LocationSQL", back_populates="generation")
+    location: Mapped[LocationSQL] = relationship("LocationSQL", back_populates="generation")
 
 
 class ForecastSQL(Base, CreatedMixin):
@@ -416,7 +444,7 @@ class ForecastSQL(Base, CreatedMixin):
     )
 
     # one (forecasts) to many (forecast_values)
-    forecast_values: Mapped["ForecastValueSQL"] = relationship("ForecastValueSQL")
+    forecast_values: Mapped[ForecastValueSQL] = relationship("ForecastValueSQL")
     location = relationship("LocationSQL", back_populates="forecasts")
 
     __table_args__ = (
@@ -492,15 +520,18 @@ class ForecastValueSQL(Base, CreatedMixin):
         comment="Probabilistic forecast values, like p10, p50, p90",
     )
 
-    forecast: Mapped["ForecastSQL"] = relationship("ForecastSQL", back_populates="forecast_values")
-    ml_model: Mapped[Optional[MLModelSQL]] = relationship(
-        "MLModelSQL", back_populates="forecast_values"
+    forecast: Mapped[ForecastSQL] = relationship("ForecastSQL", back_populates="forecast_values")
+    ml_model: Mapped[MLModelSQL | None] = relationship(
+        "MLModelSQL",
+        back_populates="forecast_values",
     )
 
     __table_args__ = (
         # Here we assume that we always filter on `horizon_minutes` *for given forecasts*.
         sa.Index(
-            "ix_forecast_values_forecast_uuid_horizon_minutes", "forecast_uuid", "horizon_minutes"
+            "ix_forecast_values_forecast_uuid_horizon_minutes",
+            "forecast_uuid",
+            "horizon_minutes",
         ),
     )
 
@@ -542,7 +573,7 @@ class InverterSQL(Base, CreatedMixin):
         comment="The UUID for the location that has this inverter",
     )
 
-    location: Mapped["LocationSQL"] = relationship("LocationSQL", back_populates="inverters")
+    location: Mapped[LocationSQL] = relationship("LocationSQL", back_populates="inverters")
 
 
 class APIRequestSQL(Base, CreatedMixin):

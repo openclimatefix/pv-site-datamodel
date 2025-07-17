@@ -1,4 +1,4 @@
-""" The script adds the relevant GSP to the sites.
+"""The script adds the relevant GSP to the sites.
 
 Might need to install nowcasting_dataset
 
@@ -26,16 +26,14 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 dno_local_file = f"{dir_path}/dno"
 
 
-def get_dno(latitude, longitude) -> dict:
-    """
-    Convert a latitude and longitude and returns the dno.
+def get_dno(latitude: float, longitude: float) -> dict:
+    """Convert a latitude and longitude and returns the dno.
 
     :param latitude:
     :param longitude:
 
     :return: dno is this format {"dno_id": dno_id, "name": dno_name, "long_name": dno_long_name}=
     """
-
     # load file
     dno = gpd.read_file(dno_local_file)
 

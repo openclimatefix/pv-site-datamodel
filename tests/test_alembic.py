@@ -11,5 +11,5 @@ def test_migrations():
 
         env = os.environ.copy()
         env["DB_URL"] = url
-        result = subprocess.run(["alembic", "upgrade", "head"], env=env)
+        result = subprocess.run(["alembic", "upgrade", "head"], env=env) # noqa: S607
         assert result.returncode == 0

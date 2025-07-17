@@ -1,9 +1,8 @@
-""" Tools for making fake users and sites in the database."""
+"""Tools for making fake users and sites in the database."""
 
 import json
 import logging
-from datetime import datetime, timezone
-from typing import Optional, Tuple
+from datetime import UTC, datetime
 from uuid import UUID
 
 import sqlalchemy as sa
@@ -32,7 +31,6 @@ def make_fake_site(db_session, ml_id=1):
 
     This is mainly used for testing purposes.
     """
-
     site = LocationSQL(
         client_location_id=1,
         latitude=51,
@@ -40,7 +38,7 @@ def make_fake_site(db_session, ml_id=1):
         capacity_kw=4,
         inverter_capacity_kw=4,
         module_capacity_kw=4.3,
-        created_utc=datetime.now(timezone.utc),
+        created_utc=datetime.now(UTC),
         ml_id=ml_id,
     )
     db_session.add(site)
@@ -70,21 +68,20 @@ def create_site(
     latitude: float,
     longitude: float,
     capacity_kw: float,
-    dno: Optional[str] = None,
-    gsp: Optional[str] = None,
-    country: Optional[str] = "uk",
-    region: Optional[str] = None,
-    asset_type: Optional[str] = LocationAssetType.pv.name,
-    orientation: Optional[float] = None,
-    tilt: Optional[float] = None,
-    inverter_capacity_kw: Optional[float] = None,
-    module_capacity_kw: Optional[float] = None,
-    client_uuid: Optional[UUID] = None,
-    ml_id: Optional[int] = None,
-    user_uuid: Optional[str] = None,
+    dno: str | None = None,
+    gsp: str | None = None,
+    country: str | None = "uk",
+    region: str | None = None,
+    asset_type: str | None = LocationAssetType.pv.name,
+    orientation: float | None = None,
+    tilt: float | None = None,
+    inverter_capacity_kw: float | None = None,
+    module_capacity_kw: float | None = None,
+    client_uuid: UUID | None = None,
+    ml_id: int | None = None,
+    user_uuid: str | None = None,
 ) -> [LocationSQL, str]:
-    """
-    Create a site and adds it to the database.
+    """Create a site and adds it to the database.
 
     :param session: database session
     :param client_site_id: id the client uses for the site
@@ -121,7 +118,7 @@ def create_site(
     if asset_type not in LocationAssetType.__members__:
         raise ValueError(
             f"""Invalid asset_type. Received: {asset_type},
-            but must one of ({', '.join(map(lambda type: type.name, LocationAssetType))})"""
+            but must one of ({", ".join(map(lambda type: type.name, LocationAssetType))})""",
         )
 
     if orientation in [None, ""]:
@@ -186,7 +183,6 @@ def create_user(
     :param email: email of user being created
     :param site_group_name: name of the site group this user will be part of
     """
-
     site_group = (
         session.query(LocationGroupSQL)
         .filter(LocationGroupSQL.location_group_name == site_group_name)
@@ -204,7 +200,9 @@ def create_user(
 
 # update functions for site and site group
 def add_site_to_site_group(
-    session: Session, site_uuid: str, site_group_name: str
+    session: Session,
+    site_uuid: str,
+    site_group_name: str,
 ) -> LocationGroupSQL:
     """Add a site to a site group.
 
@@ -230,7 +228,9 @@ def add_site_to_site_group(
 
 
 def remove_site_from_site_group(
-    session: Session, site_uuid: str, site_group_name: str
+    session: Session,
+    site_uuid: str,
+    site_group_name: str,
 ) -> [LocationSQL]:
     """Remove a site to a site group.
 
@@ -258,8 +258,7 @@ def remove_site_from_site_group(
 
 # change site group for user
 def change_user_site_group(session, email: str, site_group_name: str):
-    """
-    Change user to a specific site group name.
+    """Change user to a specific site group name.
 
     :param session: the database session
     :param email: the email of the user
@@ -296,10 +295,12 @@ def update_user_site_group(session: Session, email: str, site_group_name: str) -
 
 # update site metadata
 def edit_site(
-    session: Session, site_uuid: str, site_info: PVSiteEditMetadata, user_uuid: str = None
-) -> Tuple[LocationSQL, str]:
-    """
-    Edit an existing site. Fill in only the fields that need to be updated.
+    session: Session,
+    site_uuid: str,
+    site_info: PVSiteEditMetadata,
+    user_uuid: str = None,
+) -> tuple[LocationSQL, str]:
+    """Edit an existing site. Fill in only the fields that need to be updated.
 
     :param session: database session
     :param site_uuid: the existing site uuid
@@ -343,7 +344,10 @@ def edit_site(
 
 
 def set_site_to_inactive_if_not_in_site_group(
-    session: Session, site_uuid: str, user_uuid: str, ignore_ocf_site_group: Optional[bool] = True
+    session: Session,
+    site_uuid: str,
+    user_uuid: str,
+    ignore_ocf_site_group: bool | None = True,
 ):
     """Set to inactive, if not in a site group.
 
@@ -353,7 +357,6 @@ def set_site_to_inactive_if_not_in_site_group(
     :param ignore_ocf_site_group: if True,
         ignore the "ocf" site group when checking if the site is in a site group
     """
-
     set_session_user(session, user_uuid)
 
     # get site
@@ -376,7 +379,9 @@ def set_site_to_inactive_if_not_in_site_group(
 
 # delete functions for site, user, and site group
 def delete_site(
-    session: Session, site_uuid: str, user_uuid: Optional[str] = None
+    session: Session,
+    site_uuid: str,
+    user_uuid: str | None = None,
 ) -> LocationGroupSQL:
     """Delete a site group.
 
@@ -477,7 +482,6 @@ def assign_model_name_to_site(session: Session, site_uuid, model_name):
     :param site_uuid: site uuid
     :param model_name: name of the model
     """
-
     site = get_site_by_uuid(session=session, site_uuid=site_uuid)
 
     model = get_or_create_model(session=session, name=model_name)
@@ -502,7 +506,9 @@ def set_session_user(session: Session, user_uuid: str):
 
 
 def add_child_location_to_parent_location(
-    session: Session, child_location_uuid: str, parent_location_uuid: str
+    session: Session,
+    child_location_uuid: str,
+    parent_location_uuid: str,
 ) -> None:
     """Add a child location to a parent location.
 

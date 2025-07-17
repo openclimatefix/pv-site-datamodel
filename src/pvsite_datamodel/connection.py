@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class DatabaseConnection:
     """Database connection class."""
 
-    def __init__(self, url: URL | str, echo: bool = True):
+    def __init__(self, url: URL | str, echo: bool = True) -> None:
         """Set up database connection.
 
         :param url: the database url, used for connecting
