@@ -6,7 +6,7 @@ We use [alembic][alembic] to manage the database schema migrations.
 ## Updating the database to the latest migration
 
 ```bash
-DB_URL=<your_db_url> poetry run alembic upgrade head
+DB_URL=<your_db_url> uv run alembic upgrade head
 ```
 
 
@@ -34,7 +34,7 @@ want to bring to the schema.
 In most cases, you can have alembic generate a migration automatically:
 
 ```bash
-DB_URL=<your_db_url> poetry run alembic revision --autogenerate -m "Some comment explaining the change"
+DB_URL=<your_db_url> uv run alembic revision --autogenerate -m "Some comment explaining the change"
 ```
 
 Make sure that the generated code makes sense. Adjust if needed.
@@ -45,7 +45,7 @@ Make sure that the generated code makes sense. Adjust if needed.
 Run your latest migration:
 
 ```bash
-DB_URL=<your_db_url> poetry run alembic upgrade head`
+DB_URL=<your_db_url> uv run alembic upgrade head`
 ```
 
 Make sure everything looks good in the database.

@@ -1,36 +1,35 @@
+[build-system]
+requires = ["setuptools>=67", "wheel", "setuptools-git-versioning>=2.0,<3"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "pvsite-datamodel"
 dynamic = [ "version" ]
 description = "SDK for interacting with the PVSite database"
 authors = [{ name = "Open Climate Fix team", email = "info@openclimatefix.org" }]
 readme = "README.md"
+dependencies = [
+    "sqlalchemy>=2.0,<3.0",
+    "psycopg2-binary>=2.9.5,<3.0",
+    "pandas>=2.2.3,<3.0",
+    "pydantic>=2.3.0,<3.0",
+    "alembic>=1.16.4",
+]
 
-[tool.poetry]
-name = "pvsite-datamodel"
-version = "1.2.3"
-description = "SDK for interacting with the PVSite database"
-authors = ["Open Climate Fix"]
-readme = "README.md"
-
-[tool.poetry.dependencies]
-python = "^3.11"
-sqlalchemy = "^2.0"
-psycopg2-binary = "^2.9.5"
-pandas = "^2.2.3"
-pydantic = "^2.3.0"
-
-[tool.poetry.group.dev.dependencies]
-ruff = "^0.0.249"
-pytest = "^7.2.1"
-testcontainers = "^3.7.1"
-black = "^23.1.0"
-isort = "^5.12.0"
-pytest-cov = "^4.0.0"
-alembic = "^1.9.4"
-geopandas = "^0.14.2"
+[dependency-groups]
+dev = [
+    "ruff",
+    "pytest",
+    "testcontainers",
+    "black",
+    "isort",
+    "pytest-cov",
+    "alembic",
+    "geopandas"
+]
 
 [project.urls]
-"GitHub" = "https://github.com/openclimatefix/pvsite-datamodel"
+repository = "https://github.com/openclimatefix/pvsite-datamodel"
 
 
 [tool.mypy]
@@ -72,13 +71,3 @@ addopts = [
     "--import-mode=importlib",
 ]
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.isort]
-profile = "black"
-line_length = 100
-
-[tool.black]
-line-length = 100
