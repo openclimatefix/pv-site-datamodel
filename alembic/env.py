@@ -70,7 +70,11 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata,compare_server_default=True)  # compare_server_default=True is used to compare the server default values in the database with the ones in the model
+        context.configure(
+            connection=connection, target_metadata=target_metadata, compare_server_default=True
+        )
+        # compare_server_default=True is used to compare the
+        # server default values in the database with the ones in the model
 
         with context.begin_transaction():
             context.run_migrations()

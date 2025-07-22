@@ -38,7 +38,7 @@ with connection.get_session() as session:
 
     # get sites with no gsp
     query = session.query(SiteSQL)
-    query = query.filter(SiteSQL.gsp == None)
+    query = query.filter(SiteSQL.gsp == None)  # noqa
     sites = query.all()
 
     print(f"Total sites are {len(sites)}")
@@ -58,10 +58,10 @@ with connection.get_session() as session:
         gsp = eso_meta[mask]
 
         # select region and get gsp_id and name
-        assert len(gsp) == 1
+        assert len(gsp) == 1  # noqa
         gsp = gsp.iloc[0]
         gsp_details = gsp_names[gsp_names["gsp_name"] == gsp.GSPs]
-        assert len(gsp_details) == 1
+        assert len(gsp_details) == 1  # noqa
         gsp_id = gsp_details.index[0]
         gsp_details = gsp_details.iloc[0]
         name = gsp_details["region_name"]

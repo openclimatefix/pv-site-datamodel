@@ -36,6 +36,9 @@ repository = "https://github.com/openclimatefix/pvsite-datamodel"
 where = ["src"]
 exclude = ["test*"]
 
+[tool.setuptools-git-versioning]
+enabled = true
+
 [tool.mypy]
 python_version = "3.10"
 plugins = [
@@ -72,6 +75,8 @@ ignore = ["D203", "D213", "D200" ,"D202", "D210", "D212", "D415", "D105"]
 
 [tool.ruff.lint.per-file-ignores]
 "*test*" = ["D", "ANN", "S101"]
+"alembic/versions/*" = ["D103"]
+"scripts/*" = ["T201"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
