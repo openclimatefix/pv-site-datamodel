@@ -44,7 +44,9 @@ def upgrade() -> None:
             postgresql.JSONB(astext_type=sa.Text()),
             server_default=sa.text("'{}'"),
             nullable=True,
-            comment="Specific properties of the location, for example for a site, the tilt and orientation of the solar panels, or for a region, the region name.",
+            comment="Specific properties of the location, for example for a site, "
+                    "the tilt and orientation of the solar panels, "
+                    "or for a region, the region name."
         ),
     )
     # rename columns
@@ -77,12 +79,14 @@ def upgrade() -> None:
     op.execute("ALTER INDEX ix_sites_client_site_name RENAME TO ix_locations_client_location_name")
     op.execute("ALTER INDEX ix_sites_client_uuid RENAME TO ix_locations_client_uuid")
     op.execute(
-        "ALTER INDEX ix_forecasts_site_uuid_timestamp_utc RENAME TO ix_forecasts_location_uuid_timestamp_utc"
+        "ALTER INDEX ix_forecasts_site_uuid_timestamp_utc "
+        "RENAME TO ix_forecasts_location_uuid_timestamp_utc"
     )
     op.execute("ALTER INDEX ix_generation_site_uuid RENAME TO ix_generation_location_uuid")
     op.execute("ALTER INDEX ix_inverters_site_uuid RENAME TO ix_inverters_location_uuid")
     op.execute(
-        "ALTER INDEX ix_site_groups_site_group_name RENAME TO ix_location_groups_location_group_name"
+        "ALTER INDEX ix_site_groups_site_group_name "
+        "RENAME TO ix_location_groups_location_group_name"
     )
     op.execute(
         "ALTER INDEX ix_sites_history_site_uuid RENAME TO ix_locations_history_location_uuid"
@@ -90,10 +94,12 @@ def upgrade() -> None:
 
     # rename constraint
     op.execute(
-        "ALTER TABLE generation RENAME CONSTRAINT uniq_cons_site_start_end TO uniq_cons_location_start_end"
+        "ALTER TABLE generation "
+        "RENAME CONSTRAINT uniq_cons_site_start_end TO uniq_cons_location_start_end"
     )
     op.execute(
-        "ALTER TABLE location_group_locations RENAME CONSTRAINT idx_site_group_site TO idx_location_group_location"
+        "ALTER TABLE location_group_locations "
+        "RENAME CONSTRAINT idx_site_group_site TO idx_location_group_location"
     )
 
     # alter comments in column
@@ -125,7 +131,8 @@ def upgrade() -> None:
         "locations",
         "location_metadata",
         server_default=None,
-        comment="Specific properties of the location, for example for a location, the tilt and orientation of the solar panels, or for a region, the region name.",
+        comment="Specific properties of the location, for example for a location, "
+                "the tilt and orientation of the solar panels, or for a region, the region name.",
     )
     op.alter_column(
         "locations",
@@ -250,7 +257,8 @@ def downgrade() -> None:
         "locations",
         "location_metadata",
         server_default=sa.text("'{}'::jsonb"),
-        comment="Specific properties of the location, for example for a site, the tilt and orientation of the solar panels, or for a region, the region name.",
+        comment="Specific properties of the location, for example for a site, "
+                "the tilt and orientation of the solar panels, or for a region, the region name.",
     )
     op.alter_column(
         "locations",
@@ -387,12 +395,14 @@ def downgrade() -> None:
     op.execute("ALTER INDEX ix_locations_client_location_name RENAME TO ix_sites_client_site_name")
     op.execute("ALTER INDEX ix_locations_client_uuid RENAME TO ix_sites_client_uuid")
     op.execute(
-        "ALTER INDEX ix_forecasts_location_uuid_timestamp_utc RENAME TO ix_forecasts_site_uuid_timestamp_utc"
+        "ALTER INDEX ix_forecasts_location_uuid_timestamp_utc "
+        "RENAME TO ix_forecasts_site_uuid_timestamp_utc"
     )
     op.execute("ALTER INDEX ix_generation_location_uuid RENAME TO ix_generation_site_uuid")
     op.execute("ALTER INDEX ix_inverters_location_uuid RENAME TO ix_inverters_site_uuid")
     op.execute(
-        "ALTER INDEX ix_location_groups_location_group_name RENAME TO ix_site_groups_site_group_name"
+        "ALTER INDEX ix_location_groups_location_group_name "
+        "RENAME TO ix_site_groups_site_group_name"
     )
     op.execute(
         "ALTER INDEX ix_locations_history_location_uuid RENAME TO ix_sites_history_site_uuid"
@@ -400,8 +410,10 @@ def downgrade() -> None:
 
     # rename constraint
     op.execute(
-        "ALTER TABLE generation RENAME CONSTRAINT uniq_cons_location_start_end TO uniq_cons_site_start_end"
+        "ALTER TABLE generation "
+        "ENAME CONSTRAINT uniq_cons_location_start_end TO uniq_cons_site_start_end"
     )
     op.execute(
-        "ALTER TABLE site_group_sites RENAME CONSTRAINT idx_location_group_location TO idx_site_group_site"
+        "ALTER TABLE site_group_sites "
+        "RENAME CONSTRAINT idx_location_group_location TO idx_site_group_site"
     )

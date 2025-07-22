@@ -9,20 +9,37 @@ from alembic import op
 import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
-revision = '8384de6b7c50'
-down_revision = '35f53a88b8c3'
+revision = "8384de6b7c50"
+down_revision = "35f53a88b8c3"
 branch_labels = None
 depends_on = None
 
 
 def upgrade() -> None:
-    op.add_column('sites', sa.Column('module_capacity_kw', sa.Float(), nullable=True, comment='The PV module nameplate capacity of the site'))
-    op.add_column('sites', sa.Column('inverter_capacity_kw', sa.Float(), nullable=True, comment='The PV module nameplate capacity of the site'))
+    op.add_column(
+        "sites",
+        sa.Column(
+            "module_capacity_kw",
+            sa.Float(),
+            nullable=True,
+            comment="The PV module nameplate capacity of the site",
+        ),
+    )
+    op.add_column(
+        "sites",
+        sa.Column(
+            "inverter_capacity_kw",
+            sa.Float(),
+            nullable=True,
+            comment="The PV module nameplate capacity of the site",
+        ),
+    )
 
     op.execute("UPDATE sites SET inverter_capacity_kw=capacity_kw")
 
     # Create a trigger function to set inverter_capacity_kw to capacity_kw
-    op.execute("""
+    op.execute(
+        """
         CREATE OR REPLACE FUNCTION set_default_inverter_capacity_kw()
         RETURNS TRIGGER AS $$
         BEGIN
@@ -30,28 +47,35 @@ def upgrade() -> None:
             RETURN NEW;
         END;
         $$ LANGUAGE plpgsql;
-    """)
+    """
+    )
 
     # Create trigger on sites table, for when inverter_capacity_kw is NULL
-    op.execute("""
+    op.execute(
+        """
         CREATE TRIGGER set_default_inverter_capacity_kw_trigger
         BEFORE INSERT ON sites
         FOR EACH ROW
         WHEN (NEW.inverter_capacity_kw IS NULL)
         EXECUTE FUNCTION set_default_inverter_capacity_kw();
-    """)
+    """
+    )
+
 
 def downgrade() -> None:
     # Drop the trigger from the 'sites' table
-    op.execute("""
+    op.execute(
+        """
         DROP TRIGGER set_default_inverter_capacity_kw_trigger ON sites;
-    """)
+    """
+    )
 
     # Drop the trigger function
-    op.execute("""
+    op.execute(
+        """
         DROP FUNCTION set_default_inverter_capacity_kw;
-    """)
+    """
+    )
 
-    op.drop_column('sites', 'module_capacity_kw')
-    op.drop_column('sites', 'inverter_capacity_kw')
-
+    op.drop_column("sites", "module_capacity_kw")
+    op.drop_column("sites", "inverter_capacity_kw")
