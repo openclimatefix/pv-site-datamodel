@@ -85,7 +85,9 @@ def get_latest_forecast_values_by_site(
 
     # filter on ForecastSQL.timestamp_utc
     if forecast_horizon_minutes is not None:
-        query = query.filter(ForecastSQL.timestamp_utc >= start_utc - dt.timedelta(minutes=forecast_horizon_minutes))
+        query = query.filter(
+            ForecastSQL.timestamp_utc >= start_utc - dt.timedelta(minutes=forecast_horizon_minutes)
+        )
     elif day_ahead_hours:
         # if day_ahead_hours is set, we filter on the timestamp_utc as well
         query = query.filter(ForecastSQL.timestamp_utc > start_utc - dt.timedelta(hours=24))
