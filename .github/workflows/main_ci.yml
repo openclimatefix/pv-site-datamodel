@@ -8,6 +8,10 @@ jobs:
   merged-ci:
     uses: openclimatefix/.github/.github/workflows/default_branch_pr_merged_ci.yml@main
     secrets: inherit
+<<<<<<< HEAD
     with:
       containerfile: None
+=======
+    containerfile: None
+>>>>>>> f35eb84502270c90dab04e0b3ea9d8f903831c85
 
