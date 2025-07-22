@@ -72,6 +72,8 @@ ignore = ["D203", "D213", "D200" ,"D202", "D210", "D212", "D415", "D105"]
 
 [tool.ruff.lint.per-file-ignores]
 "*test*" = ["D", "ANN", "S101"]
+"alembic/versions/*" = ["D103"]
+"scripts/*" = ["T201"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

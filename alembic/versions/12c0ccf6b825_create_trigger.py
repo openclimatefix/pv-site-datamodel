@@ -6,12 +6,11 @@ Create Date: 2024-10-27 20:27:30.805137
 
 """
 from alembic import op
-import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '12c0ccf6b825'
-down_revision = 'c8ef88c250e7'
+revision = "12c0ccf6b825"
+down_revision = "c8ef88c250e7"
 branch_labels = None
 depends_on = None
 
@@ -21,7 +20,6 @@ DECLARE
     user_uuid UUID;
 BEGIN
     user_uuid := nullif(current_setting('pvsite_datamodel.current_user_uuid', true), '')::UUID;
-    
     IF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
         INSERT INTO sites_history (
             site_history_uuid,
@@ -70,6 +68,7 @@ drop_trigger = """
 DROP TRIGGER IF EXISTS site_changes_trigger ON sites;
 DROP FUNCTION IF EXISTS log_site_changes;
 """
+
 
 def upgrade() -> None:
     op.execute(create_trigger)

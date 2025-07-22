@@ -42,7 +42,7 @@ def engine():
         yield engine
 
 
-@pytest.fixture()
+@pytest.fixture
 def db_session(engine):
     """Return a sqlalchemy session, which tears down everything properly post-test."""
     connection = engine.connect()
@@ -63,7 +63,7 @@ def db_session(engine):
     engine.dispose()
 
 
-@pytest.fixture()
+@pytest.fixture
 def sites(db_session, client):
     """Create some fake sites."""
     sites = []
@@ -93,7 +93,7 @@ def sites(db_session, client):
     return sites
 
 
-@pytest.fixture()
+@pytest.fixture
 def make_sites_for_country(db_session):
     """Create some fake sites for specfic country."""
 
@@ -127,7 +127,7 @@ def make_sites_for_country(db_session):
     return _make_sites_for_country
 
 
-@pytest.fixture()
+@pytest.fixture
 def user_with_sites(db_session, sites):
     """Create a user with sites."""
     site_group = create_site_group(db_session=db_session)
@@ -141,7 +141,7 @@ def user_with_sites(db_session, sites):
     return user
 
 
-@pytest.fixture()
+@pytest.fixture
 def generations(db_session, sites):
     """Create some fake generations."""
     now = dt.datetime.now(dt.UTC)
@@ -162,12 +162,12 @@ def generations(db_session, sites):
     db_session.commit()
 
 
-@pytest.fixture()
+@pytest.fixture
 def test_time():
     return dt.datetime(2022, 7, 25, 0, 0, 0, 0, dt.UTC)
 
 
-@pytest.fixture()
+@pytest.fixture
 def forecast_valid_meta_input(sites):
     forecast_meta = {
         "site_uuid": sites[0].location_uuid,
@@ -178,7 +178,7 @@ def forecast_valid_meta_input(sites):
     return forecast_meta
 
 
-@pytest.fixture()
+@pytest.fixture
 def forecast_valid_values_input():
     n = 10  # number of forecast values
     step = 15  # in minutes
@@ -197,19 +197,19 @@ def forecast_valid_values_input():
     return forecast_values
 
 
-@pytest.fixture()
+@pytest.fixture
 def forecast_valid_input(forecast_valid_meta_input, forecast_valid_values_input):
     return (forecast_valid_meta_input, forecast_valid_values_input)
 
 
-@pytest.fixture()
+@pytest.fixture
 def forecast_with_invalid_meta_input(forecast_valid_meta_input, forecast_valid_values_input):
     forecast_meta = forecast_valid_meta_input
     forecast_meta["site_uuid"] = "not-a-uuid"
     return (forecast_meta, forecast_valid_values_input)
 
 
-@pytest.fixture()
+@pytest.fixture
 def forecast_with_invalid_values_input(forecast_valid_meta_input, forecast_valid_values_input):
     forecast_values = forecast_valid_values_input
     forecast_power_kw = forecast_values["forecast_power_kw"]
@@ -218,7 +218,7 @@ def forecast_with_invalid_values_input(forecast_valid_meta_input, forecast_valid
     return (forecast_valid_meta_input, forecast_values)
 
 
-@pytest.fixture()
+@pytest.fixture
 def forecast_valid_site(sites):
     site_uuid = sites[0].location_uuid
 
@@ -233,7 +233,7 @@ def forecast_valid_site(sites):
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def forecast_invalid_site():
     now = dt.datetime.now(dt.UTC)
     return {
@@ -244,7 +244,7 @@ def forecast_invalid_site():
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def forecast_invalid_dataframe():
     return {
         "target_datetime_utc": [dt.datetime.now(dt.UTC).isoformat()],
@@ -253,12 +253,12 @@ def forecast_invalid_dataframe():
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def forecast_invalid_meta():
     return {}
 
 
-@pytest.fixture()
+@pytest.fixture
 def generation_valid_site(sites):
     site_uuid = sites[0].location_uuid
 
@@ -271,7 +271,7 @@ def generation_valid_site(sites):
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def generation_valid_end_utc(sites):
     site_uuid = sites[0].location_uuid
 
@@ -287,7 +287,7 @@ def generation_valid_end_utc(sites):
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def generation_invalid_dataframe():
     return {
         "start_utc": [dt.datetime.now(dt.UTC)],
@@ -296,7 +296,7 @@ def generation_invalid_dataframe():
     }
 
 
-@pytest.fixture()
+@pytest.fixture
 def statuses(db_session) -> list[StatusSQL]:
     """Create some fake statuses."""
     statuses: list[StatusSQL] = []
@@ -312,7 +312,7 @@ def statuses(db_session) -> list[StatusSQL]:
     return statuses
 
 
-@pytest.fixture()
+@pytest.fixture
 def client(db_session):
     """Create a fake client."""
     client = ClientSQL(client_name="client_name_test")
