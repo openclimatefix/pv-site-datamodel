@@ -7,7 +7,6 @@ Create Date: 2023-04-08 12:26:23.042938
 """
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.sql import table, column
 
 # revision identifiers, used by Alembic.
 revision = '8384de6b7c50'
@@ -19,7 +18,7 @@ depends_on = None
 def upgrade() -> None:
     op.add_column('sites', sa.Column('module_capacity_kw', sa.Float(), nullable=True, comment='The PV module nameplate capacity of the site'))
     op.add_column('sites', sa.Column('inverter_capacity_kw', sa.Float(), nullable=True, comment='The PV module nameplate capacity of the site'))
-    
+
     op.execute("UPDATE sites SET inverter_capacity_kw=capacity_kw")
 
     # Create a trigger function to set inverter_capacity_kw to capacity_kw
@@ -52,7 +51,7 @@ def downgrade() -> None:
     op.execute("""
         DROP FUNCTION set_default_inverter_capacity_kw;
     """)
-    
+
     op.drop_column('sites', 'module_capacity_kw')
     op.drop_column('sites', 'inverter_capacity_kw')
-    
+
