@@ -93,7 +93,7 @@ def get_latest_forecast_values_by_site(
     elif day_ahead_hours:
         # if day_ahead_hours is set, we filter on the timestamp_utc as well
         query = query.filter(
-            ForecastSQL.timestamp_utc > timestamp_utc_lower_limit - dt.timedelta(hours=24)
+            ForecastSQL.timestamp_utc >= timestamp_utc_lower_limit - dt.timedelta(hours=24)
         )
     else:
         query = query.filter(ForecastSQL.timestamp_utc >= timestamp_utc_lower_limit)
