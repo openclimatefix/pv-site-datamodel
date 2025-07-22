@@ -32,7 +32,7 @@ with connection.get_session() as session:
 
     # get sites with no gsp
     query = session.query(SiteSQL)
-    query = query.filter(SiteSQL.dno == None)
+    query = query.filter(SiteSQL.dno == None)  # noqa
     sites = query.all()
 
     print(f"Total sites are {len(sites)}")
@@ -52,7 +52,7 @@ with connection.get_session() as session:
         dno = dno_shapes[mask]
 
         # select dno
-        assert len(dno) == 1
+        assert len(dno) == 1 # noqa
         dno = dno.iloc[0]
 
         dno_id = dno["ID"]
