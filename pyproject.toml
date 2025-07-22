@@ -36,6 +36,9 @@ repository = "https://github.com/openclimatefix/pvsite-datamodel"
 where = ["src"]
 exclude = ["test*"]
 
+[tool.setuptools.package-data]
+"*" = ["*.csv"]
+
 [tool.setuptools-git-versioning]
 enabled = true
 
