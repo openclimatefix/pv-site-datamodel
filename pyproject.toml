@@ -36,6 +36,9 @@ repository = "https://github.com/openclimatefix/pvsite-datamodel"
 where = ["src"]
 exclude = ["test*"]
 
+[tool.setuptools-git-versioning]
+enabled = true
+
 [tool.mypy]
 python_version = "3.10"
 plugins = [
