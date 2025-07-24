@@ -77,6 +77,7 @@ def get_models(
     start_datetime: datetime | None = None,
     end_datetime: datetime | None = None,
     site_uuid: str | None = None,
+    forecast_horizon: int | None = None,
 ) -> list[MLModelSQL]:
     """Get model names from forecast values.
 
@@ -94,7 +95,12 @@ def get_models(
 
     query = query.distinct(MLModelSQL.name)
 
-    if (start_datetime is not None) or (end_datetime is not None) or (site_uuid is not None):
+    if (
+        (start_datetime is not None)
+        or (end_datetime is not None)
+        or (site_uuid is not None)
+        or (forecast_horizon is not None)
+    ):
         query = query.join(ForecastValueSQL)
 
     if start_datetime is not None:
@@ -110,9 +116,16 @@ def get_models(
 
         if start_datetime is not None:
             query = query.where(ForecastSQL.created_utc >= start_datetime)
+            query = query.where(ForecastSQL.timestamp_utc >= start_datetime)
 
         if end_datetime is not None:
             query = query.where(ForecastSQL.created_utc < end_datetime)
+            query = query.where(ForecastSQL.timestamp_utc < end_datetime)
+
+    # we can use this to trim the query down,
+    # as we only need to check for one forecast_horizon
+    if forecast_horizon is not None:
+        query = query.where(ForecastValueSQL.horizon_minutes == forecast_horizon)
 
     # order by created utc desc
     query = query.order_by(MLModelSQL.name, MLModelSQL.created_utc.desc())
