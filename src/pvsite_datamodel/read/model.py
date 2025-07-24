@@ -95,7 +95,12 @@ def get_models(
 
     query = query.distinct(MLModelSQL.name)
 
-    if (start_datetime is not None) or (end_datetime is not None) or (site_uuid is not None) or (forecast_horizon is not None):
+    if (
+        (start_datetime is not None)
+        or (end_datetime is not None)
+        or (site_uuid is not None)
+        or (forecast_horizon is not None)
+    ):
         query = query.join(ForecastValueSQL)
 
     if start_datetime is not None:
