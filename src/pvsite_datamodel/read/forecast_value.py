@@ -59,6 +59,8 @@ def get_forecast_values_by_site(
         site_uuids=site_uuids,
         day_ahead_hours=day_ahead_hours,
         day_ahead_timezone_delta_hours=day_ahead_timezone_delta_hours,
+        created_after=dt.datetime.now()-dt.timedelta(days=1),
+        created_before=created_by,
     )
     logger.debug("Found forecast uuids for future period")
 

@@ -9,11 +9,13 @@ from sqlalchemy import text
 
 log = logging.getLogger(__name__)
 
+
 def get_last_forecast_uuid(
     session,
     site_uuids: list[str | uuid.UUID],
     start_utc: datetime | None = None,
     created_after: datetime | None = None,
+    created_before: datetime | None = None,
     end_utc: datetime | None = None,
     model_name: str | None = None,
     day_ahead_hours: int | None = None,
@@ -30,6 +32,10 @@ def get_last_forecast_uuid(
     if created_after is not None:
         query = query.filter(ForecastSQL.created_utc >= created_after)
         query = query.filter(ForecastSQL.timestamp_utc >= created_after)
+
+    if created_before is not None:
+        query = query.filter(ForecastSQL.created_utc < created_before)
+        query = query.filter(ForecastSQL.timestamp_utc < created_before)
 
     if model_name is not None:
         query = query.join(MLModelSQL, ForecastValueSQL.ml_model_uuid == MLModelSQL.model_uuid)
