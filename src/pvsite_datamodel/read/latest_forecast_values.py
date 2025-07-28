@@ -116,7 +116,9 @@ def get_latest_forecast_values_by_site(
         query = query.filter(ForecastValueSQL.horizon_minutes >= forecast_horizon_minutes)
 
     if forecast_horizon_minutes_upper_limit is not None:
-        query = query.filter(ForecastValueSQL.horizon_minutes <= forecast_horizon_minutes_upper_limit)
+        query = query.filter(
+            ForecastValueSQL.horizon_minutes <= forecast_horizon_minutes_upper_limit
+        )
 
     if day_ahead_hours:
         """Filter on forecast values on creation time for day ahead

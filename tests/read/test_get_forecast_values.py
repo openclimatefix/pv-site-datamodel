@@ -1,6 +1,5 @@
 import datetime as dt
 
-import pytest
 
 from pvsite_datamodel import ForecastSQL, ForecastValueSQL, LocationSQL
 from pvsite_datamodel.read import get_forecast_values_by_site, get_or_create_model

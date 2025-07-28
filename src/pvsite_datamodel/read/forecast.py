@@ -2,24 +2,28 @@
 from datetime import datetime
 from pvsite_datamodel import ForecastSQL, ForecastValueSQL
 from pvsite_datamodel.sqlmodels import MLModelSQL
+import uuid
+import logging
 
-from sqlalchemy import func, text
+from sqlalchemy import text
 
+log = logging.getLogger(__name__)
 
-def get_forecasts(
+def get_last_forecast_uuid(
     session,
-    site_uuids,
-    start_utc,
+    site_uuids: list[str | uuid.UUID],
+    start_utc: datetime | None = None,
     created_after: datetime | None = None,
     end_utc: datetime | None = None,
     model_name: str | None = None,
     day_ahead_hours: int | None = None,
     day_ahead_timezone_delta_hours: float | None = 0,
     horizon_minutes: int | None = None,
-):
-    """Get forecast UUIDs for the given sites and conditions."""
+) -> list[str | uuid.UUID] | None:
+    """Get the last forecast UUIDs"""
 
-    query = session.query(ForecastSQL.forecast_uuid)
+    query = session.query(ForecastValueSQL.forecast_uuid)
+    query = query.join(ForecastSQL)
     query = query.distinct(ForecastSQL.location_uuid)
     query = query.filter(ForecastSQL.location_uuid.in_(site_uuids))
 
@@ -27,13 +31,12 @@ def get_forecasts(
         query = query.filter(ForecastSQL.created_utc >= created_after)
         query = query.filter(ForecastSQL.timestamp_utc >= created_after)
 
-    # join with Forecast Value
-    query = query.join(ForecastValueSQL)
     if model_name is not None:
         query = query.join(MLModelSQL, ForecastValueSQL.ml_model_uuid == MLModelSQL.model_uuid)
         query = query.filter(MLModelSQL.name == model_name)
 
-    query = query.filter(ForecastValueSQL.start_utc >= start_utc)
+    if start_utc is not None:
+        query = query.filter(ForecastValueSQL.start_utc >= start_utc)
 
     if end_utc is not None:
         query = query.filter(ForecastValueSQL.start_utc < end_utc)
@@ -68,9 +71,18 @@ def get_forecasts(
     if horizon_minutes is not None:
         query = query.filter(ForecastValueSQL.horizon_minutes == horizon_minutes)
 
-    query = query.order_by(ForecastSQL.location_uuid, ForecastSQL.timestamp_utc.desc())
-    forecast_uuids = [row.forecast_uuid for row in query.all()]
+    query = query.order_by(ForecastSQL.location_uuid, ForecastValueSQL.start_utc.desc())
 
-    return forecast_uuids
+    # limit the query by 1
+    query = query.limit(len(site_uuids))
+
+    rows = query.all()
+
+    if len(rows) == 0:
+        log.warning(f'Could not find any forecasts for {site_uuids} at {start_utc} '
+                        f'with {created_after=} and {end_utc=}')
+        return None
+
+    return [r[0] for r in rows]
 
 
