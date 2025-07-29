@@ -9,7 +9,7 @@ import uuid
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from pvsite_datamodel.read.forecast import get_last_forecast_uuid
+from pvsite_datamodel.read.forecast import get_last_forecast_uuid, get_day_ahead_forecast_uuids
 from pvsite_datamodel.sqlmodels import ForecastSQL, MLModelSQL
 from pvsite_datamodel.sqlmodels import ForecastValueSQL
 
@@ -51,7 +51,7 @@ def get_forecast_values_fast(
 
     # TODO add day ahead options
 
-    # 1. forecast  uuids from the last forecast
+    # 1. forecast uuids from the last forecast
     forecast_uuids = get_last_forecast_uuid(
         session=session,
         model_name=model_name,
@@ -114,6 +114,59 @@ def get_forecast_values_fast(
         forecast_horizon_minutes=forecast_horizon_minutes,
         model_name=model_name,
         forecast_value_uuids=forecast_values_uuids,
+    )
+
+    return forecast_values
+
+
+def get_forecast_values_day_ahead_fast(
+    session: Session,
+    site_uuid: uuid.UUID | str,
+    start_utc: dt.datetime,
+    end_utc: dt.datetime | None = None,
+    model_name: str | None = None,
+    day_ahead_hours: int | None = None,
+    day_ahead_timezone_delta_hours: float | None = 0,
+) -> list[ForecastValueSQL]:
+    """
+    Get forecast values
+
+    The ideas is to split this query into separate ones
+    1. Get the forecasts (not the forecast values) that are needed for DA
+    2. Get forecast values,
+
+    :param session:
+    :param site_uuid:
+    :param start_utc:
+    :param end_utc:
+    :param day_ahead_hours:
+    :param day_ahead_timezone_delta_hours:
+    :param model_name:
+    :return:
+    """
+
+    # 1. forecast uuids from the last forecast
+    forecast_uuids = get_day_ahead_forecast_uuids(
+        session=session,
+        model_name=model_name,
+        site_uuid=site_uuid,
+        start_utc=start_utc,
+        end_utc=end_utc,
+        day_ahead_hours=day_ahead_hours,
+        day_ahead_timezone_delta_hours=day_ahead_timezone_delta_hours
+    )
+    logger.debug("Found forecast uuids for future period")
+
+    # 2. Get future values
+    forecast_values = get_forecast_values(
+        session=session,
+        site_uuid=site_uuid,
+        start_utc=start_utc,
+        end_utc=end_utc,
+        model_name=model_name,
+        forecast_uuids=forecast_uuids,
+        day_ahead_hours=day_ahead_hours,
+        day_ahead_timezone_delta_hours=day_ahead_timezone_delta_hours
     )
 
     return forecast_values
