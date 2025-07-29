@@ -104,7 +104,10 @@ def get_day_ahead_forecast_uuids(
             query = query.filter(ForecastValueSQL.created_utc <= end_utc)
 
     query = query.filter(
-        text(f"extract(hour from forecasts.created_utc) < {day_ahead_hours - day_ahead_timezone_delta_hours}")
+        text(
+            "extract(hour from forecasts.created_utc) "
+            f"< {day_ahead_hours - day_ahead_timezone_delta_hours}"
+        )
     )
     # order by
     query = query.order_by(ForecastSQL.created_utc.cast(Date), ForecastSQL.created_utc.desc())

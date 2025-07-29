@@ -2,7 +2,11 @@ import datetime as dt
 
 
 from pvsite_datamodel import ForecastSQL, ForecastValueSQL, LocationSQL
-from pvsite_datamodel.read import get_forecast_values_fast, get_or_create_model, get_forecast_values_day_ahead_fast
+from pvsite_datamodel.read import (
+    get_forecast_values_fast,
+    get_or_create_model,
+    get_forecast_values_day_ahead_fast,
+)
 
 
 def _add_forecast_value(
@@ -160,6 +164,7 @@ def test_get_forecast_values_with_end_utc(db_session, sites):
     for i, fv in enumerate(forecast_value):
         assert fv.start_utc == expected[i][0].replace(tzinfo=None)
         assert fv.forecast_power_kw == expected[i][1]
+
 
 def test_get_forecast_values_day_head(db_session, sites):
     """Test to get DA forecasts"""

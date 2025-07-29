@@ -49,8 +49,6 @@ def get_forecast_values_fast(
     :return:
     """
 
-    # TODO add day ahead options
-
     # 1. forecast uuids from the last forecast
     forecast_uuids = get_last_forecast_uuid(
         session=session,
