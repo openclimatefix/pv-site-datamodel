@@ -19,11 +19,9 @@ def get_latest_forecast_values_by_site(
     created_by: dt.datetime | None = None,
     created_after: dt.datetime | None = None,
     forecast_horizon_minutes: int | None = None,
-    forecast_horizon_minutes_upper_limit: int | None = None,
     day_ahead_hours: int | None = None,
     day_ahead_timezone_delta_hours: float | None = 0,
     model_name: str | None = None,
-    forecast_uuids: list[uuid.UUID] | None = None,
 ) -> dict[uuid.UUID, list[ForecastValueSQL]] | list[ForecastValueSum]:
     """Get the forecast values by input sites, get the latest value.
 
@@ -115,11 +113,6 @@ def get_latest_forecast_values_by_site(
     if forecast_horizon_minutes is not None:
         query = query.filter(ForecastValueSQL.horizon_minutes >= forecast_horizon_minutes)
 
-    if forecast_horizon_minutes_upper_limit is not None:
-        query = query.filter(
-            ForecastValueSQL.horizon_minutes <= forecast_horizon_minutes_upper_limit
-        )
-
     if day_ahead_hours:
         """Filter on forecast values on creation time for day ahead
 
@@ -148,10 +141,6 @@ def get_latest_forecast_values_by_site(
         # join with MLModelSQL to filter on model_name
         query = query.join(MLModelSQL)
         query = query.filter(MLModelSQL.name == model_name)
-
-    if forecast_uuids is not None:
-        # filter on forecast_uuids
-        query = query.filter(ForecastSQL.forecast_uuid.in_(forecast_uuids))
 
     # speed up query, so all information is gather in one query, rather than lots of little ones
     query = query.options(contains_eager(ForecastValueSQL.forecast)).populate_existing()
