@@ -19,11 +19,11 @@ class DatabaseConnection:
         :param url: the database url, used for connecting
         :param echo: whether to echo
         """
+        if url is None:
+            raise ValueError("Database URL cannot be None")
         self.url = url
         self.engine = create_engine(self.url, echo=echo)
         self.Session = sessionmaker(bind=self.engine)
-        if self.url is None:
-            raise Exception("Need to set url for database connection")
 
     def get_session(self) -> Session:
         """Get sqlalchemy session."""
