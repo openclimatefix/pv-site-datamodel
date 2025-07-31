@@ -27,15 +27,21 @@ class TestSelectSite:
         
         # Mock the get_site_by_uuid function
         import pvsite_datamodel.management
-        original_get_site_by_uuid = pvsite_datamodel.management.get_site_by_uuid
-        pvsite_datamodel.management.get_site_by_uuid = Mock(return_value=mock_site)
+        original_get_site_by_uuid = (
+            pvsite_datamodel.management.get_site_by_uuid
+        )
+        pvsite_datamodel.management.get_site_by_uuid = Mock(
+            return_value=mock_site
+        )
         
         try:
             result = select_site_by_uuid(mock_session, "test-uuid")
             assert result == "test-uuid"
         finally:
             # Restore original function
-            pvsite_datamodel.management.get_site_by_uuid = original_get_site_by_uuid
+            pvsite_datamodel.management.get_site_by_uuid = (
+                original_get_site_by_uuid
+            )
 
     def test_select_site_by_uuid_not_found(self):
         """Test site selection by UUID when site not found."""
@@ -43,15 +49,23 @@ class TestSelectSite:
         
         # Mock the get_site_by_uuid function to raise exception
         import pvsite_datamodel.management
-        original_get_site_by_uuid = pvsite_datamodel.management.get_site_by_uuid
-        pvsite_datamodel.management.get_site_by_uuid = Mock(side_effect=Exception("Not found"))
+        original_get_site_by_uuid = (
+            pvsite_datamodel.management.get_site_by_uuid
+        )
+        pvsite_datamodel.management.get_site_by_uuid = Mock(
+            side_effect=Exception("Not found")
+        )
         
         try:
-            with pytest.raises(ValueError, match="Site with UUID test-uuid not found"):
+            with pytest.raises(
+                ValueError, match="Site with UUID test-uuid not found"
+            ):
                 select_site_by_uuid(mock_session, "test-uuid")
         finally:
             # Restore original function
-            pvsite_datamodel.management.get_site_by_uuid = original_get_site_by_uuid
+            pvsite_datamodel.management.get_site_by_uuid = (
+                original_get_site_by_uuid
+            )
 
     def test_select_site_by_client_id_success(self):
         """Test successful site selection by client ID."""
@@ -62,15 +76,21 @@ class TestSelectSite:
         
         # Mock the get_site_by_client_site_id function
         import pvsite_datamodel.management
-        original_get_site_by_client_site_id = pvsite_datamodel.management.get_site_by_client_site_id
-        pvsite_datamodel.management.get_site_by_client_site_id = Mock(return_value=mock_site)
+        original_get_site_by_client_site_id = (
+            pvsite_datamodel.management.get_site_by_client_site_id
+        )
+        pvsite_datamodel.management.get_site_by_client_site_id = Mock(
+            return_value=mock_site
+        )
         
         try:
             result = select_site_by_client_id(mock_session, "client-123")
             assert result == "test-uuid"
         finally:
             # Restore original function
-            pvsite_datamodel.management.get_site_by_client_site_id = original_get_site_by_client_site_id
+            pvsite_datamodel.management.get_site_by_client_site_id = (
+                original_get_site_by_client_site_id
+            )
 
 
 class TestGetAllSites:
@@ -88,7 +108,9 @@ class TestGetAllSites:
         # Mock the get_all_sites function
         import pvsite_datamodel.management
         original_get_all_sites = pvsite_datamodel.management.get_all_sites
-        pvsite_datamodel.management.get_all_sites = Mock(return_value=[mock_site1, mock_site2])
+        pvsite_datamodel.management.get_all_sites = Mock(
+            return_value=[mock_site1, mock_site2]
+        )
         
         try:
             result = get_all_site_uuids(mock_session)
@@ -109,7 +131,9 @@ class TestGetAllSites:
         # Mock the get_all_sites function
         import pvsite_datamodel.management
         original_get_all_sites = pvsite_datamodel.management.get_all_sites
-        pvsite_datamodel.management.get_all_sites = Mock(return_value=[mock_site1, mock_site2])
+        pvsite_datamodel.management.get_all_sites = Mock(
+            return_value=[mock_site1, mock_site2]
+        )
         
         try:
             result = get_all_client_site_ids(mock_session)
@@ -142,13 +166,21 @@ class TestAddAllSitesToSiteGroup:
         # Mock functions
         import pvsite_datamodel.management
         original_get_all_sites = pvsite_datamodel.management.get_all_sites
-        original_get_site_group_by_name = pvsite_datamodel.management.get_site_group_by_name
+        original_get_site_group_by_name = (
+            pvsite_datamodel.management.get_site_group_by_name
+        )
         
-        pvsite_datamodel.management.get_all_sites = Mock(return_value=[mock_site1, mock_site2])
-        pvsite_datamodel.management.get_site_group_by_name = Mock(return_value=mock_site_group)
+        pvsite_datamodel.management.get_all_sites = Mock(
+            return_value=[mock_site1, mock_site2]
+        )
+        pvsite_datamodel.management.get_site_group_by_name = Mock(
+            return_value=mock_site_group
+        )
         
         try:
-            message, sites_added = add_all_sites_to_site_group(mock_session, "test-group")
+            message, sites_added = add_all_sites_to_site_group(
+                mock_session, "test-group"
+            )
             
             assert "Added 1 sites to group test-group" in message
             assert sites_added == ["uuid-2"]
@@ -157,7 +189,9 @@ class TestAddAllSitesToSiteGroup:
         finally:
             # Restore original functions
             pvsite_datamodel.management.get_all_sites = original_get_all_sites
-            pvsite_datamodel.management.get_site_group_by_name = original_get_site_group_by_name
+            pvsite_datamodel.management.get_site_group_by_name = (
+                original_get_site_group_by_name
+            )
 
 
 class TestValidateEmail:

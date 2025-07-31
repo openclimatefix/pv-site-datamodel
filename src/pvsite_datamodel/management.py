@@ -1,7 +1,7 @@
 """This module contains functions for managing site groups."""
 
 import re
-from typing import List, Dict, Any, Union, Tuple
+from typing import List, Dict, Any, Tuple
 
 from pvsite_datamodel.read import (
     get_all_sites,
@@ -34,8 +34,8 @@ def select_site_by_uuid(session, site_uuid: str) -> str:
     try:
         site = get_site_by_uuid(session=session, site_uuid=site_uuid)
         return str(site.location_uuid)
-    except Exception:
-        raise ValueError(f"Site with UUID {site_uuid} not found")
+    except Exception as err:
+        raise ValueError(f"Site with UUID {site_uuid} not found") from err
 
 
 def select_site_by_client_id(session, client_site_id: str) -> str:
@@ -57,8 +57,10 @@ def select_site_by_client_id(session, client_site_id: str) -> str:
             session=session, client_site_id=client_site_id
         )
         return str(site.location_uuid)
-    except Exception:
-        raise ValueError(f"Site with client ID {client_site_id} not found")
+    except Exception as err:
+        raise ValueError(
+            f"Site with client ID {client_site_id} not found"
+        ) from err
 
 
 def get_all_site_uuids(session) -> List[str]:
@@ -71,7 +73,9 @@ def get_all_site_uuids(session) -> List[str]:
     Returns:
         list: List of all site UUIDs as strings
     """
-    return [str(site.location_uuid) for site in get_all_sites(session=session)]
+    return [
+        str(site.location_uuid) for site in get_all_sites(session=session)
+    ]
 
 
 def get_all_client_site_ids(session) -> List[str]:
@@ -84,10 +88,15 @@ def get_all_client_site_ids(session) -> List[str]:
     Returns:
         list: List of all client site IDs as strings
     """
-    return [str(site.client_location_id) for site in get_all_sites(session=session)]
+    return [
+        str(site.client_location_id)
+        for site in get_all_sites(session=session)
+    ]
 
 
-def update_site_group(session, site_uuid: str, site_group_name: str) -> Tuple[Any, List[Dict[str, str]], List[str]]:
+def update_site_group(
+    session, site_uuid: str, site_group_name: str
+) -> Tuple[Any, List[Dict[str, str]], List[str]]:
     """
     Add a site to a site group.
     
@@ -110,13 +119,19 @@ def update_site_group(session, site_uuid: str, site_group_name: str) -> Tuple[An
     
     # Get updated site group sites
     site_group_sites = [
-        {"site_uuid": str(site.location_uuid), "client_site_id": str(site.client_location_id)}
+        {
+            "site_uuid": str(site.location_uuid),
+            "client_site_id": str(site.client_location_id)
+        }
         for site in site_group.locations
     ]
     
     # Get updated site's groups
     site = get_site_by_uuid(session=session, site_uuid=site_uuid)
-    site_site_groups = [site_group.location_group_name for site_group in site.location_groups]
+    site_site_groups = [
+        site_group.location_group_name
+        for site_group in site.location_groups
+    ]
     
     return site_group, site_group_sites, site_site_groups
 
@@ -142,7 +157,9 @@ def change_user_site_group(session, email: str, site_group_name: str) -> Tuple[s
     return user_email, user_site_group
 
 
-def add_all_sites_to_site_group(session, site_group_name: str = "ocf") -> Tuple[str, List[str]]:
+def add_all_sites_to_site_group(
+    session, site_group_name: str = "ocf"
+) -> Tuple[str, List[str]]:
     """
     Add all sites to a specified site group.
     
@@ -160,7 +177,9 @@ def add_all_sites_to_site_group(session, site_group_name: str = "ocf") -> Tuple[
     )
 
     # Get existing site UUIDs in the group
-    existing_site_uuids = [site.location_uuid for site in target_site_group.locations]
+    existing_site_uuids = [
+        site.location_uuid for site in target_site_group.locations
+    ]
 
     sites_added = []
 

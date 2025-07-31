@@ -1,6 +1,5 @@
 """Tests for the details module."""
 
-import pytest
 from unittest.mock import Mock
 
 from pvsite_datamodel.read.details import (
@@ -9,7 +8,6 @@ from pvsite_datamodel.read.details import (
     get_site_group_details,
     validate_email,
 )
-from pvsite_datamodel.sqlmodels import LocationAssetType
 
 
 class TestGetUserDetails:
@@ -37,8 +35,12 @@ class TestGetUserDetails:
         
         # Mock the get_user_by_email function
         import pvsite_datamodel.read.details
-        original_get_user_by_email = pvsite_datamodel.read.details.get_user_by_email
-        pvsite_datamodel.read.details.get_user_by_email = Mock(return_value=mock_user)
+        original_get_user_by_email = (
+            pvsite_datamodel.read.details.get_user_by_email
+        )
+        pvsite_datamodel.read.details.get_user_by_email = Mock(
+            return_value=mock_user
+        )
         
         try:
             user_sites, user_site_group, user_site_count = get_user_details(
@@ -52,7 +54,9 @@ class TestGetUserDetails:
             assert user_sites[0]["client_site_id"] == "client-id-1"
         finally:
             # Restore original function
-            pvsite_datamodel.read.details.get_user_by_email = original_get_user_by_email
+            pvsite_datamodel.read.details.get_user_by_email = (
+                original_get_user_by_email
+            )
 
 
 class TestGetSiteDetails:
@@ -94,8 +98,12 @@ class TestGetSiteDetails:
         
         # Mock the get_site_by_uuid function
         import pvsite_datamodel.read.details
-        original_get_site_by_uuid = pvsite_datamodel.read.details.get_site_by_uuid
-        pvsite_datamodel.read.details.get_site_by_uuid = Mock(return_value=mock_site)
+        original_get_site_by_uuid = (
+            pvsite_datamodel.read.details.get_site_by_uuid
+        )
+        pvsite_datamodel.read.details.get_site_by_uuid = Mock(
+            return_value=mock_site
+        )
         
         try:
             site_details = get_site_details(mock_session, "test-uuid")
@@ -107,7 +115,9 @@ class TestGetSiteDetails:
             assert site_details["capacity"] == "100 kw"
         finally:
             # Restore original function
-            pvsite_datamodel.read.details.get_site_by_uuid = original_get_site_by_uuid
+            pvsite_datamodel.read.details.get_site_by_uuid = (
+                original_get_site_by_uuid
+            )
 
 
 class TestValidateEmail:

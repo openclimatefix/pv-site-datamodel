@@ -1,8 +1,7 @@
 """This module contains functions to get details from the database for a user, site or site group."""
 
 import re
-from datetime import datetime
-from typing import Dict, List, Any, Union
+from typing import Dict, List, Any
 
 from pvsite_datamodel.read import (
     get_user_by_email,
@@ -12,7 +11,9 @@ from pvsite_datamodel.read import (
 from pvsite_datamodel.sqlmodels import LocationAssetType
 
 
-def get_user_details(session, email: str) -> tuple[List[Dict[str, str]], str, int]:
+def get_user_details(
+    session, email: str
+) -> tuple[List[Dict[str, str]], str, int]:
     """
     Get the user details from the database.
     
@@ -27,7 +28,10 @@ def get_user_details(session, email: str) -> tuple[List[Dict[str, str]], str, in
     user_site_group = user_details.location_group.location_group_name
     user_site_count = len(user_details.location_group.locations)
     user_sites = [
-        {"site_uuid": str(site.location_uuid), "client_site_id": str(site.client_location_id)}
+        {
+            "site_uuid": str(site.location_uuid),
+            "client_site_id": str(site.client_location_id)
+        }
         for site in user_details.location_group.locations
     ]
     return user_sites, user_site_group, user_site_count
@@ -47,7 +51,7 @@ def get_site_details(session, site_uuid: str) -> Dict[str, Any]:
     site = get_site_by_uuid(session=session, site_uuid=site_uuid)
     
     if isinstance(site.asset_type, LocationAssetType):
-        asset_type_value = str(site.asset_type.name.lower())  # 'pv' or 'wind'
+        asset_type_value = str(site.asset_type.name.lower())
     else:
         asset_type_value = str(site.asset_type)
         
@@ -80,7 +84,9 @@ def get_site_details(session, site_uuid: str) -> Dict[str, Any]:
     return site_details
 
 
-def get_site_group_details(session, site_group_name: str) -> tuple[List[Dict[str, str]], List[str]]:
+def get_site_group_details(
+    session, site_group_name: str
+) -> tuple[List[Dict[str, str]], List[str]]:
     """
     Get the site group details from the database.
     
@@ -95,7 +101,10 @@ def get_site_group_details(session, site_group_name: str) -> tuple[List[Dict[str
         session=session, site_group_name=site_group_name
     )
     site_group_sites = [
-        {"site_uuid": str(site.location_uuid), "client_site_id": str(site.client_location_id)}
+        {
+            "site_uuid": str(site.location_uuid),
+            "client_site_id": str(site.client_location_id)
+        }
         for site in site_group.locations
     ]
     site_group_users = [user.email for user in site_group.users]
