@@ -7,6 +7,7 @@ import re
 from typing import Dict, List
 
 from pvsite_datamodel.read.user import get_user_by_email, get_site_group_by_name
+from pvsite_datamodel.read.site import get_site_by_uuid
 
 
 def get_user_details(
@@ -75,3 +76,49 @@ def validate_email(email: str) -> bool:
     if re.match(r"[^@]+@[^@]+\.[^@]+", email):
         return True
     return False
+
+
+def get_site_details(session, site_uuid: str) -> Dict[str, str]:
+    """
+    Get site details from the database.
+
+    Args:
+        session: Database session
+        site_uuid: UUID of the site to get details for
+
+    Returns:
+        dict: Dictionary containing site details
+    """
+    site = get_site_by_uuid(session=session, site_uuid=site_uuid)
+    
+    # Convert asset type enum to string if it's an enum
+    asset_type_str = site.asset_type.name if hasattr(site.asset_type, 'name') else str(site.asset_type)
+    
+    # Get ML model name if available
+    ml_model_name = site.ml_model.name if site.ml_model else None
+    
+    # Format capacity with units
+    capacity_str = f"{site.capacity_kw} kw" if site.capacity_kw else None
+    
+    site_details = {
+        "site_uuid": str(site.location_uuid),
+        "client_site_id": str(site.client_location_id),
+        "client_site_name": str(site.client_location_name) if site.client_location_name else None,
+        "latitude": site.latitude,
+        "longitude": site.longitude,
+        "country": site.country,
+        "asset_type": asset_type_str,
+        "region": site.region,
+        "dno": site.dno,
+        "gsp": site.gsp,
+        "tilt": site.tilt,
+        "orientation": site.orientation,
+        "inverter_capacity_kw": site.inverter_capacity_kw,
+        "module_capacity_kw": site.module_capacity_kw,
+        "capacity": capacity_str,
+        "ml_model_name": ml_model_name,
+        "created_utc": site.created_utc,
+        "site_groups": [group.location_group_name for group in site.location_groups],
+    }
+    
+    return site_details
