@@ -4,94 +4,16 @@ import re
 from typing import List, Dict, Any, Tuple
 
 from pvsite_datamodel.read import (
-    get_all_sites,
     get_user_by_email,
     get_site_by_uuid,
     get_site_group_by_name,
-    get_site_by_client_site_id
 )
+from pvsite_datamodel.read.site import get_all_sites, get_site_by_client_site_id
 
 from pvsite_datamodel.write.user_and_site import (
     add_site_to_site_group,
     update_user_site_group,
 )
-
-
-def select_site_by_uuid(session, site_uuid: str) -> str:
-    """
-    Select site by site_uuid and validate it exists.
-
-    Args:
-        session: Database session
-        site_uuid: UUID of the site
-
-    Returns:
-        str: The validated site UUID
-
-    Raises:
-        ValueError: If site UUID is not found
-    """
-    try:
-        site = get_site_by_uuid(session=session, site_uuid=site_uuid)
-        return str(site.location_uuid)
-    except Exception as err:
-        raise ValueError(f"Site with UUID {site_uuid} not found") from err
-
-
-def select_site_by_client_id(session, client_site_id: str) -> str:
-    """
-    Select site by client_site_id and return its UUID.
-
-    Args:
-        session: Database session
-        client_site_id: Client site ID
-
-    Returns:
-        str: The site UUID
-
-    Raises:
-        ValueError: If client site ID is not found
-    """
-    try:
-        site = get_site_by_client_site_id(
-            session=session, client_site_id=client_site_id
-        )
-        return str(site.location_uuid)
-    except Exception as err:
-        raise ValueError(
-            f"Site with client ID {client_site_id} not found"
-        ) from err
-
-
-def get_all_site_uuids(session) -> List[str]:
-    """
-    Get all site UUIDs from the database.
-
-    Args:
-        session: Database session
-
-    Returns:
-        list: List of all site UUIDs as strings
-    """
-    return [
-        str(site.location_uuid) for site in get_all_sites(session=session)
-    ]
-
-
-def get_all_client_site_ids(session) -> List[str]:
-    """
-    Get all client site IDs from the database.
-
-    Args:
-        session: Database session
-
-    Returns:
-        list: List of all client site IDs as strings
-    """
-    return [
-        str(site.client_location_id)
-        for site in get_all_sites(session=session)
-    ]
 
 
 def update_site_group(
