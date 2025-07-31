@@ -36,20 +36,20 @@ def get_forecast_values_fast(
     3. Get forecast values uuids in the past
     4. Get the actual forecast values
 
-    :param session:
-    :param site_uuid:
-    :param start_utc:
-    :param end_utc:
-    :param created_by:
-    :param created_after:
-    :param forecast_horizon_minutes:
-    :param day_ahead_hours:
-    :param day_ahead_timezone_delta_hours:
-    :param model_name:
-    :return:
+
+    :param session: Database sessions
+    :param site_uuid: The site UUID for which to fetch forecast values
+    :param start_utc: filters on forecast values start_utc >= start_utc
+    :param end_utc: optional filter on forecast values start_utc < end_utc
+    :param created_by: optional filter on forecast values created time <= created_by
+    :param created_after: optional filter on forecast values created time >= created_after
+    :param forecast_horizon_minutes: optional filter on forecast horizon minutes.
+    :param model_name: optional filter on forecast values with this model name
+    :return: list of forecast value SQL objects
     """
 
-    # 1. forecast uuids from the last forecast
+
+    # 1. forecast  uuids from the last forecast
     forecast_uuids = get_last_forecast_uuid(
         session=session,
         model_name=model_name,

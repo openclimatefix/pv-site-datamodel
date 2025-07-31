@@ -2,6 +2,7 @@ import datetime as dt
 
 
 from pvsite_datamodel import ForecastSQL, ForecastValueSQL, LocationSQL
+
 from pvsite_datamodel.read import (
     get_forecast_values_fast,
     get_or_create_model,

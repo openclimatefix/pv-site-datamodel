@@ -21,7 +21,18 @@ def get_last_forecast_uuid(
     model_name: str | None = None,
     horizon_minutes: int | None = None,
 ) -> list[str | uuid.UUID] | None:
-    """Get the last forecast UUIDs"""
+    """Get the last forecast UUIDs
+
+    :param session: database session
+    :param site_uuid: UUID of the site for which to get the forecast
+    :param start_utc: optional filter on start datetime
+    :param created_after: optional filter on creation datetime (inclusive)
+    :param created_before: optional filter on creation datetime (exclusive)
+    :param end_utc: optional filter on end datetime (exclusive)
+    :param model_name: optional filter on model name
+    :param horizon_minutes: optional filter on forecast horizon in minutes
+    :return: list of forecast UUIDs or None if no forecasts found
+    """
 
     query = session.query(ForecastValueSQL.forecast_uuid)
     query = query.join(ForecastSQL)
