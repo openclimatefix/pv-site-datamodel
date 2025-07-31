@@ -1,6 +1,5 @@
 """
-This module contains functions to get details from the database for a user,
-site or site group.
+This module contains functions to get details from the database for a user, site or site group.
 
 """
 
