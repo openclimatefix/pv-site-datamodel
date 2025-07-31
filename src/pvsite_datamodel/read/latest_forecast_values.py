@@ -1,6 +1,7 @@
 """Functions for reading forecasts.
 
-LEGACY: This function is legacy, please move over to get_forecast_values_fast or get_forecast_values_day_ahead_fast
+LEGACY: This function is legacy, please move over to get_forecast_values_fast
+or get_forecast_values_day_ahead_fast
 """
 
 import datetime as dt
