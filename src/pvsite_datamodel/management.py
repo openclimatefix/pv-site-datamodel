@@ -8,7 +8,7 @@ from pvsite_datamodel.read import (
     get_site_by_uuid,
     get_site_group_by_name,
 )
-from pvsite_datamodel.read.site import get_all_sites, get_site_by_client_site_id
+from pvsite_datamodel.read.site import get_all_sites
 
 from pvsite_datamodel.write.user_and_site import (
     add_site_to_site_group,
