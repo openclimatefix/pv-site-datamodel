@@ -3,7 +3,7 @@ import datetime as dt
 import pytest
 from sqlalchemy.orm import Query
 
-from pvsite_datamodel import LocationSQL
+from pvsite_datamodel.sqlmodels import LocationSQL
 from pvsite_datamodel.read import get_pv_generation_by_sites, get_pv_generation_by_user_uuids
 from pvsite_datamodel.write.user_and_site import create_site_group, create_user
 
