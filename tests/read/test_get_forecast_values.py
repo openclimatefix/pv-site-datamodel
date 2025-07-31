@@ -2,7 +2,12 @@ import datetime as dt
 
 
 from pvsite_datamodel import ForecastSQL, ForecastValueSQL, LocationSQL
-from pvsite_datamodel.read import get_forecast_values_fast, get_or_create_model
+
+from pvsite_datamodel.read import (
+    get_forecast_values_fast,
+    get_or_create_model,
+    get_forecast_values_day_ahead_fast,
+)
 
 
 def _add_forecast_value(
@@ -161,116 +166,116 @@ def test_get_forecast_values_with_end_utc(db_session, sites):
         assert fv.start_utc == expected[i][0].replace(tzinfo=None)
         assert fv.forecast_power_kw == expected[i][1]
 
-#
-# def test_get_forecast_values_day_head(db_session, sites):
-#     """Test to get DA forecasts"""
-#     site_uuids = [
-#         site.location_uuid for site in db_session.query(LocationSQL.location_uuid).limit(2)
-#     ]
-#
-#     s1, s2 = site_uuids
-#
-#     forecast_version = "123"
-#
-#     # Make sure we have some forecasts in the DB
-#     s1_f1 = ForecastSQL(
-#         location_uuid=s1,
-#         forecast_version=forecast_version,
-#         timestamp_utc=dt.datetime(2000, 1, 1),
-#     )
-#     s1_f2 = ForecastSQL(
-#         location_uuid=s1,
-#         forecast_version=forecast_version,
-#         timestamp_utc=dt.datetime(2000, 1, 1, 0, 10),
-#     )
-#
-#     db_session.add_all([s1_f1, s1_f2])
-#     db_session.commit()
-#
-#     d0 = dt.datetime(2000, 1, 2, 0)
-#     d1 = dt.datetime(2000, 1, 2, 1)
-#     d2 = dt.datetime(2000, 1, 2, 2)
-#     cr1 = dt.datetime(2000, 1, 1, 0)
-#     cr2 = dt.datetime(2000, 1, 2, 0)
-#
-#     # site 1 forecast 1
-#     _add_forecast_value(db_session, s1_f1, 1.0, d0, horizon_minutes=0, created_utc=cr1)
-#     _add_forecast_value(db_session, s1_f1, 2.0, d1, horizon_minutes=60, created_utc=cr1)
-#     _add_forecast_value(db_session, s1_f1, 3.0, d2, horizon_minutes=120, created_utc=cr1)
-#
-#     # site 1 forecast 2
-#     _add_forecast_value(db_session, s1_f2, 4.0, d0, horizon_minutes=60, created_utc=cr2)
-#     _add_forecast_value(db_session, s1_f2, 5.0, d1, horizon_minutes=120, created_utc=cr2)
-#     _add_forecast_value(db_session, s1_f2, 6.0, d2, horizon_minutes=180, created_utc=cr2)
-#
-#     forecast_values = get_forecast_values_fast(
-#         session=db_session,
-#         site_uuid=site_uuids[0],
-#         start_utc=d0,
-#         day_ahead_hours=9,
-#     )
-#
-#     expected = [(d0, 1), (d1, 2), (d2, 3)]
-#
-#     for i, fv in enumerate(forecast_values):
-#         assert fv.start_utc == expected[i][0].replace(tzinfo=None)
-#         assert fv.forecast_power_kw == expected[i][1]
-#
-#
-# def test_get_latest_forecast_values_day_head_with_timezone(db_session, sites):
-#     """Test to get DA forecasts in a different timezone"""
-#     site_uuids = [
-#         site.location_uuid for site in db_session.query(LocationSQL.location_uuid).limit(2)
-#     ]
-#
-#     s1, s2 = site_uuids
-#
-#     forecast_version = "123"
-#
-#     # Make sure we have some forecasts in the DB
-#     s1_f1 = ForecastSQL(
-#         location_uuid=s1,
-#         forecast_version=forecast_version,
-#         timestamp_utc=dt.datetime(2000, 1, 1),
-#     )
-#     s1_f2 = ForecastSQL(
-#         location_uuid=s1,
-#         forecast_version=forecast_version,
-#         timestamp_utc=dt.datetime(2000, 1, 1, 0, 10),
-#     )
-#
-#     db_session.add_all([s1_f1, s1_f2])
-#     db_session.commit()
-#
-#     d0 = dt.datetime(2000, 1, 2, 19)
-#     d1 = dt.datetime(2000, 1, 2, 20)
-#     d2 = dt.datetime(2000, 1, 2, 21)
-#     cr1 = dt.datetime(2000, 1, 1, 0)
-#     cr2 = dt.datetime(2000, 1, 2, 0)
-#
-#     # site 1 forecast 1
-#     _add_forecast_value(db_session, s1_f1, 1.0, d0, created_utc=cr1)
-#     _add_forecast_value(db_session, s1_f1, 2.0, d1, created_utc=cr1)
-#     _add_forecast_value(db_session, s1_f1, 3.0, d2, created_utc=cr1)
-#
-#     # site 1 forecast 2
-#     _add_forecast_value(db_session, s1_f2, 4.0, d0, created_utc=cr2)
-#     _add_forecast_value(db_session, s1_f2, 5.0, d1, created_utc=cr2)
-#     _add_forecast_value(db_session, s1_f2, 6.0, d2, created_utc=cr2)
-#
-#     forecast_values = get_forecast_values_fast(
-#         session=db_session,
-#         site_uuid=site_uuids[0],
-#         start_utc=d0,
-#         day_ahead_hours=9,
-#         day_ahead_timezone_delta_hours=4.5,
-#     )
-#
-#     expected = [(d0, 1), (d1, 5), (d2, 6)]
-#
-#     for i, fv in enumerate(forecast_values):
-#         assert fv.start_utc == expected[i][0].replace(tzinfo=None)
-#         assert fv.forecast_power_kw == expected[i][1]
+
+def test_get_forecast_values_day_head(db_session, sites):
+    """Test to get DA forecasts"""
+    site_uuids = [
+        site.location_uuid for site in db_session.query(LocationSQL.location_uuid).limit(2)
+    ]
+
+    s1, s2 = site_uuids
+
+    forecast_version = "123"
+
+    # Make sure we have some forecasts in the DB
+    s1_f1 = ForecastSQL(
+        location_uuid=s1,
+        forecast_version=forecast_version,
+        timestamp_utc=dt.datetime(2000, 1, 1),
+    )
+    s1_f2 = ForecastSQL(
+        location_uuid=s1,
+        forecast_version=forecast_version,
+        timestamp_utc=dt.datetime(2000, 1, 1, 0, 10),
+    )
+
+    db_session.add_all([s1_f1, s1_f2])
+    db_session.commit()
+
+    d0 = dt.datetime(2000, 1, 2, 0)
+    d1 = dt.datetime(2000, 1, 2, 1)
+    d2 = dt.datetime(2000, 1, 2, 2)
+    cr1 = dt.datetime(2000, 1, 1, 0)
+    cr2 = dt.datetime(2000, 1, 2, 0)
+
+    # site 1 forecast 1
+    _add_forecast_value(db_session, s1_f1, 1.0, d0, horizon_minutes=0, created_utc=cr1)
+    _add_forecast_value(db_session, s1_f1, 2.0, d1, horizon_minutes=60, created_utc=cr1)
+    _add_forecast_value(db_session, s1_f1, 3.0, d2, horizon_minutes=120, created_utc=cr1)
+
+    # site 1 forecast 2
+    _add_forecast_value(db_session, s1_f2, 4.0, d0, horizon_minutes=60, created_utc=cr2)
+    _add_forecast_value(db_session, s1_f2, 5.0, d1, horizon_minutes=120, created_utc=cr2)
+    _add_forecast_value(db_session, s1_f2, 6.0, d2, horizon_minutes=180, created_utc=cr2)
+
+    forecast_values = get_forecast_values_day_ahead_fast(
+        session=db_session,
+        site_uuid=site_uuids[0],
+        start_utc=d0,
+        day_ahead_hours=9,
+    )
+
+    expected = [(d0, 1), (d1, 2), (d2, 3)]
+
+    for i, fv in enumerate(forecast_values):
+        assert fv.start_utc == expected[i][0].replace(tzinfo=None)
+        assert fv.forecast_power_kw == expected[i][1]
+
+
+def test_get_latest_forecast_values_day_head_with_timezone(db_session, sites):
+    """Test to get DA forecasts in a different timezone"""
+    site_uuids = [
+        site.location_uuid for site in db_session.query(LocationSQL.location_uuid).limit(2)
+    ]
+
+    s1, s2 = site_uuids
+
+    forecast_version = "123"
+
+    # Make sure we have some forecasts in the DB
+    s1_f1 = ForecastSQL(
+        location_uuid=s1,
+        forecast_version=forecast_version,
+        timestamp_utc=dt.datetime(2000, 1, 1),
+    )
+    s1_f2 = ForecastSQL(
+        location_uuid=s1,
+        forecast_version=forecast_version,
+        timestamp_utc=dt.datetime(2000, 1, 1, 0, 10),
+    )
+
+    db_session.add_all([s1_f1, s1_f2])
+    db_session.commit()
+
+    d0 = dt.datetime(2000, 1, 2, 19)
+    d1 = dt.datetime(2000, 1, 2, 20)
+    d2 = dt.datetime(2000, 1, 2, 21)
+    cr1 = dt.datetime(2000, 1, 1, 0)
+    cr2 = dt.datetime(2000, 1, 2, 0)
+
+    # site 1 forecast 1
+    _add_forecast_value(db_session, s1_f1, 1.0, d0, created_utc=cr1)
+    _add_forecast_value(db_session, s1_f1, 2.0, d1, created_utc=cr1)
+    _add_forecast_value(db_session, s1_f1, 3.0, d2, created_utc=cr1)
+
+    # site 1 forecast 2
+    _add_forecast_value(db_session, s1_f2, 4.0, d0, created_utc=cr2)
+    _add_forecast_value(db_session, s1_f2, 5.0, d1, created_utc=cr2)
+    _add_forecast_value(db_session, s1_f2, 6.0, d2, created_utc=cr2)
+
+    forecast_values = get_forecast_values_day_ahead_fast(
+        session=db_session,
+        site_uuid=site_uuids[0],
+        start_utc=d0,
+        day_ahead_hours=9,
+        day_ahead_timezone_delta_hours=4.5,
+    )
+
+    expected = [(d0, 1), (d1, 5), (d2, 6)]
+
+    for i, fv in enumerate(forecast_values):
+        assert fv.start_utc == expected[i][0].replace(tzinfo=None)
+        assert fv.forecast_power_kw == expected[i][1]
 
 
 def test_get_latest_forecast_values_model_name(db_session, sites):

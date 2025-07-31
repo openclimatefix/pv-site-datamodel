@@ -1,6 +1,11 @@
-"""Functions for reading forecasts."""
+"""Functions for reading forecasts.
+
+LEGACY: This function is legacy, please move over to get_forecast_values_fast
+or get_forecast_values_day_ahead_fast
+"""
 
 import datetime as dt
+import logging
 import uuid
 
 from sqlalchemy import func, text
@@ -8,6 +13,8 @@ from sqlalchemy.orm import Session, contains_eager
 
 from pvsite_datamodel.pydantic_models import ForecastValueSum
 from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL, LocationSQL, MLModelSQL
+
+logger = logging.getLogger(__name__)
 
 
 def get_latest_forecast_values_by_site(
@@ -63,6 +70,12 @@ def get_latest_forecast_values_by_site(
         is actually a day ahead forcast, as India is 5.5 hours ahead on UTC
     :param model_name: optional, filter on forecast values with this model name
     """
+
+    logger.warning(
+        "This function is not legacy, please move over to get_forecast_values_fast "
+        "or get_forecast_values_day_ahead_fast"
+    )
+
     if sum_by not in ["total", "dno", "gsp", None]:
         raise ValueError(f"sum_by must be one of ['total', 'dno', 'gsp'], not {sum_by}")
 
