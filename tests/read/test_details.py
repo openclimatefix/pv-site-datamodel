@@ -64,11 +64,9 @@ class TestGetSiteDetails:
     def test_get_site_details_with_asset_type_enum(self):
         """Test getting site details with LocationAssetType enum."""
         from datetime import datetime
+        from pvsite_datamodel.sqlmodels import LocationAssetType
 
         # Mock site object
-        mock_asset_type = Mock()
-        mock_asset_type.name = "PV"
-
         mock_ml_model = Mock()
         mock_ml_model.name = "test-model"
 
@@ -80,7 +78,7 @@ class TestGetSiteDetails:
         mock_site.latitude = 51.5
         mock_site.longitude = -0.1
         mock_site.country = "UK"
-        mock_site.asset_type = mock_asset_type
+        mock_site.asset_type = LocationAssetType.pv
         mock_site.region = "London"
         mock_site.dno = "UK Power Networks"
         mock_site.gsp = "LOND"
