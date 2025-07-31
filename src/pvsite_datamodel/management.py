@@ -8,7 +8,7 @@ from pvsite_datamodel.read import (
     get_site_by_uuid,
     get_site_group_by_name,
 )
-from pvsite_datamodel.read.site import get_all_sites, get_all_site_uuids, get_all_client_site_ids, get_site_by_client_site_id
+from pvsite_datamodel.read.site import get_all_sites
 
 from pvsite_datamodel.write.user_and_site import (
     add_site_to_site_group,
@@ -181,3 +181,31 @@ def select_site_by_client_id(session, client_site_id: str) -> str:
         if "not found" in str(err):
             raise err
         raise ValueError(f"Site with client ID {client_site_id} not found") from err
+
+
+def get_all_site_uuids(session) -> list[str]:
+    """
+    Get all site UUIDs from the database.
+
+    Args:
+        session: Database session
+
+    Returns:
+        list: List of all site UUIDs as strings
+    """
+    from pvsite_datamodel.read.site import get_all_site_uuids as _get_all_site_uuids
+    return _get_all_site_uuids(session=session)
+
+
+def get_all_client_site_ids(session) -> list[str]:
+    """
+    Get all client site IDs from the database.
+
+    Args:
+        session: Database session
+
+    Returns:
+        list: List of all client site IDs as strings
+    """
+    from pvsite_datamodel.read.site import get_all_client_site_ids as _get_all_client_site_ids
+    return _get_all_client_site_ids(session=session)
