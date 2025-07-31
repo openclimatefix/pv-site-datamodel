@@ -6,11 +6,8 @@ This module contains functions to get details from the database for a user, site
 import re
 from typing import Dict, List, Any
 
-from pvsite_datamodel.read import (
-    get_user_by_email,
-    get_site_by_uuid,
-    get_site_group_by_name
-)
+from pvsite_datamodel.read.user import get_user_by_email, get_site_group_by_name
+from pvsite_datamodel.read.site import get_site_by_uuid
 from pvsite_datamodel.sqlmodels import LocationAssetType
 
 
