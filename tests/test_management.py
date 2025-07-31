@@ -11,8 +11,6 @@ from pvsite_datamodel.management import (
     add_all_sites_to_site_group,
     validate_email,
 )
-
-
 class TestSelectSite:
     """Test site selection functions."""
 
