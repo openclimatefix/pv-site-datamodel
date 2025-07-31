@@ -7,6 +7,7 @@ import re
 from typing import Dict, List
 
 from pvsite_datamodel.read.user import get_user_by_email, get_site_group_by_name
+from pvsite_datamodel.read.site import get_site_details
 
 
 def get_user_details(
