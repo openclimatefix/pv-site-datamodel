@@ -90,16 +90,19 @@ def get_site_details(session, site_uuid: str) -> Dict[str, str]:
         dict: Dictionary containing site details
     """
     site = get_site_by_uuid(session=session, site_uuid=site_uuid)
-    
+
     # Convert asset type enum to string if it's an enum
-    asset_type_str = site.asset_type.name if hasattr(site.asset_type, 'name') else str(site.asset_type)
-    
+    if hasattr(site.asset_type, 'name'):
+        asset_type_str = site.asset_type.name
+    else:
+        asset_type_str = str(site.asset_type)
+
     # Get ML model name if available
     ml_model_name = site.ml_model.name if site.ml_model else None
-    
+
     # Format capacity with units
     capacity_str = f"{site.capacity_kw} kw" if site.capacity_kw else None
-    
+
     site_details = {
         "site_uuid": str(site.location_uuid),
         "client_site_id": str(site.client_location_id),
@@ -120,5 +123,5 @@ def get_site_details(session, site_uuid: str) -> Dict[str, str]:
         "created_utc": site.created_utc,
         "site_groups": [group.location_group_name for group in site.location_groups],
     }
-    
+
     return site_details
