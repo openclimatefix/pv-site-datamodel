@@ -48,7 +48,6 @@ def get_forecast_values_fast(
     :return: list of forecast value SQL objects
     """
 
-
     # 1. forecast  uuids from the last forecast
     forecast_uuids = get_last_forecast_uuid(
         session=session,
