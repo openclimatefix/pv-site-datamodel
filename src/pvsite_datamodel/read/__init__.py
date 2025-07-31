@@ -9,6 +9,7 @@ from .details import (
     get_user_details,
     validate_email,
 )
+from .forecast_value import get_forecast_values_fast
 from .generation import get_pv_generation_by_sites, get_pv_generation_by_user_uuids
 from .latest_forecast_values import get_latest_forecast_values_by_site
 from .model import get_or_create_model
