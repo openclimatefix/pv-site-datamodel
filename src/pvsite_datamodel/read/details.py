@@ -1,4 +1,7 @@
-"""This module contains functions to get details from the database for a user, site or site group."""
+"""
+This module contains functions to get details from the database for a user,
+site or site group.
+"""
 
 import re
 from typing import Dict, List, Any
@@ -16,11 +19,11 @@ def get_user_details(
 ) -> tuple[List[Dict[str, str]], str, int]:
     """
     Get the user details from the database.
-    
+
     Args:
         session: Database session
         email: User's email address
-        
+
     Returns:
         tuple: (user_sites, user_site_group, user_site_count)
     """
@@ -40,21 +43,21 @@ def get_user_details(
 def get_site_details(session, site_uuid: str) -> Dict[str, Any]:
     """
     Get the site details for one site.
-    
+
     Args:
         session: Database session
         site_uuid: UUID of the site
-        
+
     Returns:
         dict: Site details dictionary
     """
     site = get_site_by_uuid(session=session, site_uuid=site_uuid)
-    
+
     if isinstance(site.asset_type, LocationAssetType):
         asset_type_value = str(site.asset_type.name.lower())
     else:
         asset_type_value = str(site.asset_type)
-        
+
     site_details = {
         "site_uuid": str(site.location_uuid),
         "client_site_id": str(site.client_location_id),
@@ -89,11 +92,11 @@ def get_site_group_details(
 ) -> tuple[List[Dict[str, str]], List[str]]:
     """
     Get the site group details from the database.
-    
+
     Args:
         session: Database session
         site_group_name: Name of the site group
-        
+
     Returns:
         tuple: (site_group_sites, site_group_users)
     """
@@ -114,10 +117,10 @@ def get_site_group_details(
 def validate_email(email: str) -> bool:
     """
     Validate email address format.
-    
+
     Args:
         email: Email address to validate
-        
+
     Returns:
         bool: True if email is valid, False otherwise
     """

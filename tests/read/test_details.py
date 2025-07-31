@@ -5,7 +5,6 @@ from unittest.mock import Mock
 from pvsite_datamodel.read.details import (
     get_user_details,
     get_site_details,
-    get_site_group_details,
     validate_email,
 )
 
@@ -19,20 +18,20 @@ class TestGetUserDetails:
         mock_site1 = Mock()
         mock_site1.location_uuid = "site-uuid-1"
         mock_site1.client_location_id = "client-id-1"
-        
+
         mock_site2 = Mock()
         mock_site2.location_uuid = "site-uuid-2"
         mock_site2.client_location_id = "client-id-2"
-        
+
         mock_site_group = Mock()
         mock_site_group.location_group_name = "test-group"
         mock_site_group.locations = [mock_site1, mock_site2]
-        
+
         mock_user = Mock()
         mock_user.location_group = mock_site_group
-        
+
         mock_session = Mock()
-        
+
         # Mock the get_user_by_email function
         import pvsite_datamodel.read.details
         original_get_user_by_email = (
@@ -41,12 +40,12 @@ class TestGetUserDetails:
         pvsite_datamodel.read.details.get_user_by_email = Mock(
             return_value=mock_user
         )
-        
+
         try:
             user_sites, user_site_group, user_site_count = get_user_details(
                 mock_session, "test@example.com"
             )
-            
+
             assert user_site_group == "test-group"
             assert user_site_count == 2
             assert len(user_sites) == 2
@@ -65,14 +64,14 @@ class TestGetSiteDetails:
     def test_get_site_details_with_asset_type_enum(self):
         """Test getting site details with LocationAssetType enum."""
         from datetime import datetime
-        
+
         # Mock site object
         mock_asset_type = Mock()
         mock_asset_type.name = "PV"
-        
+
         mock_ml_model = Mock()
         mock_ml_model.name = "test-model"
-        
+
         mock_site = Mock()
         mock_site.location_uuid = "test-uuid"
         mock_site.client_location_id = "test-client-id"
@@ -93,9 +92,9 @@ class TestGetSiteDetails:
         mock_site.ml_model_uuid = "model-uuid"
         mock_site.ml_model = mock_ml_model
         mock_site.created_utc = datetime(2023, 1, 1)
-        
+
         mock_session = Mock()
-        
+
         # Mock the get_site_by_uuid function
         import pvsite_datamodel.read.details
         original_get_site_by_uuid = (
@@ -104,10 +103,10 @@ class TestGetSiteDetails:
         pvsite_datamodel.read.details.get_site_by_uuid = Mock(
             return_value=mock_site
         )
-        
+
         try:
             site_details = get_site_details(mock_session, "test-uuid")
-            
+
             assert site_details["site_uuid"] == "test-uuid"
             assert site_details["client_site_id"] == "test-client-id"
             assert site_details["asset_type"] == "pv"

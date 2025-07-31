@@ -20,14 +20,14 @@ from pvsite_datamodel.write.user_and_site import (
 def select_site_by_uuid(session, site_uuid: str) -> str:
     """
     Select site by site_uuid and validate it exists.
-    
+
     Args:
         session: Database session
         site_uuid: UUID of the site
-        
+
     Returns:
         str: The validated site UUID
-        
+
     Raises:
         ValueError: If site UUID is not found
     """
@@ -41,14 +41,14 @@ def select_site_by_uuid(session, site_uuid: str) -> str:
 def select_site_by_client_id(session, client_site_id: str) -> str:
     """
     Select site by client_site_id and return its UUID.
-    
+
     Args:
         session: Database session
         client_site_id: Client site ID
-        
+
     Returns:
         str: The site UUID
-        
+
     Raises:
         ValueError: If client site ID is not found
     """
@@ -66,10 +66,10 @@ def select_site_by_client_id(session, client_site_id: str) -> str:
 def get_all_site_uuids(session) -> List[str]:
     """
     Get all site UUIDs from the database.
-    
+
     Args:
         session: Database session
-        
+
     Returns:
         list: List of all site UUIDs as strings
     """
@@ -81,10 +81,10 @@ def get_all_site_uuids(session) -> List[str]:
 def get_all_client_site_ids(session) -> List[str]:
     """
     Get all client site IDs from the database.
-    
+
     Args:
         session: Database session
-        
+
     Returns:
         list: List of all client site IDs as strings
     """
@@ -99,24 +99,24 @@ def update_site_group(
 ) -> Tuple[Any, List[Dict[str, str]], List[str]]:
     """
     Add a site to a site group.
-    
+
     Args:
         session: Database session
         site_uuid: UUID of the site to add
         site_group_name: Name of the site group
-        
+
     Returns:
         tuple: (site_group, site_group_sites, site_site_groups)
     """
     site_group = get_site_group_by_name(
         session=session, site_group_name=site_group_name
     )
-    
+
     # Add site to site group
     add_site_to_site_group(
         session=session, site_uuid=site_uuid, site_group_name=site_group_name
     )
-    
+
     # Get updated site group sites
     site_group_sites = [
         {
@@ -125,26 +125,26 @@ def update_site_group(
         }
         for site in site_group.locations
     ]
-    
+
     # Get updated site's groups
     site = get_site_by_uuid(session=session, site_uuid=site_uuid)
     site_site_groups = [
         site_group.location_group_name
         for site_group in site.location_groups
     ]
-    
+
     return site_group, site_group_sites, site_site_groups
 
 
 def change_user_site_group(session, email: str, site_group_name: str) -> Tuple[str, str]:
     """
     Change user to a specific site group name.
-    
+
     Args:
         session: Database session
         email: Email of the user
         site_group_name: Name of the site group
-        
+
     Returns:
         tuple: (user_email, user_site_group)
     """
@@ -162,11 +162,11 @@ def add_all_sites_to_site_group(
 ) -> Tuple[str, List[str]]:
     """
     Add all sites to a specified site group.
-    
+
     Args:
         session: Database session
         site_group_name: Name of the site group (default: "ocf")
-        
+
     Returns:
         tuple: (message, sites_added)
     """
@@ -200,10 +200,10 @@ def add_all_sites_to_site_group(
 def validate_email(email: str) -> bool:
     """
     Validate email address format.
-    
+
     Args:
         email: Email address to validate
-        
+
     Returns:
         bool: True if email is valid, False otherwise
     """
