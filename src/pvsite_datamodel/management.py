@@ -8,7 +8,7 @@ from pvsite_datamodel.read import (
     get_site_by_uuid,
     get_site_group_by_name,
 )
-from pvsite_datamodel.read.site import get_all_sites, get_site_by_client_site_id
+from pvsite_datamodel.read.site import get_all_sites
 from pvsite_datamodel.read.site import (
     get_all_site_uuids as _get_all_site_uuids,
     get_all_client_site_ids as _get_all_client_site_ids
@@ -155,8 +155,8 @@ def select_site_by_uuid(session, site_uuid: str) -> str:
     try:
         site = get_site_by_uuid(session=session, site_uuid=site_uuid)
         return str(site.location_uuid)
-    except Exception:
-        raise ValueError(f"Site with UUID {site_uuid} not found")
+    except Exception as err:
+        raise ValueError(f"Site with UUID {site_uuid} not found") from err
 
 
 def select_site_by_client_id(session, client_site_id: str) -> str:
@@ -181,10 +181,10 @@ def select_site_by_client_id(session, client_site_id: str) -> str:
         if site is None:
             raise ValueError(f"Site with client ID {client_site_id} not found")
         return str(site.location_uuid)
-    except Exception as e:
-        if "not found" in str(e):
-            raise e
-        raise ValueError(f"Site with client ID {client_site_id} not found")
+    except Exception as err:
+        if "not found" in str(err):
+            raise err
+        raise ValueError(f"Site with client ID {client_site_id} not found") from err
 
 
 # Re-export functions from read.site module for backwards compatibility
