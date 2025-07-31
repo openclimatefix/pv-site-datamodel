@@ -70,7 +70,7 @@ class TestSelectSite:
         mock_query = Mock()
         mock_site = Mock()
         mock_site.location_uuid = "test-uuid"
-        
+
         mock_session.query.return_value = mock_query
         mock_query.filter.return_value = mock_query
         mock_query.first.return_value = mock_site
@@ -83,7 +83,7 @@ class TestSelectSite:
         # Mock session and database query to return None (no site found)
         mock_session = Mock()
         mock_query = Mock()
-        
+
         mock_session.query.return_value = mock_query
         mock_query.filter.return_value = mock_query
         mock_query.first.return_value = None  # No site found
