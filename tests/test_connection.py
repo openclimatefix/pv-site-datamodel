@@ -1,4 +1,4 @@
-from pvsite_datamodel import DatabaseConnection
+from pvsite_datamodel.connection import DatabaseConnection
 from pvsite_datamodel.sqlmodels import LocationSQL
 
 

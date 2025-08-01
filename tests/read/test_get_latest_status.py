@@ -1,4 +1,4 @@
-from pvsite_datamodel import StatusSQL
+from pvsite_datamodel.sqlmodels import StatusSQL
 from pvsite_datamodel.read import get_latest_status
 
 
