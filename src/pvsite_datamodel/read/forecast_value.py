@@ -48,7 +48,6 @@ def get_forecast_values_fast(
     :return: list of forecast value SQL objects
     """
 
-
     # 1. forecast  uuids from the last forecast
     forecast_uuids = get_last_forecast_uuid(
         session=session,
@@ -148,7 +147,8 @@ def get_forecast_values_day_ahead_fast(
         session=session,
         model_name=model_name,
         site_uuid=site_uuid,
-        start_utc=start_utc,
+        start_utc=start_utc - dt.timedelta(days=2),
+        # we need to look back at most 2 days for day ahead forecasts
         end_utc=end_utc,
         day_ahead_hours=day_ahead_hours,
         day_ahead_timezone_delta_hours=day_ahead_timezone_delta_hours

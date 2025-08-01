@@ -10,7 +10,7 @@ from pvsite_datamodel.read import (
 )
 
 
-def _add_forecast_value(
+def _add_fv(
     session,
     forecast,
     power: int,
@@ -28,7 +28,7 @@ def _add_forecast_value(
         probabilistic_values=probabilistic_values if probabilistic_values is not None else {},
     )
     if horizon_minutes:
-        fv.forecast_horizon_minutes = horizon_minutes
+        fv.horizon_minutes = horizon_minutes
 
     if created_utc:
         fv.created_utc = created_utc
@@ -76,19 +76,19 @@ def test_get_forecast_values(db_session, sites):
     d4 = dt.datetime(2000, 1, 1, 4, tzinfo=dt.UTC)
 
     # site 1 forecast 1
-    _add_forecast_value(db_session, s1_f1, 1.0, d0, horizon_minutes=0)
-    _add_forecast_value(db_session, s1_f1, 2.0, d1, horizon_minutes=60)
-    _add_forecast_value(db_session, s1_f1, 3.0, d2, horizon_minutes=120)
+    _add_fv(db_session, s1_f1, 1.0, d0, horizon_minutes=0)
+    _add_fv(db_session, s1_f1, 2.0, d1, horizon_minutes=60)
+    _add_fv(db_session, s1_f1, 3.0, d2, horizon_minutes=120)
 
     # site 1 forecast 2
-    _add_forecast_value(db_session, s1_f2, 4.0, d2, horizon_minutes=60)
-    _add_forecast_value(db_session, s1_f2, 5.0, d3, horizon_minutes=120)
-    _add_forecast_value(db_session, s1_f2, 6.0, d4, horizon_minutes=180)
+    _add_fv(db_session, s1_f2, 4.0, d2, horizon_minutes=60)
+    _add_fv(db_session, s1_f2, 5.0, d3, horizon_minutes=120)
+    _add_fv(db_session, s1_f2, 6.0, d4, horizon_minutes=180)
 
     # Site 2 forecast 1
-    _add_forecast_value(db_session, s2_f1, 7.0, d0, horizon_minutes=0)
-    _add_forecast_value(db_session, s2_f1, 8.0, d1, horizon_minutes=60)
-    _add_forecast_value(db_session, s2_f1, 9.0, d2, horizon_minutes=120)
+    _add_fv(db_session, s2_f1, 7.0, d0, horizon_minutes=0)
+    _add_fv(db_session, s2_f1, 8.0, d1, horizon_minutes=60)
+    _add_fv(db_session, s2_f1, 9.0, d2, horizon_minutes=120)
     db_session.commit()
 
     forecast_value = get_forecast_values_fast(db_session, site_uuids[0], d1)
@@ -140,19 +140,19 @@ def test_get_forecast_values_with_end_utc(db_session, sites):
     d4 = dt.datetime(2000, 1, 1, 4, tzinfo=dt.UTC)
 
     # site 1 forecast 1
-    _add_forecast_value(db_session, s1_f1, 1.0, d0, horizon_minutes=0)
-    _add_forecast_value(db_session, s1_f1, 2.0, d1, horizon_minutes=60)
-    _add_forecast_value(db_session, s1_f1, 3.0, d2, horizon_minutes=120)
+    _add_fv(db_session, s1_f1, 1.0, d0, horizon_minutes=0)
+    _add_fv(db_session, s1_f1, 2.0, d1, horizon_minutes=60)
+    _add_fv(db_session, s1_f1, 3.0, d2, horizon_minutes=120)
 
     # site 1 forecast 2
-    _add_forecast_value(db_session, s1_f2, 4.0, d2, horizon_minutes=60)
-    _add_forecast_value(db_session, s1_f2, 5.0, d3, horizon_minutes=120)
-    _add_forecast_value(db_session, s1_f2, 6.0, d4, horizon_minutes=180)
+    _add_fv(db_session, s1_f2, 4.0, d2, horizon_minutes=60)
+    _add_fv(db_session, s1_f2, 5.0, d3, horizon_minutes=120)
+    _add_fv(db_session, s1_f2, 6.0, d4, horizon_minutes=180)
 
     # Site 2 forecast 1
-    _add_forecast_value(db_session, s2_f1, 7.0, d0, horizon_minutes=0)
-    _add_forecast_value(db_session, s2_f1, 8.0, d1, horizon_minutes=60)
-    _add_forecast_value(db_session, s2_f1, 9.0, d2, horizon_minutes=120)
+    _add_fv(db_session, s2_f1, 7.0, d0, horizon_minutes=0)
+    _add_fv(db_session, s2_f1, 8.0, d1, horizon_minutes=60)
+    _add_fv(db_session, s2_f1, 9.0, d2, horizon_minutes=120)
     db_session.commit()
 
     # ****** setup ******
@@ -177,45 +177,70 @@ def test_get_forecast_values_day_head(db_session, sites):
 
     forecast_version = "123"
 
+    cr0 = dt.datetime(2000, 1, 1, 0)
+    cr1 = dt.datetime(2000, 1, 2, 0)
+    # this is past 9 o'clock so not loaded when looking at da
+    cr2 = dt.datetime(2000, 1, 2, 10)
+
     # Make sure we have some forecasts in the DB
+    s1_f0 = ForecastSQL(
+        location_uuid=s1,
+        forecast_version=forecast_version,
+        timestamp_utc=cr0,
+        created_utc=cr0
+    )
     s1_f1 = ForecastSQL(
         location_uuid=s1,
         forecast_version=forecast_version,
-        timestamp_utc=dt.datetime(2000, 1, 1),
+        timestamp_utc=cr1,
+        created_utc=cr1
     )
     s1_f2 = ForecastSQL(
         location_uuid=s1,
         forecast_version=forecast_version,
-        timestamp_utc=dt.datetime(2000, 1, 1, 0, 10),
+        timestamp_utc=cr2,
+        created_utc=cr2
     )
 
-    db_session.add_all([s1_f1, s1_f2])
+    db_session.add_all([s1_f0, s1_f1, s1_f2])
     db_session.commit()
 
-    d0 = dt.datetime(2000, 1, 2, 0)
-    d1 = dt.datetime(2000, 1, 2, 1)
-    d2 = dt.datetime(2000, 1, 2, 2)
-    cr1 = dt.datetime(2000, 1, 1, 0)
-    cr2 = dt.datetime(2000, 1, 2, 0)
+    d1 = cr1
+    d2 = cr1 + dt.timedelta(hours=24)
+    d3 = cr1 + dt.timedelta(hours=25)
+    d4 = cr1 + dt.timedelta(hours=26)
 
-    # site 1 forecast 1
-    _add_forecast_value(db_session, s1_f1, 1.0, d0, horizon_minutes=0, created_utc=cr1)
-    _add_forecast_value(db_session, s1_f1, 2.0, d1, horizon_minutes=60, created_utc=cr1)
-    _add_forecast_value(db_session, s1_f1, 3.0, d2, horizon_minutes=120, created_utc=cr1)
+    # site 1 forecast 0, made at 2000-01-01
+    # this should not be loaded as a DA forecast
+    _add_fv(db_session, s1_f0, 0.0, cr0, horizon_minutes=15, created_utc=cr0, model_name="test1")
+    # this should be loaded as a DA forecast
+    _add_fv(db_session, s1_f0, 0.0, d1, horizon_minutes=1440, created_utc=cr0, model_name="test1")
 
-    # site 1 forecast 2
-    _add_forecast_value(db_session, s1_f2, 4.0, d0, horizon_minutes=60, created_utc=cr2)
-    _add_forecast_value(db_session, s1_f2, 5.0, d1, horizon_minutes=120, created_utc=cr2)
-    _add_forecast_value(db_session, s1_f2, 6.0, d2, horizon_minutes=180, created_utc=cr2)
+    # site 1 forecast 1, made at 2000-01-02
+    # this should not be loaded as a DA forecast
+    _add_fv(db_session, s1_f1, 0.1, cr1, horizon_minutes=15, created_utc=cr1, model_name="test1")
+    # these should be loaded as a DA forecast
+    _add_fv(db_session, s1_f1, 1.0, d2, horizon_minutes=1440, created_utc=cr1, model_name="test1")
+    _add_fv(db_session, s1_f1, 2.0, d3, horizon_minutes=1500, created_utc=cr1, model_name="test1")
+    _add_fv(db_session, s1_f1, 3.0, d4, horizon_minutes=1560, created_utc=cr1, model_name="test1")
+
+    # site 1 forecast 2, made at 2000-01-02 10:00
+    # these should not be loaded as a DA forecast
+    _add_fv(db_session, s1_f1, 0.2, cr2, horizon_minutes=15, created_utc=cr2, model_name="test1")
+    _add_fv(db_session, s1_f2, 4.0, d2, horizon_minutes=840, created_utc=cr2, model_name="test1")
+    _add_fv(db_session, s1_f2, 5.0, d3, horizon_minutes=900, created_utc=cr2, model_name="test1")
+    _add_fv(db_session, s1_f2, 6.0, d4, horizon_minutes=960, created_utc=cr2, model_name="test1")
 
     forecast_values = get_forecast_values_day_ahead_fast(
         session=db_session,
         site_uuid=site_uuids[0],
-        start_utc=d0,
+        start_utc=d1,
         day_ahead_hours=9,
+        model_name="test1"
     )
 
-    expected = [(d0, 1), (d1, 2), (d2, 3)]
+    expected = [(d1, 0), (d2, 1), (d3, 2), (d4, 3)]
+    assert len(forecast_values) == len(expected)
 
     for i, fv in enumerate(forecast_values):
         assert fv.start_utc == expected[i][0].replace(tzinfo=None)
@@ -254,14 +279,14 @@ def test_get_latest_forecast_values_day_head_with_timezone(db_session, sites):
     cr2 = dt.datetime(2000, 1, 2, 0)
 
     # site 1 forecast 1
-    _add_forecast_value(db_session, s1_f1, 1.0, d0, created_utc=cr1)
-    _add_forecast_value(db_session, s1_f1, 2.0, d1, created_utc=cr1)
-    _add_forecast_value(db_session, s1_f1, 3.0, d2, created_utc=cr1)
+    _add_fv(db_session, s1_f1, 1.0, d0, created_utc=cr1)
+    _add_fv(db_session, s1_f1, 2.0, d1, created_utc=cr1)
+    _add_fv(db_session, s1_f1, 3.0, d2, created_utc=cr1)
 
     # site 1 forecast 2
-    _add_forecast_value(db_session, s1_f2, 4.0, d0, created_utc=cr2)
-    _add_forecast_value(db_session, s1_f2, 5.0, d1, created_utc=cr2)
-    _add_forecast_value(db_session, s1_f2, 6.0, d2, created_utc=cr2)
+    _add_fv(db_session, s1_f2, 4.0, d0, created_utc=cr2)
+    _add_fv(db_session, s1_f2, 5.0, d1, created_utc=cr2)
+    _add_fv(db_session, s1_f2, 6.0, d2, created_utc=cr2)
 
     forecast_values = get_forecast_values_day_ahead_fast(
         session=db_session,
@@ -300,9 +325,9 @@ def test_get_latest_forecast_values_model_name(db_session, sites):
     d2 = dt.datetime(2000, 1, 1, 2, tzinfo=dt.UTC)
 
     # site 1 forecast 1
-    _add_forecast_value(db_session, s1_f1, 1.0, d0, horizon_minutes=0, model_name="test_1")
-    _add_forecast_value(db_session, s1_f1, 2.0, d1, horizon_minutes=60, model_name="test_1")
-    _add_forecast_value(db_session, s1_f1, 3.0, d2, horizon_minutes=120, model_name="test_2")
+    _add_fv(db_session, s1_f1, 1.0, d0, horizon_minutes=0, model_name="test_1")
+    _add_fv(db_session, s1_f1, 2.0, d1, horizon_minutes=60, model_name="test_1")
+    _add_fv(db_session, s1_f1, 3.0, d2, horizon_minutes=120, model_name="test_2")
     db_session.commit()
 
     forecast_values = get_forecast_values_fast(
@@ -356,7 +381,7 @@ def test_get_latest_forecast_values_probabilistic_value_limit2(db_session, sites
 
     # For site1: Add a forecast value with explicit probabilistic_values provided
     prob_values = {"p10": 10, "p50": 50, "p90": 90}
-    _add_forecast_value(
+    _add_fv(
         db_session,
         forecast1,
         power=1.0,
@@ -366,7 +391,7 @@ def test_get_latest_forecast_values_probabilistic_value_limit2(db_session, sites
     )
 
     # For site2: Add a forecast value without providing probabilistic_values (defaults to {})
-    _add_forecast_value(
+    _add_fv(
         db_session,
         forecast2,
         power=2.0,
