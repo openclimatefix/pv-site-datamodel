@@ -24,7 +24,7 @@ def _add_forecast_value(
         probabilistic_values=probabilistic_values if probabilistic_values is not None else {},
     )
     if horizon_minutes:
-        fv.forecast_horizon_minutes = horizon_minutes
+        fv.horizon_minutes = horizon_minutes
 
     if created_utc:
         fv.created_utc = created_utc
