@@ -197,15 +197,3 @@ def get_all_client_site_ids(session) -> list[str]:
     return _get_all_site_uuids(session=session)
 
 
-def get_all_client_site_ids(session) -> list[str]:
-    """
-    Get all client site IDs from the database.
-
-    Args:
-        session: Database session
-
-    Returns:
-        list: List of all client site IDs as strings
-    """
-    from pvsite_datamodel.read.site import get_all_client_site_ids as _get_all_client_site_ids
-    return _get_all_client_site_ids(session=session)
