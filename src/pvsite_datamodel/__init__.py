@@ -1,7 +1,7 @@
 """Python SDK for reading/writing to/from pvsite database."""
 
 from .connection import DatabaseConnection
-from .management import (
+from .site_group import (
     add_all_sites_to_site_group,
     change_user_site_group,
     update_site_group,
