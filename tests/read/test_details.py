@@ -5,7 +5,6 @@ from unittest.mock import Mock
 from pvsite_datamodel.read.details import (
     get_user_details,
     get_site_details,
-    validate_email,
 )
 
 

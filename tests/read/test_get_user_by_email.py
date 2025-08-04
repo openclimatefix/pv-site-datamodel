@@ -2,7 +2,7 @@ from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 
 from pvsite_datamodel.sqlmodels import LocationGroupSQL, UserSQL
-from pvsite_datamodel.read import get_user_by_email
+from pvsite_datamodel.read import get_user_by_email, validate_email
 from pvsite_datamodel.write.user_and_site import create_site_group, create_user
 
 

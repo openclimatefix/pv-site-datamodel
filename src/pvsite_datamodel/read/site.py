@@ -1,19 +1,14 @@
 """Functions for reading to pvsite db."""
 
 import logging
-from typing import Dict, Any
+from typing import Any, Dict
 
 from sqlalchemy.orm import Session
 
 from pvsite_datamodel.pydantic_models import LatitudeLongitudeLimits
-from pvsite_datamodel.sqlmodels import (
-    ClientSQL,
-    LocationGroupLocationSQL,
-    LocationGroupSQL,
-    LocationSQL,
-    LocationAssetType,
-    UserSQL,
-)
+from pvsite_datamodel.sqlmodels import (ClientSQL, LocationAssetType,
+                                        LocationGroupLocationSQL,
+                                        LocationGroupSQL, LocationSQL, UserSQL)
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +57,9 @@ def get_site_by_client_site_id(
     site: LocationSQL | None = query.first()
 
     if site is None:
-        raise KeyError(f"Could not find location {client_site_id} from client {client_name}")
+        raise KeyError(
+            f"Could not find location {client_site_id} from client {client_name}"
+        )
 
     return site
 
@@ -91,7 +88,9 @@ def get_site_by_client_site_name(
     site: LocationSQL | None = query.first()
 
     if site is None:
-        raise Exception(f"Could not find site {client_site_name} from client {client_name}")
+        raise Exception(
+            f"Could not find site {client_site_name} from client {client_name}"
+        )
 
     return site
 
