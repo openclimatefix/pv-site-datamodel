@@ -9,8 +9,10 @@ from pvsite_datamodel.management import (
     get_all_site_uuids,
     get_all_client_site_ids,
     add_all_sites_to_site_group,
-    validate_email,
 )
+from pvsite_datamodel.read.user import validate_email
+
+
 class TestSelectSite:
     """Test site selection functions."""
 

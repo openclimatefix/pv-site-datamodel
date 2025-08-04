@@ -1,6 +1,7 @@
 """Functions for reading user data from the database."""
 
 import logging
+import re
 from datetime import datetime
 
 from sqlalchemy.dialects import postgresql
@@ -103,6 +104,21 @@ def get_all_site_groups(session: Session) -> list[LocationGroupSQL]:
     site_groups = query.all()
 
     return site_groups
+
+
+def validate_email(email: str) -> bool:
+    """
+    Validate email address format.
+
+    Args:
+        email: Email address to validate
+
+    Returns:
+        bool: True if email is valid, False otherwise
+    """
+    if re.match(r"[^@]+@[^@]+\.[^@]+", email):
+        return True
+    return False
 
 
 def get_all_last_api_request(

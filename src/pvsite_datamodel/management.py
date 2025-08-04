@@ -1,6 +1,5 @@
 """This module contains functions for managing site groups."""
 
-import re
 from typing import List, Dict, Any, Tuple
 
 from pvsite_datamodel.read import (
@@ -119,21 +118,6 @@ def add_all_sites_to_site_group(
     return message, sites_added
 
 
-def validate_email(email: str) -> bool:
-    """
-    Validate email address format.
-
-    Args:
-        email: Email address to validate
-
-    Returns:
-        bool: True if email is valid, False otherwise
-    """
-    if re.match(r"[^@]+@[^@]+\.[^@]+", email):
-        return True
-    return False
-
-
 def select_site_by_uuid(session, site_uuid: str) -> str:
     """
     Select a site by its UUID.
@@ -193,6 +177,22 @@ def get_all_site_uuids(session) -> list[str]:
     Returns:
         list: List of all site UUIDs as strings
     """
+    from pvsite_datamodel.read.site import get_all_site_uuids as _get_all_site_uuids
+    return _get_all_site_uuids(session=session)
+
+
+def get_all_client_site_ids(session) -> list[str]:
+    """
+    Get all client site IDs from the database.
+
+    Args:
+        session: Database session
+
+    Returns:
+        list: List of all client site IDs as strings
+    """
+    from pvsite_datamodel.read.site import get_all_client_site_ids as _get_all_client_site_ids
+    return _get_all_client_site_ids(session=session)
     from pvsite_datamodel.read.site import get_all_site_uuids as _get_all_site_uuids
     return _get_all_site_uuids(session=session)
 
