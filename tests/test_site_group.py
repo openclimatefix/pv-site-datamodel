@@ -1,3 +1,4 @@
+
 """Tests for the site_group module."""
 
 import pytest
@@ -40,7 +41,7 @@ def test_select_site_by_uuid_not_found(mocker):
     )
 
     with pytest.raises(
-        ValueError, 
+        ValueError,
         match="Site with UUID 123e4567-e89b-12d3-a456-426614174000 not found"
     ):
         select_site_by_uuid(mock_session, "123e4567-e89b-12d3-a456-426614174000")
@@ -79,7 +80,7 @@ def test_get_all_site_uuids(mocker):
     """Test getting all site UUIDs."""
     mock_session = Mock()
     mock_uuids = [
-        "123e4567-e89b-12d3-a456-426614174000", 
+        "123e4567-e89b-12d3-a456-426614174000",
         "223e4567-e89b-12d3-a456-426614174000"
     ]
     mocker.patch(
@@ -127,7 +128,7 @@ def test_add_all_sites_to_site_group(mocker):
 
     assert message == "Added 2 sites to group ocf."
     assert sites_added == [
-        "123e4567-e89b-12d3-a456-426614174000", 
+        "123e4567-e89b-12d3-a456-426614174000",
         "223e4567-e89b-12d3-a456-426614174000"
     ]
 
