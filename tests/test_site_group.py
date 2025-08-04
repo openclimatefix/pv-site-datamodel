@@ -1,18 +1,16 @@
-
 """Tests for the site_group module."""
 
-import pytest
 from unittest.mock import Mock, patch
 
-from pvsite_datamodel.site_group import (
-    select_site_by_uuid,
-    select_site_by_client_id,
-    get_all_site_uuids,
-    get_all_client_site_ids,
-    add_all_sites_to_site_group,
-    change_user_site_group,
-)
+import pytest
+
 from pvsite_datamodel.read.user import validate_email
+from pvsite_datamodel.site_group import (add_all_sites_to_site_group,
+                                         change_user_site_group,
+                                         get_all_client_site_ids,
+                                         get_all_site_uuids,
+                                         select_site_by_client_id,
+                                         select_site_by_uuid)
 
 
 @patch("pvsite_datamodel.site_group.get_site_by_uuid")
@@ -38,33 +36,33 @@ def test_select_site_by_uuid_not_found(mock_get_site_by_uuid):
 
     with pytest.raises(
         ValueError,
-        match="Site with UUID 123e4567-e89b-12d3-a456-426614174000 not found"
+        match="Site with UUID 123e4567-e89b-12d3-a456-426614174000 not found",
     ):
         select_site_by_uuid(mock_session, "123e4567-e89b-12d3-a456-426614174000")
 
 
-@patch("pvsite_datamodel.site_group.get_site_by_client_id")
-def test_select_site_by_client_id(mock_get_site_by_client_id):
+def test_select_site_by_client_id():
     """Test selecting a site by client site ID."""
     mock_session = Mock()
     mock_site = Mock()
     mock_site.location_uuid = "123e4567-e89b-12d3-a456-426614174000"
-    mock_get_site_by_client_id.return_value = mock_site
+
+    # Mock the query chain
+    mock_session.query.return_value.filter.return_value.first.return_value = mock_site
 
     site_uuid = select_site_by_client_id(mock_session, "client-123")
 
     assert site_uuid == "123e4567-e89b-12d3-a456-426614174000"
 
 
-@patch("pvsite_datamodel.site_group.get_site_by_client_id")
-def test_select_site_by_client_id_not_found(mock_get_site_by_client_id):
+def test_select_site_by_client_id_not_found():
     """Test selecting a site by client site ID that does not exist."""
     mock_session = Mock()
-    mock_get_site_by_client_id.side_effect = Exception("Site not found")
 
-    with pytest.raises(
-        ValueError, match="Site with client ID client-123 not found"
-    ):
+    # Mock the query chain to return None (site not found)
+    mock_session.query.return_value.filter.return_value.first.return_value = None
+
+    with pytest.raises(ValueError, match="Site with client ID client-123 not found"):
         select_site_by_client_id(mock_session, "client-123")
 
 
@@ -74,7 +72,7 @@ def test_get_all_site_uuids(mock_get_all_site_uuids):
     mock_session = Mock()
     mock_uuids = [
         "123e4567-e89b-12d3-a456-426614174000",
-        "223e4567-e89b-12d3-a456-426614174000"
+        "223e4567-e89b-12d3-a456-426614174000",
     ]
     mock_get_all_site_uuids.return_value = mock_uuids
 
@@ -113,13 +111,15 @@ def test_add_all_sites_to_site_group(mock_get_site_group_by_name, mock_get_all_s
     assert message == "Added 2 sites to group ocf."
     assert sites_added == [
         "123e4567-e89b-12d3-a456-426614174000",
-        "223e4567-e89b-12d3-a456-426614174000"
+        "223e4567-e89b-12d3-a456-426614174000",
     ]
 
 
 @patch("pvsite_datamodel.site_group.get_all_sites")
 @patch("pvsite_datamodel.site_group.get_site_group_by_name")
-def test_add_all_sites_to_site_group_no_new_sites(mock_get_site_group_by_name, mock_get_all_sites):
+def test_add_all_sites_to_site_group_no_new_sites(
+    mock_get_site_group_by_name, mock_get_all_sites
+):
     """Test adding all sites to a site group when no new sites are available."""
     mock_session = Mock()
     mock_site_group = Mock()
@@ -137,8 +137,8 @@ def test_add_all_sites_to_site_group_no_new_sites(mock_get_site_group_by_name, m
     assert sites_added == []
 
 
-@patch("pvsite_datamodel.write.user_and_site.update_user_site_group")
-@patch("pvsite_datamodel.read.user.get_user_by_email")
+@patch("pvsite_datamodel.site_group.update_user_site_group")
+@patch("pvsite_datamodel.site_group.get_user_by_email")
 def test_change_user_site_group(mock_get_user_by_email, mock_update_user_site_group):
     """Test changing a user's site group."""
     mock_session = Mock()
@@ -149,6 +149,18 @@ def test_change_user_site_group(mock_get_user_by_email, mock_update_user_site_gr
 
     user_email, user_site_group = change_user_site_group(
         mock_session, "test@example.com", "new_site_group"
+    )
+
+    # Verify the update function was called
+    mock_update_user_site_group.assert_called_once_with(
+        session=mock_session,
+        email="test@example.com",
+        site_group_name="new_site_group",
+    )
+
+    # Verify the get_user function was called after update
+    mock_get_user_by_email.assert_called_once_with(
+        session=mock_session, email="test@example.com"
     )
 
     assert user_email == "test@example.com"

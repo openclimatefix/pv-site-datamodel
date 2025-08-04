@@ -1,18 +1,12 @@
 """This module contains functions for managing site groups."""
 
-from typing import List, Dict, Any, Tuple
+from typing import Any, Dict, List, Tuple
 
-from pvsite_datamodel.read import (
-    get_user_by_email,
-    get_site_by_uuid,
-    get_site_group_by_name,
-)
+from pvsite_datamodel.read import (get_site_by_uuid, get_site_group_by_name,
+                                   get_user_by_email)
 from pvsite_datamodel.read.site import get_all_sites
-
-from pvsite_datamodel.write.user_and_site import (
-    add_site_to_site_group,
-    update_user_site_group,
-)
+from pvsite_datamodel.write.user_and_site import (add_site_to_site_group,
+                                                  update_user_site_group)
 
 
 def update_site_group(
@@ -42,7 +36,7 @@ def update_site_group(
     site_group_sites = [
         {
             "site_uuid": str(site.location_uuid),
-            "client_site_id": str(site.client_location_id)
+            "client_site_id": str(site.client_location_id),
         }
         for site in site_group.locations
     ]
@@ -50,14 +44,15 @@ def update_site_group(
     # Get updated site's groups
     site = get_site_by_uuid(session=session, site_uuid=site_uuid)
     site_site_groups = [
-        site_group.location_group_name
-        for site_group in site.location_groups
+        site_group.location_group_name for site_group in site.location_groups
     ]
 
     return site_group, site_group_sites, site_site_groups
 
 
-def change_user_site_group(session, email: str, site_group_name: str) -> Tuple[str, str]:
+def change_user_site_group(
+    session, email: str, site_group_name: str
+) -> Tuple[str, str]:
     """
     Change user to a specific site group name.
 
@@ -98,9 +93,7 @@ def add_all_sites_to_site_group(
     )
 
     # Get existing site UUIDs in the group
-    existing_site_uuids = [
-        site.location_uuid for site in target_site_group.locations
-    ]
+    existing_site_uuids = [site.location_uuid for site in target_site_group.locations]
 
     sites_added = []
 
@@ -155,6 +148,7 @@ def select_site_by_client_id(session, client_site_id: str) -> str:
     """
     try:
         from pvsite_datamodel.sqlmodels import LocationSQL
+
         query = session.query(LocationSQL)
         query = query.filter(LocationSQL.client_location_id == client_site_id)
         site = query.first()
@@ -177,7 +171,9 @@ def get_all_site_uuids(session) -> list[str]:
     Returns:
         list: List of all site UUIDs as strings
     """
-    from pvsite_datamodel.read.site import get_all_site_uuids as _get_all_site_uuids
+    from pvsite_datamodel.read.site import \
+        get_all_site_uuids as _get_all_site_uuids
+
     return _get_all_site_uuids(session=session)
 
 
@@ -191,5 +187,7 @@ def get_all_client_site_ids(session) -> list[str]:
     Returns:
         list: List of all client site IDs as strings
     """
-    from pvsite_datamodel.read.site import get_all_client_site_ids as _get_all_client_site_ids
+    from pvsite_datamodel.read.site import \
+        get_all_client_site_ids as _get_all_client_site_ids
+
     return _get_all_client_site_ids(session=session)
