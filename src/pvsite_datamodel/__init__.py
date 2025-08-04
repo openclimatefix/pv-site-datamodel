@@ -5,7 +5,6 @@ from .management import (
     add_all_sites_to_site_group,
     change_user_site_group,
     update_site_group,
-    validate_email,
 )
 from .read.site import (
     get_all_client_site_ids,
