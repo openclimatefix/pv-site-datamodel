@@ -1,10 +1,7 @@
 """Tests for the site_group module."""
 
-from unittest.mock import Mock, patch
-
 import pytest
 
-from pvsite_datamodel.read.user import validate_email
 from pvsite_datamodel.read.site_group import (
     get_all_client_site_ids,
     get_all_site_uuids,
@@ -13,170 +10,102 @@ from pvsite_datamodel.read.site_group import (
 )
 from pvsite_datamodel.write.site_group import (
     add_all_sites_to_site_group,
-    change_user_site_group,
+    update_site_group,
 )
+from pvsite_datamodel.write.user_and_site import create_site_group, make_fake_site
 
 
-@patch("pvsite_datamodel.read.get_site_by_uuid")
-def test_select_site_by_uuid(mock_get_site_by_uuid):
+def test_select_site_by_uuid(db_session):
     """Test selecting a site by UUID."""
-    mock_session = Mock()
-    mock_site = Mock()
-    mock_site.location_uuid = "123e4567-e89b-12d3-a456-426614174000"
-    mock_get_site_by_uuid.return_value = mock_site
+    site = make_fake_site(db_session=db_session, ml_id=1)
 
-    site_uuid = select_site_by_uuid(
-        mock_session, "123e4567-e89b-12d3-a456-426614174000"
-    )
+    result = select_site_by_uuid(db_session, str(site.location_uuid))
 
-    assert site_uuid == "123e4567-e89b-12d3-a456-426614174000"
+    assert result == str(site.location_uuid)
 
 
-@patch("pvsite_datamodel.read.get_site_by_uuid")
-def test_select_site_by_uuid_not_found(mock_get_site_by_uuid):
+def test_select_site_by_uuid_not_found(db_session):
     """Test selecting a site by UUID that does not exist."""
-    mock_session = Mock()
-    mock_get_site_by_uuid.side_effect = Exception("Site not found")
-
-    with pytest.raises(
-        ValueError,
-        match="Site with UUID 123e4567-e89b-12d3-a456-426614174000 not found",
-    ):
-        select_site_by_uuid(mock_session, "123e4567-e89b-12d3-a456-426614174000")
+    with pytest.raises(ValueError, match="Site with UUID .* not found"):
+        select_site_by_uuid(db_session, "123e4567-e89b-12d3-a456-426614174000")
 
 
-def test_select_site_by_client_id():
+def test_select_site_by_client_id(db_session):
     """Test selecting a site by client site ID."""
-    mock_session = Mock()
-    mock_site = Mock()
-    mock_site.location_uuid = "123e4567-e89b-12d3-a456-426614174000"
+    site = make_fake_site(db_session=db_session, ml_id=1)
 
-    # Mock the query chain
-    mock_session.query.return_value.filter.return_value.first.return_value = mock_site
+    result = select_site_by_client_id(db_session, str(site.client_location_id))
 
-    site_uuid = select_site_by_client_id(mock_session, "client-123")
-
-    assert site_uuid == "123e4567-e89b-12d3-a456-426614174000"
+    assert result == str(site.location_uuid)
 
 
-def test_select_site_by_client_id_not_found():
+def test_select_site_by_client_id_not_found(db_session):
     """Test selecting a site by client site ID that does not exist."""
-    mock_session = Mock()
-
-    # Mock the query chain to return None (site not found)
-    mock_session.query.return_value.filter.return_value.first.return_value = None
-
-    with pytest.raises(ValueError, match="Site with client ID client-123 not found"):
-        select_site_by_client_id(mock_session, "client-123")
+    with pytest.raises(ValueError, match="Site with client ID .* not found"):
+        select_site_by_client_id(db_session, "999999")
 
 
-@patch("pvsite_datamodel.read.site.get_all_site_uuids")
-def test_get_all_site_uuids(mock_get_all_site_uuids):
+def test_get_all_site_uuids(db_session):
     """Test getting all site UUIDs."""
-    mock_session = Mock()
-    mock_uuids = [
-        "123e4567-e89b-12d3-a456-426614174000",
-        "223e4567-e89b-12d3-a456-426614174000",
-    ]
-    mock_get_all_site_uuids.return_value = mock_uuids
+    site1 = make_fake_site(db_session=db_session, ml_id=1)
+    site2 = make_fake_site(db_session=db_session, ml_id=2)
 
-    site_uuids = get_all_site_uuids(mock_session)
+    result = get_all_site_uuids(db_session)
 
-    assert site_uuids == mock_uuids
+    assert str(site1.location_uuid) in result
+    assert str(site2.location_uuid) in result
 
 
-@patch("pvsite_datamodel.read.site.get_all_client_site_ids")
-def test_get_all_client_site_ids(mock_get_all_client_site_ids):
+def test_get_all_client_site_ids(db_session):
     """Test getting all client site IDs."""
-    mock_session = Mock()
-    mock_client_ids = ["client-123", "client-456"]
-    mock_get_all_client_site_ids.return_value = mock_client_ids
+    site1 = make_fake_site(db_session=db_session, ml_id=1)
+    site2 = make_fake_site(db_session=db_session, ml_id=2)
 
-    client_site_ids = get_all_client_site_ids(mock_session)
+    result = get_all_client_site_ids(db_session)
 
-    assert client_site_ids == mock_client_ids
+    assert str(site1.client_location_id) in result
+    assert str(site2.client_location_id) in result
 
 
-@patch("pvsite_datamodel.read.site.get_all_sites")
-@patch("pvsite_datamodel.read.get_site_group_by_name")
-def test_add_all_sites_to_site_group(mock_get_site_group_by_name, mock_get_all_sites):
+def test_add_all_sites_to_site_group(db_session):
     """Test adding all sites to a site group."""
-    mock_session = Mock()
-    mock_site_group = Mock()
-    mock_site_group.locations = []
-    mock_get_site_group_by_name.return_value = mock_site_group
-    mock_get_all_sites.return_value = [
-        Mock(location_uuid="123e4567-e89b-12d3-a456-426614174000"),
-        Mock(location_uuid="223e4567-e89b-12d3-a456-426614174000"),
-    ]
+    create_site_group(db_session=db_session, site_group_name="test_group")
+    site1 = make_fake_site(db_session=db_session, ml_id=1)
+    site2 = make_fake_site(db_session=db_session, ml_id=2)
 
-    message, sites_added = add_all_sites_to_site_group(mock_session, "ocf")
+    message, sites_added = add_all_sites_to_site_group(db_session, "test_group")
 
-    assert message == "Added 2 sites to group ocf."
-    assert sites_added == [
-        "123e4567-e89b-12d3-a456-426614174000",
-        "223e4567-e89b-12d3-a456-426614174000",
-    ]
+    assert "Added 2 sites to group test_group" in message
+    assert str(site1.location_uuid) in sites_added
+    assert str(site2.location_uuid) in sites_added
 
 
-@patch("pvsite_datamodel.read.site.get_all_sites")
-@patch("pvsite_datamodel.read.get_site_group_by_name")
-def test_add_all_sites_to_site_group_no_new_sites(
-    mock_get_site_group_by_name, mock_get_all_sites
-):
+def test_add_all_sites_to_site_group_no_new_sites(db_session):
     """Test adding all sites to a site group when no new sites are available."""
-    mock_session = Mock()
-    mock_site_group = Mock()
-    mock_site_group.locations = [
-        Mock(location_uuid="123e4567-e89b-12d3-a456-426614174000")
-    ]
-    mock_get_site_group_by_name.return_value = mock_site_group
-    mock_get_all_sites.return_value = [
-        Mock(location_uuid="123e4567-e89b-12d3-a456-426614174000"),
-    ]
+    site_group = create_site_group(db_session=db_session, site_group_name="test_group")
+    site = make_fake_site(db_session=db_session, ml_id=1)
 
-    message, sites_added = add_all_sites_to_site_group(mock_session, "ocf")
+    # First add the site to the group
+    site_group.locations.append(site)
+    db_session.commit()
 
-    assert message == "There are no new sites to be added to ocf."
+    # Now try to add all sites again
+    message, sites_added = add_all_sites_to_site_group(db_session, "test_group")
+
+    assert "There are no new sites to be added to test_group" in message
     assert sites_added == []
 
 
-@patch("pvsite_datamodel.write.user_and_site.update_user_site_group")
-@patch("pvsite_datamodel.read.get_user_by_email")
-def test_change_user_site_group(mock_get_user_by_email, mock_update_user_site_group):
-    """Test changing a user's site group."""
-    mock_session = Mock()
-    mock_user = Mock()
-    mock_user.email = "test@example.com"
-    mock_user.location_group.location_group_name = "new_site_group"
-    mock_get_user_by_email.return_value = mock_user
+def test_update_site_group(db_session):
+    """Test updating a site group by adding a site."""
+    create_site_group(db_session=db_session, site_group_name="test_group")
+    site = make_fake_site(db_session=db_session, ml_id=1)
 
-    user_email, user_site_group = change_user_site_group(
-        mock_session, "test@example.com", "new_site_group"
+    result_group, site_group_sites, site_site_groups = update_site_group(
+        db_session, str(site.location_uuid), "test_group"
     )
 
-    # Verify the update function was called
-    mock_update_user_site_group.assert_called_once_with(
-        session=mock_session,
-        email="test@example.com",
-        site_group_name="new_site_group",
-    )
-
-    # Verify the get_user function was called after update
-    mock_get_user_by_email.assert_called_once_with(
-        session=mock_session, email="test@example.com"
-    )
-
-    assert user_email == "test@example.com"
-    assert user_site_group == "new_site_group"
-
-
-def test_validate_email():
-    """Test email validation function."""
-    assert validate_email("test@example.com") is True
-    assert validate_email("user.name@domain.co.uk") is True
-    assert validate_email("valid+email@test.org") is True
-    assert validate_email("invalid-email") is False
-    assert validate_email("@domain.com") is False
-    assert validate_email("user@") is False
-    assert validate_email("user@domain") is False
+    assert result_group.location_group_name == "test_group"
+    assert len(site_group_sites) == 1
+    assert site_group_sites[0]["site_uuid"] == str(site.location_uuid)
+    assert "test_group" in site_site_groups
