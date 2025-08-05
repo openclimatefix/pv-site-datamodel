@@ -1,6 +1,6 @@
 """Read functions for site group operations."""
 
-from typing import Any, Dict
+from typing
 
 from pvsite_datamodel.read import get_site_by_uuid
 from pvsite_datamodel.read.site import (
