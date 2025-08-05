@@ -1,7 +1,5 @@
 """Read functions for site group operations."""
 
-from typing
-
 from pvsite_datamodel.read import get_site_by_uuid
 from pvsite_datamodel.read.site import (
     get_all_client_site_ids as _get_all_client_site_ids,
