@@ -5,9 +5,13 @@ Functions for writing to the PVSite database
 from .client import assign_site_to_client, create_client, edit_client
 from .forecast import insert_forecast_values
 from .generation import insert_generation_values
+from .site_group import (
+    add_all_sites_to_site_group,
+    change_user_site_group,
+    update_site_group,
+)
 from .user_and_site import (
     add_site_to_site_group,
-    change_user_site_group,
     create_site,
     create_site_group,
     create_user,

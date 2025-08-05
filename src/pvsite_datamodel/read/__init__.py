@@ -25,6 +25,10 @@ from .site import (
     get_sites_by_country,
     get_sites_from_user,
 )
+from .site_group import (
+    select_site_by_client_id,
+    select_site_by_uuid,
+)
 from .status import get_latest_status
 from .user import (
     get_all_last_api_request,

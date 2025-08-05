@@ -5,15 +5,19 @@ from unittest.mock import Mock, patch
 import pytest
 
 from pvsite_datamodel.read.user import validate_email
-from pvsite_datamodel.site_group import (add_all_sites_to_site_group,
-                                         change_user_site_group,
-                                         get_all_client_site_ids,
-                                         get_all_site_uuids,
-                                         select_site_by_client_id,
-                                         select_site_by_uuid)
+from pvsite_datamodel.read.site_group import (
+    get_all_client_site_ids,
+    get_all_site_uuids,
+    select_site_by_client_id,
+    select_site_by_uuid,
+)
+from pvsite_datamodel.write.site_group import (
+    add_all_sites_to_site_group,
+    change_user_site_group,
+)
 
 
-@patch("pvsite_datamodel.site_group.get_site_by_uuid")
+@patch("pvsite_datamodel.read.get_site_by_uuid")
 def test_select_site_by_uuid(mock_get_site_by_uuid):
     """Test selecting a site by UUID."""
     mock_session = Mock()
@@ -28,7 +32,7 @@ def test_select_site_by_uuid(mock_get_site_by_uuid):
     assert site_uuid == "123e4567-e89b-12d3-a456-426614174000"
 
 
-@patch("pvsite_datamodel.site_group.get_site_by_uuid")
+@patch("pvsite_datamodel.read.get_site_by_uuid")
 def test_select_site_by_uuid_not_found(mock_get_site_by_uuid):
     """Test selecting a site by UUID that does not exist."""
     mock_session = Mock()
@@ -93,8 +97,8 @@ def test_get_all_client_site_ids(mock_get_all_client_site_ids):
     assert client_site_ids == mock_client_ids
 
 
-@patch("pvsite_datamodel.site_group.get_all_sites")
-@patch("pvsite_datamodel.site_group.get_site_group_by_name")
+@patch("pvsite_datamodel.read.site.get_all_sites")
+@patch("pvsite_datamodel.read.get_site_group_by_name")
 def test_add_all_sites_to_site_group(mock_get_site_group_by_name, mock_get_all_sites):
     """Test adding all sites to a site group."""
     mock_session = Mock()
@@ -115,8 +119,8 @@ def test_add_all_sites_to_site_group(mock_get_site_group_by_name, mock_get_all_s
     ]
 
 
-@patch("pvsite_datamodel.site_group.get_all_sites")
-@patch("pvsite_datamodel.site_group.get_site_group_by_name")
+@patch("pvsite_datamodel.read.site.get_all_sites")
+@patch("pvsite_datamodel.read.get_site_group_by_name")
 def test_add_all_sites_to_site_group_no_new_sites(
     mock_get_site_group_by_name, mock_get_all_sites
 ):
@@ -137,8 +141,8 @@ def test_add_all_sites_to_site_group_no_new_sites(
     assert sites_added == []
 
 
-@patch("pvsite_datamodel.site_group.update_user_site_group")
-@patch("pvsite_datamodel.site_group.get_user_by_email")
+@patch("pvsite_datamodel.write.user_and_site.update_user_site_group")
+@patch("pvsite_datamodel.read.get_user_by_email")
 def test_change_user_site_group(mock_get_user_by_email, mock_update_user_site_group):
     """Test changing a user's site group."""
     mock_session = Mock()

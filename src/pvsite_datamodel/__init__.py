@@ -1,15 +1,15 @@
 """Python SDK for reading/writing to/from pvsite database."""
 
 from .connection import DatabaseConnection
-from .site_group import (
-    add_all_sites_to_site_group,
-    change_user_site_group,
-    update_site_group,
-)
 from .read.site import (
     get_all_client_site_ids,
     get_all_site_uuids,
     get_site_details,
+)
+from .write.site_group import (
+    add_all_sites_to_site_group,
+    change_user_site_group,
+    update_site_group,
 )
 from .sqlmodels import (
     APIRequestSQL,
