@@ -53,25 +53,36 @@ Database connection objects:
 - Write function Currently accessible via `from pvsite_datamodels.write import <func>`.
 
 
-| **Read Package Functions**           | **Write Package Functions** |
-| ------------------------------------ | --------------------------- |
-| `get_user_by_email`                  | `insert_forecast_values`    |
-| `get_pv_generation_by_sites`         | `insert_generation_values`  |
-| `get_site_by_uuid`                   | `create_site`               |
-| `get_site_by_client_site_id`         | `create_site_group`         |
-| `get_site_by_client_site_name`       | `create_user`               |
-| `get_sites_by_client_name`           | `create_client`             |
-| `get_all_sites`                      | `make_fake_site`            |
-| `get_sites_by_country`               | `add_site_to_site_group`    |
-| `get_site_group_by_name`             | `change_user_site_group`    |
-| `get_latest_status`                  | `update_user_site_group`    |
-| `get_latest_forecast_values_by_site` | `edit_site`                 |
-| `get_client_by_name`                 | `edit_client`               |
-|                                      | `assign_site_to_client`     |
-|                                      | `delete_site`               |
-|                                      | `delete_user`               |
-|                                      | `delete_site_group`         |
-TODO update table
+| **Read Package Functions**           | **Write Package Functions**                 |
+|--------------------------------------|---------------------------------------------|
+| `get_user_by_email`                  | `insert_forecast_values`                    |
+| `get_all_users`                      | `insert_generation_values`                  |
+| `get_site_group_by_name`             | `_insert_do_nothing_on_conflict`            |
+| `get_pv_generation_by_sites`         | `create_site_group`                         |
+| `get_pv_generation_by_user_uuids`    | `create_user`                               |
+| `get_site_by_uuid`                   | `create_client`                             |
+| `get_site_by_client_site_id`         | `create_site`                               |
+| `get_site_by_client_site_name`       | `add_site_to_site_group`                    |
+| `get_sites_by_client_name`           | `add_child_location_to_parent_location`     |
+| `get_sites_from_user`                | `update_user_site_group`                    |
+| `get_all_sites`                      | `remove_site_from_site_group`               |
+| `get_all_site_groups`                | `set_site_to_inactive_if_not_in_site_group` |
+| `get_sites_by_country`               | `set_session_user`                          |
+| `get_api_requests_for_one_user`      | `edit_client`                               |
+| `get_all_last_api_request`           | `edit_site`                                 |
+| `get_latest_status`                  | `delete_user`                               |
+| `get_latest_forecast_values_by_site` | `delete_site_group`                         |
+| `get_client_by_name`                 | `delete_site`                               |
+| `get_last_forecast_uuid`             | `assign_model_name_to_site`                 |
+| `get_day_ahead_forecast_uuids`       | `assign_site_to_client`                     |
+| `get_forecast_values_fast`           | `change_user_site_group`                    |
+| `get_forecast_values_day_ahead_fast` | `save_api_call_to_db`                       |
+| `get_forecast_values`                | `make_fake_site`                            |
+| `get_or_create_model`                |                                             |
+| `get_models`                         |                                             |
+|                                      |                                             |
+ 
+
 
 ## Local Repository Setup(Linux)
 
