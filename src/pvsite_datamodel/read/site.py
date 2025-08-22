@@ -1,12 +1,11 @@
 """Functions for reading to pvsite db."""
 
 import logging
-from typing import Any, Dict
 
 from sqlalchemy.orm import Session
 
 from pvsite_datamodel.pydantic_models import LatitudeLongitudeLimits
-from pvsite_datamodel.sqlmodels import (ClientSQL, LocationAssetType,
+from pvsite_datamodel.sqlmodels import (ClientSQL,
                                         LocationGroupLocationSQL,
                                         LocationGroupSQL, LocationSQL, UserSQL)
 
