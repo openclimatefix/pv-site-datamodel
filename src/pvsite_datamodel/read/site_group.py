@@ -3,7 +3,6 @@
 from pvsite_datamodel.read import get_site_by_uuid
 from pvsite_datamodel.read.site import (
     get_all_client_site_ids as _get_all_client_site_ids,
-    get_all_site_uuids as _get_all_site_uuids,
 )
 
 
