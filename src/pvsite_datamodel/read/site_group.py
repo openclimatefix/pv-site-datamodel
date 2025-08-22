@@ -56,18 +56,6 @@ def select_site_by_client_id(session, client_site_id: str) -> str:
         raise ValueError(f"Site with client ID {client_site_id} not found") from err
 
 
-def get_all_site_uuids(session) -> list[str]:
-    """
-    Get all site UUIDs from the database.
-
-    Args:
-        session: Database session
-
-    Returns:
-        list: List of all site UUIDs as strings
-    """
-    return _get_all_site_uuids(session=session)
-
 
 def get_all_client_site_ids(session) -> list[str]:
     """
