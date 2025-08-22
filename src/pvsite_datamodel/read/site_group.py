@@ -3,6 +3,7 @@
 from pvsite_datamodel.read import get_site_by_uuid
 from pvsite_datamodel.read.site import (
     get_all_client_site_ids as _get_all_client_site_ids,
+    get_all_sites,
 )
 
 
@@ -68,3 +69,17 @@ def get_all_client_site_ids(session) -> list[str]:
         list: List of all client site IDs as strings
     """
     return _get_all_client_site_ids(session=session)
+
+
+def get_all_site_uuids(session) -> list[str]:
+    """
+    Get all site UUIDs from the database.
+
+    Args:
+        session: Database session
+
+    Returns:
+        list: List of all site UUIDs as strings
+    """
+    sites = get_all_sites(session=session)
+    return [str(site.location_uuid) for site in sites]
