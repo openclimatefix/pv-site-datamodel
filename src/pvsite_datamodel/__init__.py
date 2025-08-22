@@ -3,7 +3,6 @@
 from .connection import DatabaseConnection
 from .read.site import (
     get_all_client_site_ids,
-    get_all_site_uuids,
     get_site_details,
 )
 from .write.site_group import (
@@ -29,7 +28,6 @@ __version__ = "1.2.3"
 __all__ = [
     "DatabaseConnection",
     "get_all_client_site_ids",
-    "get_all_site_uuids",
     "get_site_details",
     "add_all_sites_to_site_group",
     "change_user_site_group",
