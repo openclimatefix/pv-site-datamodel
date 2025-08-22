@@ -15,6 +15,8 @@
         <img src="https://img.shields.io/github/contributors/openclimatefix/pv-datamodel" /></a>
 </p>
 
+**:warning: Note this repo will soon be deprecated in favour of a new Data Platform**
+
 Database schema specification for PV Site data.
 
 ## Repository structure
