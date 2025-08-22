@@ -29,4 +29,5 @@ from .user import (
     get_api_requests_for_one_user,
     get_site_group_by_name,
     get_user_by_email,
+    validate_email,
 )
