@@ -217,19 +217,6 @@ def get_sites_by_client_name(session: Session, client_name: str) -> list[Locatio
 
     return sites
 
-
-def get_all_site_uuids(session: Session) -> list[str]:
-    """Get all site UUIDs from the database.
-
-    Args:
-        session: Database session
-
-    Returns:
-        list: List of all site UUIDs as strings
-    """
-    return [str(site.location_uuid) for site in get_all_sites(session=session)]
-
-
 def get_all_client_site_ids(session: Session) -> list[str]:
     """Get all client site IDs from the database.
 
@@ -242,47 +229,3 @@ def get_all_client_site_ids(session: Session) -> list[str]:
     return [str(site.client_location_id) for site in get_all_sites(session=session)]
 
 
-def get_site_details(session: Session, site_uuid: str) -> Dict[str, Any]:
-    """Get the site details for one site.
-
-    Args:
-        session: Database session
-        site_uuid: UUID of the site
-
-    Returns:
-        dict: Site details dictionary
-    """
-    site = get_site_by_uuid(session=session, site_uuid=site_uuid)
-
-    if isinstance(site.asset_type, LocationAssetType):
-        asset_type_value = str(site.asset_type.name.lower())
-    else:
-        asset_type_value = str(site.asset_type)
-
-    site_details = {
-        "site_uuid": str(site.location_uuid),
-        "client_site_id": str(site.client_location_id),
-        "client_site_name": str(site.client_location_name),
-        "site_group_names": [
-            site_group.location_group_name for site_group in site.location_groups
-        ],
-        "latitude": str(site.latitude),
-        "longitude": str(site.longitude),
-        "country": str(site.country),
-        "asset_type": asset_type_value,
-        "region": str(site.region),
-        "DNO": str(site.dno),
-        "GSP": str(site.gsp),
-        "tilt": str(site.tilt),
-        "orientation": str(site.orientation),
-        "inverter_capacity_kw": f"{site.inverter_capacity_kw} kw",
-        "module_capacity_kw": f"{site.module_capacity_kw} kw",
-        "capacity": f"{site.capacity_kw} kw",
-        "ml_model_uuid": str(site.ml_model_uuid),
-        "date_added": site.created_utc.strftime("%Y-%m-%d"),
-    }
-
-    if site.ml_model_uuid is not None:
-        site_details["ml_model_name"] = site.ml_model.name
-
-    return site_details
