@@ -1,8 +1,8 @@
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
 
-from pvsite_datamodel import LocationGroupSQL, UserSQL
-from pvsite_datamodel.read import get_user_by_email
+from pvsite_datamodel.sqlmodels import LocationGroupSQL, UserSQL
+from pvsite_datamodel.read import get_user_by_email, validate_email
 from pvsite_datamodel.write.user_and_site import create_site_group, create_user
 
 
@@ -56,3 +56,20 @@ class TestGetUserByEmail:
                 running_task.result()
 
         assert len(db_session.query(UserSQL).all()) == 1
+
+
+class TestValidateEmail:
+    """Test email validation function."""
+
+    def test_valid_emails(self):
+        """Test valid email addresses."""
+        assert validate_email("test@example.com") is True
+        assert validate_email("user.name@domain.co.uk") is True
+        assert validate_email("valid+email@test.org") is True
+
+    def test_invalid_emails(self):
+        """Test invalid email addresses."""
+        assert validate_email("invalid-email") is False
+        assert validate_email("@domain.com") is False
+        assert validate_email("user@") is False
+        assert validate_email("user@domain") is False
