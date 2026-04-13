@@ -2,7 +2,7 @@ import uuid
 
 import pytest
 
-from pvsite_datamodel import LocationGroupSQL
+from pvsite_datamodel.sqlmodels import LocationGroupSQL
 from pvsite_datamodel.pydantic_models import LatitudeLongitudeLimits
 from pvsite_datamodel.read import (
     get_all_site_groups,

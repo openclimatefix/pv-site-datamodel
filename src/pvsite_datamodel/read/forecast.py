@@ -1,6 +1,6 @@
 """ Read Foreacsts from database """
 from datetime import datetime
-from pvsite_datamodel import ForecastSQL, ForecastValueSQL
+from pvsite_datamodel.sqlmodels import ForecastSQL, ForecastValueSQL
 from pvsite_datamodel.sqlmodels import MLModelSQL
 import uuid
 import logging

@@ -1,6 +1,6 @@
 import datetime as dt
 
-from pvsite_datamodel import APIRequestSQL
+from pvsite_datamodel.sqlmodels import APIRequestSQL
 from pvsite_datamodel.read import (
     get_all_last_api_request,
     get_api_requests_for_one_user,

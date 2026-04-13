@@ -13,7 +13,7 @@ from testcontainers.postgres import PostgresContainer
 
 from alembic import command
 from alembic.config import Config
-from pvsite_datamodel import ClientSQL, GenerationSQL, LocationSQL, StatusSQL
+from pvsite_datamodel.sqlmodels import ClientSQL, GenerationSQL, LocationSQL, StatusSQL
 from pvsite_datamodel.write.user_and_site import create_site_group, create_user
 
 PROJECT_PATH = Path(__file__).parent.parent.resolve()

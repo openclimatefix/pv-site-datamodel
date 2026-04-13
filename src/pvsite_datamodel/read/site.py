@@ -5,13 +5,9 @@ import logging
 from sqlalchemy.orm import Session
 
 from pvsite_datamodel.pydantic_models import LatitudeLongitudeLimits
-from pvsite_datamodel.sqlmodels import (
-    ClientSQL,
-    LocationGroupLocationSQL,
-    LocationGroupSQL,
-    LocationSQL,
-    UserSQL,
-)
+from pvsite_datamodel.sqlmodels import (ClientSQL,
+                                        LocationGroupLocationSQL,
+                                        LocationGroupSQL, LocationSQL, UserSQL)
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +56,9 @@ def get_site_by_client_site_id(
     site: LocationSQL | None = query.first()
 
     if site is None:
-        raise KeyError(f"Could not find location {client_site_id} from client {client_name}")
+        raise KeyError(
+            f"Could not find location {client_site_id} from client {client_name}"
+        )
 
     return site
 
@@ -89,7 +87,9 @@ def get_site_by_client_site_name(
     site: LocationSQL | None = query.first()
 
     if site is None:
-        raise Exception(f"Could not find site {client_site_name} from client {client_name}")
+        raise Exception(
+            f"Could not find site {client_site_name} from client {client_name}"
+        )
 
     return site
 
@@ -215,3 +215,16 @@ def get_sites_by_client_name(session: Session, client_name: str) -> list[Locatio
         raise Exception(f"Could not find locations from client {client_name}")
 
     return sites
+
+def get_all_client_site_ids(session: Session) -> list[str]:
+    """Get all client site IDs from the database.
+
+    Args:
+        session: Database session
+
+    Returns:
+        list: List of all client site IDs as strings
+    """
+    return [str(site.client_location_id) for site in get_all_sites(session=session)]
+
+
